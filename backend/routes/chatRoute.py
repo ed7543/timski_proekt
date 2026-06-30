@@ -3,8 +3,9 @@ import json
 from fastapi import HTTPException, APIRouter
 
 from backend.ai.chat import stream_groq_response, generate_quiz, generate_explore_queries, \
-    generate_summary  # Changed import
+    generate_summary, generate_followups  # Changed import
 from backend.models.QuizRequest import QuizRequest
+from backend.models.askMoreRequest import AskMoreRequest
 from backend.models.chatRequest import ChatRequest
 from backend.models.exploreRequest import ExploreRequest
 from backend.models.summaryRequest import SummaryRequest
@@ -93,3 +94,13 @@ async def explore(request: ExploreRequest):
         "queries": queries,
         "links": [{"title": r.title, "url": r.url, "snippet": r.snippet} for r in results[:9]]
     }
+
+@router.post("/api/ask-more")
+async def ask_more(request: AskMoreRequest):
+    """Suggest follow-up questions based on the conversation."""
+    if not request.messages:
+        raise HTTPException(status_code=400, detail="No messages to base follow-ups on")
+    questions = await generate_followups(request.messages, request.subject)
+    if not questions:
+        raise HTTPException(status_code=500, detail="Could not generate follow-up questions")
+    return {"questions": questions}

@@ -215,3 +215,50 @@ Example: ["FastAPI background tasks vs Celery", "Python async context managers",
         except json.JSONDecodeError:
             pass
         return []
+
+async def generate_followups(messages: List[Message], subject: Optional[str]) -> List[str]:
+    """Suggest 4 smart follow-up questions based on the conversation so far."""
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY not set")
+
+    conversation = "\n".join(f"{m.role.upper()}: {m.content}" for m in messages[-10:])
+
+    followup_prompt = f"""Based on this tutoring conversation, suggest 4 natural follow-up questions
+the student might want to ask next. They should deepen understanding, explore edge cases,
+or connect to related concepts — not just repeat what was already covered.
+
+CONVERSATION:
+{conversation}
+
+{"The topic is: " + subject if subject else ""}
+
+Respond ONLY with a valid JSON array of exactly 4 short question strings, no markdown, no extra text.
+Example: ["What happens if the await fails?", "How does this compare to threading?", "When should I avoid this pattern?", "Can you show a real-world example?"]"""
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "llama-3.3-70b-versatile",
+                "messages": [{"role": "user", "content": followup_prompt}],
+                "max_tokens": 300,
+                "temperature": 0.7,
+            },
+        )
+        if resp.status_code != 200:
+            raise HTTPException(status_code=resp.status_code, detail=resp.text)
+
+        data = resp.json()
+        raw = data["choices"][0]["message"]["content"]
+        raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        try:
+            questions = json.loads(raw)
+            if isinstance(questions, list):
+                return [str(q) for q in questions[:4]]
+        except json.JSONDecodeError:
+            pass
+        return []

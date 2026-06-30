@@ -295,9 +295,9 @@
           <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5z"/></svg></span>
           <span class="tool-label" id="summaryToolLabel">Summary</span><span class="tool-hint">TL;DR</span>
         </button>
-        <button class="tool" disabled>
+        <button class="tool" id="askMoreTool" onclick="generateAskMore()">
           <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.5 8.5 0 018 8z"/></svg></span>
-          <span class="tool-label">Ask more</span><span class="tool-hint">Coming soon</span>
+          <span class="tool-label" id="askMoreToolLabel">Ask more</span><span class="tool-hint">Follow-ups</span>
         </button>
         <button class="tool" id="exploreTool" onclick="generateExplore()">
           <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg></span>
@@ -402,7 +402,7 @@
           <p>LearnWise is an editorial AI tutor that consults live documentation and returns well-sourced, footnoted answers. Start with a question, or pick a prompt below.</p>
           <div class="suggestions">
             ${SUGGESTIONS.map((s,i)=>`
-              <button class="sugg" onclick="send(${JSON.stringify(s.q)})">
+              <button class="sugg" onclick="send(SUGGESTIONS[${i}].q)">
                 <span class="sugg-num">${String(i+1).padStart(2,'0')}</span>
                 <div style="min-width:0;flex:1">
                   <div class="sugg-tag">${s.tag}</div>
@@ -826,6 +826,82 @@ function renderExplore(data){
       </div>
     </div>`;
   document.body.appendChild(overlay);
+}
+
+async function generateAskMore(){
+  const a = getActive();
+  if(!a || a.messages.filter(m=>m.role!=='error').length === 0){
+    alert('Have a conversation first, then I can suggest follow-up questions!');
+    return;
+  }
+  const btn = document.getElementById('askMoreTool');
+  const label = document.getElementById('askMoreToolLabel');
+  btn.disabled = true;
+  label.textContent = 'Thinking…';
+
+  try {
+    const payloadMessages = a.messages
+      .filter(m => m.role === 'user' || m.role === 'ai')
+      .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }));
+    const subjectValue = state.subject === 'Any subject' ? null : state.subject;
+
+    const resp = await fetch('/api/ask-more', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: payloadMessages, subject: subjectValue }),
+    });
+    if(!resp.ok){
+      let detail = 'Failed to generate follow-up questions';
+      try { const err = await resp.json(); detail = err.detail || detail; } catch {}
+      throw new Error(detail);
+    }
+    const data = await resp.json();
+    renderAskMore(data.questions);
+  } catch(err){
+    alert('Could not generate follow-ups: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    label.textContent = 'Ask more';
+  }
+}
+
+function renderAskMore(questions){
+  const existing = document.getElementById('quizOverlay');
+  if(existing) existing.remove();
+
+  const questionsHtml = questions.map((q, i) => `
+    <button class="sugg" style="margin-bottom:10px;width:100%" onclick="pickFollowup(${JSON.stringify(q)})">
+      <span class="sugg-num">${String(i+1).padStart(2,'0')}</span>
+      <div style="min-width:0;flex:1">
+        <div class="sugg-q">${escapeHtml(q)}</div>
+      </div>
+      <svg class="sugg-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </button>`).join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'quiz-overlay';
+  overlay.id = 'quizOverlay';
+  overlay.innerHTML = `
+    <div class="quiz-modal">
+      <h2>Ask more</h2>
+      <div class="quiz-subtitle">Suggested follow-ups based on your conversation</div>
+      <div style="display:flex;flex-direction:column">${questionsHtml}</div>
+      <div class="quiz-footer">
+        <div></div>
+        <button class="quiz-close" onclick="document.getElementById('quizOverlay').remove()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function pickFollowup(question){
+  document.getElementById('quizOverlay').remove();
+  const inp = document.getElementById('input');
+  inp.value = question;
+  autoresize();
+  updateSendBtn();
+  inp.focus();
+  inp.setSelectionRange(inp.value.length, inp.value.length);
 }
 </script>
 </body>
