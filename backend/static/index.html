@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LearnWise – AI Tutor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --surface2:  #22263a;
+    --border:    #2e3250;
+    --accent:    #6c63ff;
+    --accent2:   #a78bfa;
+    --green:     #34d399;
+    --text:      #e2e8f0;
+    --muted:     #8892b0;
+    --user-bg:   #1e2a4a;
+    --ai-bg:     #1a1d27;
+    --radius:    12px;
+    --font:      'Inter', system-ui, sans-serif;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Header ───────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-text span { color: var(--accent2); }
+
+  .header-controls {
+    display: flex; align-items: center; gap: 10px; margin-left: auto; flex-wrap: wrap;
+  }
+  select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+  }
+  select:focus { border-color: var(--accent); }
+
+  .toggle-wrap { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+  .toggle {
+    position: relative; width: 36px; height: 20px;
+    background: var(--border); border-radius: 20px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: white; transition: left 0.2s;
+  }
+  .toggle.on::after { left: 18px; }
+
+  .clear-btn {
+    padding: 6px 12px; background: transparent;
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 13px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .clear-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+  /* ── Layout ───────────────────────────────────────────────── */
+  .layout {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  /* ── Sources Sidebar ──────────────────────────────────────── */
+  .sidebar {
+    width: 260px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    padding: 14px 16px 10px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sources-list {
+    overflow-y: auto; flex: 1; padding: 10px;
+  }
+  .source-item {
+    display: block; padding: 9px 10px; border-radius: 8px;
+    text-decoration: none; color: var(--text);
+    border: 1px solid var(--border); margin-bottom: 8px;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 12px;
+  }
+  .source-item:hover { border-color: var(--accent2); background: var(--surface2); }
+  .source-num {
+    display: inline-block; width: 18px; height: 18px;
+    background: var(--accent); color: white;
+    border-radius: 5px; font-size: 10px; font-weight: 700;
+    text-align: center; line-height: 18px; margin-bottom: 4px;
+  }
+  .source-title { font-weight: 600; margin-bottom: 2px; line-height: 1.3; }
+  .source-url { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .no-sources { color: var(--muted); font-size: 12px; padding: 10px; text-align: center; }
+
+  /* ── Chat Area ────────────────────────────────────────────── */
+  .chat-area {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .messages {
+    flex: 1; overflow-y: auto;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 16px;
+    scroll-behavior: smooth;
+  }
+  .messages::-webkit-scrollbar { width: 6px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Message Bubbles ──────────────────────────────────────── */
+  .msg {
+    display: flex; gap: 10px; align-items: flex-start;
+    max-width: 820px; width: 100%;
+  }
+  .msg.user { margin-left: auto; flex-direction: row-reverse; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 10px;
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 16px;
+  }
+  .msg.user .avatar { background: var(--user-bg); border: 1px solid var(--border); }
+  .msg.ai .avatar {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  }
+  .bubble {
+    padding: 12px 16px; border-radius: var(--radius);
+    line-height: 1.6; font-size: 14px;
+    max-width: calc(100% - 44px);
+  }
+  .msg.user .bubble {
+    background: var(--user-bg); border: 1px solid var(--border);
+    border-top-right-radius: 3px;
+  }
+  .msg.ai .bubble {
+    background: var(--ai-bg); border: 1px solid var(--border);
+    border-top-left-radius: 3px;
+  }
+
+  /* Markdown inside bubbles */
+  .bubble h1, .bubble h2, .bubble h3 {
+    margin: 12px 0 6px; font-size: 15px; color: var(--accent2);
+  }
+  .bubble h1:first-child, .bubble h2:first-child, .bubble h3:first-child { margin-top: 0; }
+  .bubble p { margin-bottom: 8px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble ul, .bubble ol { padding-left: 20px; margin-bottom: 8px; }
+  .bubble li { margin-bottom: 3px; }
+  .bubble code {
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 4px; font-size: 13px;
+    font-family: 'Fira Code', 'Cascadia Code', monospace;
+    color: var(--accent2);
+  }
+  .bubble pre {
+    background: #0a0c14; border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; overflow-x: auto;
+    margin: 10px 0;
+  }
+  .bubble pre code {
+    background: none; border: none; padding: 0; color: #c9d1d9;
+  }
+  .bubble strong { color: var(--text); }
+  .bubble a { color: var(--accent2); text-decoration: underline; }
+  .bubble blockquote {
+    border-left: 3px solid var(--accent); padding-left: 12px;
+    color: var(--muted); margin: 8px 0;
+  }
+
+  /* Typing cursor */
+  .cursor::after {
+    content: '▋'; color: var(--accent2);
+    animation: blink 0.7s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Welcome screen */
+  .welcome {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px; padding: 40px; text-align: center;
+  }
+  .welcome-icon {
+    width: 64px; height: 64px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center; font-size: 32px;
+  }
+  .welcome h2 { font-size: 22px; font-weight: 700; }
+  .welcome p { color: var(--muted); font-size: 14px; max-width: 380px; line-height: 1.6; }
+  .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+  .suggestion-btn {
+    padding: 8px 14px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 20px;
+    color: var(--text); font-size: 13px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .suggestion-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── Input Bar ────────────────────────────────────────────── */
+  .input-bar {
+    padding: 14px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .input-wrap {
+    display: flex; align-items: flex-end; gap: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 14px;
+    transition: border-color 0.15s;
+  }
+  .input-wrap:focus-within { border-color: var(--accent); }
+  textarea {
+    flex: 1; background: transparent; border: none;
+    color: var(--text); font-family: var(--font); font-size: 14px;
+    resize: none; outline: none; line-height: 1.5;
+    max-height: 150px; min-height: 24px;
+  }
+  textarea::placeholder { color: var(--muted); }
+  .send-btn {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--accent); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.15s; flex-shrink: 0;
+    color: white; font-size: 16px;
+  }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .send-btn:hover:not(:disabled) { opacity: 0.85; }
+
+  .search-status {
+    font-size: 11px; color: var(--muted); margin-top: 6px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .search-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.quiz-btn {
+  padding: 6px 14px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 8px;
+  color: white; font-size: 13px; cursor: pointer;
+  font-weight: 600; transition: opacity 0.15s;
+}
+.quiz-btn:hover { opacity: 0.85; }
+.quiz-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Quiz overlay */
+.quiz-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; padding: 20px;
+}
+.quiz-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; width: 100%; max-width: 600px;
+  max-height: 85vh; overflow-y: auto; padding: 28px;
+}
+.quiz-modal h2 { font-size: 18px; margin-bottom: 4px; }
+.quiz-modal .quiz-subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+.quiz-question { margin-bottom: 24px; }
+.quiz-question p { font-size: 14px; font-weight: 600; margin-bottom: 10px; line-height: 1.5; }
+.quiz-option {
+  display: block; width: 100%; text-align: left;
+  padding: 10px 14px; margin-bottom: 7px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 9px; color: var(--text); font-size: 13px;
+  cursor: pointer; transition: all 0.15s;
+}
+.quiz-option:hover:not(:disabled) { border-color: var(--accent2); }
+.quiz-option.correct { border-color: var(--green); background: rgba(52,211,153,0.1); color: var(--green); }
+.quiz-option.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); color: #ef4444; }
+.quiz-option:disabled { cursor: default; }
+.quiz-explanation {
+  font-size: 12px; color: var(--muted); margin-top: 8px;
+  padding: 8px 12px; background: var(--surface2);
+  border-radius: 7px; border-left: 3px solid var(--accent);
+  display: none;
+}
+.quiz-explanation.show { display: block; }
+.quiz-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);
+}
+.quiz-score { font-size: 15px; font-weight: 700; color: var(--accent2); }
+.quiz-close {
+  padding: 8px 18px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 13px; cursor: pointer;
+}
+.quiz-close:hover { border-color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div class="logo-text">Learn<span>Wise</span></div>
+  </div>
+
+  <div class="header-controls">
+    <select id="subjectSelect">
+      <option value="">📚 Any Subject</option>
+      <option value="Python">🐍 Python</option>
+      <option value="FastAPI">⚡ FastAPI</option>
+      <option value="React">⚛️ React</option>
+      <option value="JavaScript">🟨 JavaScript</option>
+      <option value="TypeScript">🔷 TypeScript</option>
+      <option value="SQL">🗄️ SQL</option>
+      <option value="Docker">🐳 Docker</option>
+      <option value="Machine Learning">🤖 Machine Learning</option>
+      <option value="Git">🌿 Git</option>
+      <option value="Linux">🐧 Linux</option>
+    </select>
+
+    <div class="toggle-wrap">
+      <span>🔍 Live Search</span>
+      <div class="toggle on" id="searchToggle" onclick="toggleSearch()"></div>
+    </div>
+
+    <button class="clear-btn" onclick="clearChat()">✕ Clear</button>
+    <button class="quiz-btn" id="quizBtn" onclick="generateQuiz()">🧩 Quiz Me</button>
+  </div>
+</header>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sources Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">📎 Sources</div>
+    <div class="sources-list" id="sourcesList">
+      <div class="no-sources">Sources from live search will appear here.</div>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🧠</div>
+        <h2>Your AI Tutor is ready</h2>
+        <p>Ask anything — I'll search live documentation to give you accurate, up-to-date answers with sources.</p>
+        <div class="suggestions">
+          <button class="suggestion-btn" onclick="sendSuggestion('How does async/await work in Python?')">How does async/await work?</button>
+          <button class="suggestion-btn" onclick="sendSuggestion('Explain FastAPI dependency injection')">FastAPI dependency injection</button>
+          <button class="suggestion-btn" onclick="sendSuggestion('What is the difference between useEffect and useLayoutEffect in React?')">useEffect vs useLayoutEffect</button>
+          <button class="suggestion-btn" onclick="sendSuggestion('How do I write a SQL JOIN query?')">SQL JOIN queries</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea
+          id="userInput"
+          placeholder="Ask anything… (Shift+Enter for new line)"
+          rows="1"
+          oninput="autoResize(this)"
+          onkeydown="handleKey(event)"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">
+          ➤
+        </button>
+      </div>
+      <div class="search-status" id="searchStatus">
+        <div class="search-dot"></div>
+        Live web search enabled — I'll fetch current docs for every question
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let messages = [];
+let searchEnabled = true;
+let isStreaming = false;
+
+// ── UI Helpers ────────────────────────────────────────────────
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function toggleSearch() {
+  searchEnabled = !searchEnabled;
+  const toggle = document.getElementById('searchToggle');
+  const status = document.getElementById('searchStatus');
+  toggle.classList.toggle('on', searchEnabled);
+  status.innerHTML = searchEnabled
+    ? '<div class="search-dot"></div> Live web search enabled — I\'ll fetch current docs for every question'
+    : '⚠️ Live search off — answers from AI knowledge only';
+}
+
+function clearChat() {
+  messages = [];
+  document.getElementById('messages').innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">🧠</div>
+      <h2>Your AI Tutor is ready</h2>
+      <p>Ask anything — I'll search live documentation to give you accurate, up-to-date answers with sources.</p>
+      <div class="suggestions">
+        <button class="suggestion-btn" onclick="sendSuggestion('How does async/await work in Python?')">How does async/await work?</button>
+        <button class="suggestion-btn" onclick="sendSuggestion('Explain FastAPI dependency injection')">FastAPI dependency injection</button>
+        <button class="suggestion-btn" onclick="sendSuggestion('What is the difference between useEffect and useLayoutEffect in React?')">useEffect vs useLayoutEffect</button>
+        <button class="suggestion-btn" onclick="sendSuggestion('How do I write a SQL JOIN query?')">SQL JOIN queries</button>
+      </div>
+    </div>`;
+  document.getElementById('sourcesList').innerHTML = '<div class="no-sources">Sources from live search will appear here.</div>';
+}
+
+function sendSuggestion(text) {
+  document.getElementById('userInput').value = text;
+  sendMessage();
+}
+
+function hideWelcome() {
+  const w = document.getElementById('welcome');
+  if (w) w.remove();
+}
+
+function scrollToBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── Render Sources ─────────────────────────────────────────────
+function renderSources(sources) {
+  const list = document.getElementById('sourcesList');
+  if (!sources.length) return;
+  list.innerHTML = sources.map((s, i) => `
+    <a class="source-item" href="${s.url}" target="_blank" rel="noopener">
+      <div class="source-num">${i + 1}</div>
+      <div class="source-title">${escapeHtml(s.title)}</div>
+      <div class="source-url">${escapeHtml(s.url)}</div>
+    </a>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Add message to DOM ─────────────────────────────────────────
+function addMessage(role, content = '') {
+  const container = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="avatar">${role === 'user' ? '👤' : '🧠'}</div>
+    <div class="bubble ${role === 'ai' ? 'cursor' : ''}" id="bubble-${Date.now()}">${
+      role === 'user'
+        ? escapeHtml(content)
+        : marked.parse(content)
+    }</div>`;
+  container.appendChild(div);
+  scrollToBottom();
+  return div.querySelector('.bubble');
+}
+
+// ── Main Send ─────────────────────────────────────────────────
+async function sendMessage() {
+  if (isStreaming) return;
+
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  hideWelcome();
+  isStreaming = true;
+  document.getElementById('sendBtn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Add user message
+  messages.push({ role: 'user', content: text });
+  addMessage('user', text);
+
+  // Add AI bubble (streaming)
+  const aiBubble = addMessage('ai', '');
+  let fullText = '';
+
+  const subject = document.getElementById('subjectSelect').value;
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+        subject: subject || null,
+        search: searchEnabled,
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      aiBubble.classList.remove('cursor');
+      aiBubble.innerHTML = `<span style="color:#ef4444">Error: ${err.detail || 'Something went wrong'}</span>`;
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line
+
+      for (const line of lines) {
+        if (line.startsWith('event: sources')) continue;
+
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+
+          // Check if this is a sources payload (follows event: sources)
+          try {
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) {
+              renderSources(parsed);
+              continue;
+            }
+          } catch {}
+
+          if (data === '[DONE]') {
+            aiBubble.classList.remove('cursor');
+            messages.push({ role: 'assistant', content: fullText });
+            break;
+          }
+
+          try {
+            const chunk = JSON.parse(data);
+            fullText += chunk;
+            aiBubble.innerHTML = marked.parse(fullText);
+            scrollToBottom();
+          } catch {}
+        }
+      }
+    }
+
+    // Handle SSE source events properly
+    // (Re-read if needed — for now sources come as data array)
+
+  } catch (err) {
+    aiBubble.classList.remove('cursor');
+    aiBubble.innerHTML = `<span style="color:#ef4444">Connection error: ${err.message}</span>`;
+  } finally {
+    isStreaming = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').focus();
+  }
+}
+
+// ── SSE source-event fix: rewrite stream handler to handle named events ─────
+// Override fetch with EventSource-compatible approach for named events
+// The solution: we send sources as a special data prefix
+async function sendMessage() {
+  if (isStreaming) return;
+
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  hideWelcome();
+  isStreaming = true;
+  document.getElementById('sendBtn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  messages.push({ role: 'user', content: text });
+  addMessage('user', text);
+
+  const aiBubble = addMessage('ai', '');
+  let fullText = '';
+  let sourcesFound = false;
+
+  const subject = document.getElementById('subjectSelect').value;
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+        subject: subject || null,
+        search: searchEnabled,
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      aiBubble.classList.remove('cursor');
+      aiBubble.innerHTML = `<span style="color:#ef4444">Error: ${err.detail || 'Something went wrong'}</span>`;
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let expectSources = false;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line === 'event: sources') { expectSources = true; continue; }
+
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+
+          if (expectSources) {
+            expectSources = false;
+            try {
+              const sources = JSON.parse(data);
+              if (Array.isArray(sources)) { renderSources(sources); continue; }
+            } catch {}
+          }
+
+          if (data === '[DONE]') {
+            aiBubble.classList.remove('cursor');
+            messages.push({ role: 'assistant', content: fullText });
+            break;
+          }
+
+          try {
+            const chunk = JSON.parse(data);
+            fullText += chunk;
+            aiBubble.innerHTML = marked.parse(fullText);
+            scrollToBottom();
+          } catch {}
+        }
+      }
+    }
+
+  } catch (err) {
+    aiBubble.classList.remove('cursor');
+    aiBubble.innerHTML = `<span style="color:#ef4444">Connection error: ${err.message}</span>`;
+  } finally {
+    isStreaming = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').focus();
+  }
+}
+
+let quizAnswers = {};
+let quizData = null;
+
+async function generateQuiz() {
+  if (!messages.length) {
+    alert('Have a conversation first, then I can quiz you on it!');
+    return;
+  }
+
+  const btn = document.getElementById('quizBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
+
+  try {
+    const subject = document.getElementById('subjectSelect').value;
+    const resp = await fetch('/api/quiz', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, subject: subject || null }),
+    });
+
+    if (!resp.ok) throw new Error('Failed to generate quiz');
+    quizData = await resp.json();
+    quizAnswers = {};
+    renderQuiz(quizData);
+  } catch (err) {
+    alert('Could not generate quiz: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🧩 Quiz Me';
+  }
+}
+
+function renderQuiz(data) {
+  const existing = document.getElementById('quizOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'quiz-overlay';
+  overlay.id = 'quizOverlay';
+
+  const questionsHtml = data.questions.map((q, qi) => `
+    <div class="quiz-question" id="qq-${qi}">
+      <p>${qi + 1}. ${escapeHtml(q.question)}</p>
+      ${q.options.map((opt, oi) => `
+        <button class="quiz-option" data-qi="${qi}" data-letter="${opt[0]}" onclick="answerQuestion(${qi}, '${opt[0]}', '${q.answer}')">
+          ${escapeHtml(opt)}
+        </button>
+      `).join('')}
+      <div class="quiz-explanation" id="exp-${qi}">
+        💡 ${escapeHtml(q.explanation)}
+      </div>
+    </div>
+  `).join('');
+
+  overlay.innerHTML = `
+    <div class="quiz-modal">
+      <h2>🧩 Quiz: ${escapeHtml(data.topic)}</h2>
+      <div class="quiz-subtitle">${data.questions.length} questions based on your conversation</div>
+      ${questionsHtml}
+      <div class="quiz-footer">
+        <div class="quiz-score" id="quizScore">Score: 0 / ${data.questions.length}</div>
+        <button class="quiz-close" onclick="document.getElementById('quizOverlay').remove()">Close</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+function answerQuestion(qi, chosen, correct) {
+  if (quizAnswers[qi] !== undefined) return; // already answered
+  quizAnswers[qi] = chosen;
+
+  const container = document.getElementById(`qq-${qi}`);
+  const buttons = container.querySelectorAll('.quiz-option');
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.letter === correct) btn.classList.add('correct');
+    else if (btn.dataset.letter === chosen) btn.classList.add('wrong');
+  });
+
+  document.getElementById(`exp-${qi}`).classList.add('show');
+  updateScore();
+}
+
+function updateScore() {
+  if (!quizData) return;
+  const correct = quizData.questions.filter((q, i) =>
+    quizAnswers[i] === q.answer
+  ).length;
+  const answered = Object.keys(quizAnswers).length;
+  document.getElementById('quizScore').textContent =
+    `Score: ${correct} / ${quizData.questions.length}` +
+    (answered === quizData.questions.length ? (correct === quizData.questions.length ? ' 🎉' : ' ✅') : '');
+}
+
+</script>
+</body>
+</html>

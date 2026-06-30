@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LearnWise — Editorial AI Tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --paper:#f5f3ee;
+    --cream:#e8e4dd;
+    --ink:#0d0d0d;
+    --ink-soft:#2a2a2a;
+    --rule:#d8d3c8;
+    --border:#d8d3c8;
+    --muted:#6e6a62;
+    --card:#fbfaf6;
+    --destructive:#9b2d20;
+    --emerald:#1f6b3a;
+  }
+  html,body{height:100%}
+  body{
+    font-family:'Work Sans',system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+  textarea{font-family:inherit}
+  a{color:inherit;text-decoration:none}
+  .paper-grain{
+    background:
+      radial-gradient(circle at 20% 10%, rgba(0,0,0,.018) 0 1px, transparent 1.5px) 0 0/3px 3px,
+      radial-gradient(circle at 80% 60%, rgba(0,0,0,.015) 0 1px, transparent 1.5px) 1px 1px/4px 4px,
+      var(--paper);
+  }
+  .app{display:flex;height:100vh;width:100vw;overflow:hidden}
+  .sidebar-left{width:256px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid var(--border);background:rgba(245,243,238,.6)}
+  .sidebar-right{width:320px;flex-shrink:0;display:flex;flex-direction:column;border-left:1px solid var(--border);background:rgba(232,228,221,.4)}
+  main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .brand{display:flex;align-items:center;gap:8px;padding:20px 20px 12px}
+  .brand-mark{width:28px;height:28px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:2px}
+  .brand-mark span{font-family:'Instrument Serif',serif;font-style:italic;font-size:15px;line-height:1}
+  .brand-name{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;line-height:1}
+  .new-btn{width:calc(100% - 40px);margin:0 20px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:8px 12px;border-radius:6px;font-size:13px;font-weight:500;transition:background .15s}
+  .new-btn:hover{background:var(--ink-soft)}
+  .new-btn .kbd{font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.6}
+  .section-label{padding:0 20px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.2em;color:var(--muted)}
+  .history{flex:1;overflow-y:auto;padding:0 12px 16px}
+  .thread{position:relative;margin-bottom:2px;padding:8px;border-radius:6px;transition:background .15s;cursor:pointer}
+  .thread:hover{background:rgba(232,228,221,.7)}
+  .thread.active{background:var(--cream)}
+  .thread-row{display:flex;align-items:flex-start;gap:8px;text-align:left;width:100%}
+  .thread-dot{margin-top:6px;height:6px;width:6px;border-radius:50%;background:var(--border);flex-shrink:0}
+  .thread.active .thread-dot{background:var(--ink)}
+  .thread-title{display:block;font-size:13px;font-weight:500;line-height:1.3;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .thread-meta{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+  .thread-del{position:absolute;right:6px;top:6px;height:24px;width:24px;display:none;place-items:center;border-radius:4px;color:var(--muted)}
+  .thread:hover .thread-del{display:grid}
+  .thread-del:hover{background:var(--paper);color:var(--destructive)}
+  .user-foot{border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:10px}
+  .avatar{height:32px;width:32px;border-radius:50%;background:var(--cream);display:grid;place-items:center}
+  .user-info{min-width:0;flex:1}
+  .user-name{font-size:12.5px;font-weight:500;line-height:1.2}
+  .user-plan{font-size:11px;color:var(--muted)}
+  .masthead{flex-shrink:0;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);padding:12px 40px}
+  .masthead-l{display:flex;align-items:baseline;gap:12px;min-width:0}
+  .vol{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.25em;color:var(--muted)}
+  .vbar{height:12px;width:1px;background:var(--border)}
+  .conv-title{font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .masthead-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .select-wrap{position:relative}
+  select{appearance:none;-webkit-appearance:none;border:1px solid var(--border);background:var(--card);padding:6px 30px 6px 12px;border-radius:6px;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;font-family:inherit}
+  select:hover{background:var(--cream)}
+  .select-wrap::after{content:"";position:absolute;right:10px;top:50%;width:8px;height:8px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:translateY(-75%) rotate(45deg);pointer-events:none}
+  .toggle-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;transition:background .15s}
+  .toggle-btn:hover{background:var(--cream)}
+  .toggle{position:relative;height:14px;width:24px;border-radius:999px;background:var(--border);transition:background .15s}
+  .toggle.on{background:var(--ink)}
+  .toggle-dot{position:absolute;top:2px;left:2px;height:10px;width:10px;border-radius:50%;background:var(--paper);transition:left .15s}
+  .toggle.on .toggle-dot{left:12px}
+  .body{flex:1;overflow-y:auto}
+  .conv{max-width:672px;margin:0 auto;display:flex;flex-direction:column;gap:32px;padding:40px 24px}
+  .welcome{max-width:672px;margin:0 auto;display:flex;flex-direction:column;justify-content:center;padding:48px 24px;min-height:100%}
+  .rule-row{display:flex;align-items:center;gap:12px}
+  .rule-row .rule{height:1px;flex:1;background:var(--border)}
+  .rule-row .label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.3em;color:var(--muted)}
+  .welcome h2{margin-top:24px;font-family:'Instrument Serif',serif;font-size:72px;line-height:.95;letter-spacing:-.01em;font-weight:400}
+  .welcome h2 .it{font-style:italic;color:var(--ink-soft)}
+  .welcome p{margin-top:20px;max-width:560px;font-size:15px;line-height:1.7;color:var(--muted)}
+  .suggestions{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .sugg{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:var(--card);padding:16px;border-radius:6px;text-align:left;transition:border-color .15s}
+  .sugg:hover{border-color:var(--ink)}
+  .sugg-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+  .sugg-tag{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.2em;color:var(--muted)}
+  .sugg-q{margin-top:4px;font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;line-height:1.3}
+  .sugg-arrow{width:16px;height:16px;flex-shrink:0;color:var(--muted);transform:rotate(45deg);transition:color .15s}
+  .sugg:hover .sugg-arrow{color:var(--ink)}
+  .msg-user{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .msg-label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.25em;color:var(--muted)}
+  .bubble-user{max-width:90%;background:var(--ink);color:var(--paper);padding:12px 16px;border-radius:6px;font-size:14px;line-height:1.6}
+  .bubble-user code{background:rgba(245,243,238,.15);color:var(--paper);padding:1px 4px;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+  .msg-ai{display:flex;flex-direction:column;gap:12px}
+  .msg-ai-head{display:flex;align-items:center;gap:8px}
+  .msg-ai-mark{height:24px;width:24px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:2px;font-family:'Instrument Serif',serif;font-style:italic;font-size:12px}
+  .msg-ai-rule{height:1px;flex:1;background:var(--border)}
+  .msg-ai-body{font-size:15px;line-height:1.75}
+  .msg-ai-body p{margin:0}
+  .msg-ai-body p+p{margin-top:12px}
+  .msg-ai-body ul{margin:12px 0 0;padding-left:18px;list-style:none}
+  .msg-ai-body ul li{position:relative;padding-left:14px;margin-bottom:6px}
+  .msg-ai-body ul li::before{content:"";position:absolute;left:0;top:11px;width:4px;height:4px;background:var(--ink);border-radius:50%}
+  .msg-ai-body strong{font-weight:600}
+  .msg-ai-body code{border:1px solid var(--border);background:var(--cream);padding:1px 5px;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+  .msg-ai-body pre{background:var(--ink);color:var(--paper);padding:12px;border-radius:6px;overflow-x:auto;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.5}
+  .msg-ai-body pre code{background:none;border:none;color:inherit;padding:0}
+  .msg-ai-body.streaming::after{content:'▋';color:var(--ink);animation:blink .8s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  .msg-error{font-size:13px;color:var(--destructive);border:1px solid var(--destructive);background:rgba(155,45,32,.06);padding:10px 12px;border-radius:6px}
+  .composer{flex-shrink:0;border-top:1px solid var(--border);background:rgba(245,243,238,.8);padding:20px 40px}
+  .composer-inner{max-width:672px;margin:0 auto}
+  .composer-box{position:relative;border:1px solid rgba(13,13,13,.8);background:var(--card);border-radius:8px;box-shadow:0 1px 0 var(--ink);transition:box-shadow .15s}
+  .composer-box:focus-within{box-shadow:0 2px 0 var(--ink)}
+  textarea{display:block;width:100%;resize:none;background:transparent;border:none;outline:none;padding:14px 16px 48px;font-size:14px;line-height:1.6;color:var(--ink);min-height:52px;max-height:160px}
+  textarea::placeholder{color:var(--muted)}
+  textarea:disabled{opacity:.6}
+  .composer-foot{position:absolute;inset:auto 0 0 0;display:flex;align-items:center;justify-content:space-between;padding:12px}
+  .status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+  .pulse{position:relative;display:inline-flex;height:6px;width:6px}
+  .pulse::before{content:"";position:absolute;inset:0;background:var(--emerald);opacity:.6;border-radius:50%;animation:ping 1.6s cubic-bezier(0,0,.2,1) infinite}
+  .pulse::after{content:"";position:relative;display:inline-flex;height:6px;width:6px;background:var(--emerald);border-radius:50%}
+  .pulse.off::before,.pulse.off::after{background:var(--muted)}
+  .pulse.off::before{animation:none}
+  @keyframes ping{75%,100%{transform:scale(2.4);opacity:0}}
+  .status .div{margin:0 8px;height:12px;width:1px;background:var(--border)}
+  .status .subject{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em}
+  .send-btn{height:32px;width:32px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:6px;transition:background .15s}
+  .send-btn:hover:not(:disabled){background:var(--ink-soft)}
+  .send-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+  .legal{margin-top:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:var(--muted)}
+  .dossier-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:16px 20px}
+  .dossier-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.25em;color:var(--muted)}
+  .dossier-title{margin-top:2px;font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;line-height:1}
+  .dossier-body{flex:1;overflow-y:auto;padding:20px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between}
+  .sec-title{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.25em}
+  .sec-sub{font-size:11px;font-style:italic;color:var(--muted)}
+  .empty{margin-top:12px;border:1px dashed var(--border);background:rgba(251,250,246,.6);padding:16px;border-radius:6px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .src-list{margin-top:12px;display:flex;flex-direction:column;gap:8px;list-style:none}
+  .src{display:block;border:1px solid var(--border);background:var(--card);padding:10px 12px;border-radius:6px;transition:border-color .15s}
+  .src:hover{border-color:var(--ink)}
+  .src-row{display:flex;align-items:flex-start;gap:10px}
+  .src-num{height:20px;width:20px;flex-shrink:0;display:grid;place-items:center;border:1px solid var(--ink);background:var(--paper);font-family:'Instrument Serif',serif;font-style:italic;font-size:11px;border-radius:2px}
+  .src-body{min-width:0;flex:1}
+  .src-title{font-size:13px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .src-meta{margin-top:2px;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+  .divider{margin:24px 0;height:1px;width:100%;background:var(--border)}
+  .tools-grid{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tool{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid var(--border);background:var(--card);padding:10px 12px;border-radius:6px;text-align:left;transition:border-color .15s}
+  .tool:hover{border-color:var(--ink)}
+  .tool:disabled{opacity:.5;cursor:not-allowed}
+  .tool-icon{height:24px;width:24px;display:grid;place-items:center;border:1px solid var(--border);background:var(--cream);border-radius:2px}
+  .tool:hover .tool-icon{border-color:var(--ink)}
+  .tool-label{margin-top:4px;font-size:12.5px;font-weight:500;line-height:1.2}
+  .tool-hint{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .ic{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .ic-sm{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .quiz-overlay{position:fixed;inset:0;background:rgba(13,13,13,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
+  .quiz-modal{background:var(--paper);border:1px solid var(--ink);border-radius:8px;width:100%;max-width:640px;max-height:85vh;overflow-y:auto;padding:32px;box-shadow:0 4px 0 var(--ink)}
+  .quiz-modal h2{font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;margin-bottom:4px}
+  .quiz-subtitle{font-size:12px;color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em}
+  .quiz-question{margin-bottom:22px}
+  .quiz-question p{font-size:14.5px;font-weight:500;margin-bottom:10px;line-height:1.5}
+  .quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:7px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--ink);font-size:13.5px;cursor:pointer;transition:all .15s}
+  .quiz-option:hover:not(:disabled){border-color:var(--ink)}
+  .quiz-option.correct{border-color:var(--emerald);background:rgba(31,107,58,.08);color:var(--emerald)}
+  .quiz-option.wrong{border-color:var(--destructive);background:rgba(155,45,32,.08);color:var(--destructive)}
+  .quiz-option:disabled{cursor:default}
+  .quiz-explanation{font-size:12.5px;color:var(--muted);margin-top:8px;padding:10px 12px;background:var(--cream);border-radius:6px;border-left:3px solid var(--ink);display:none;line-height:1.5}
+  .quiz-explanation.show{display:block}
+  .quiz-footer{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+  .quiz-score{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px}
+  .quiz-close{padding:8px 18px;background:var(--ink);color:var(--paper);border-radius:6px;font-size:13px;cursor:pointer}
+  .quiz-close:hover{background:var(--ink-soft)}
+  @media (max-width: 1024px){.sidebar-right{display:none}}
+  @media (max-width: 768px){
+    .sidebar-left{display:none}
+    .masthead{padding:12px 20px}
+    .composer{padding:16px 20px}
+    .welcome h2{font-size:48px}
+    .suggestions{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div id="app" class="app paper-grain">
+  <aside class="sidebar-left">
+    <div class="brand">
+      <div class="brand-mark"><span>L</span></div>
+      <div class="brand-name">LearnWise</div>
+    </div>
+    <button class="new-btn" onclick="newThread()">
+      <span style="display:flex;align-items:center;gap:8px">
+        <svg class="ic-sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        New conversation
+      </span>
+      <span class="kbd">⌘N</span>
+    </button>
+    <div class="section-label">History</div>
+    <nav id="history" class="history"></nav>
+    <div class="user-foot">
+      <div class="avatar">
+        <svg class="ic-sm" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      </div>
+      <div class="user-info">
+        <div class="user-name">Student</div>
+        <div class="user-plan">Free plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="masthead">
+      <div class="masthead-l">
+        <span class="vol">Vol. I · No. 01</span>
+        <span class="vbar"></span>
+        <h1 id="convTitle" class="conv-title">New conversation</h1>
+      </div>
+      <div class="masthead-r">
+        <div class="select-wrap">
+          <select id="subject"></select>
+        </div>
+        <button class="toggle-btn" onclick="toggleLive()" title="Toggle live web search">
+          <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+          <span>Live search</span>
+          <span id="toggle" class="toggle on"><span class="toggle-dot"></span></span>
+        </button>
+      </div>
+    </header>
+
+    <div id="body" class="body"></div>
+
+    <div class="composer">
+      <div class="composer-inner">
+        <div class="composer-box">
+          <textarea id="input" rows="1" placeholder="Ask anything — Shift + Enter for a new line"></textarea>
+          <div class="composer-foot">
+            <div class="status">
+              <span id="pulse" class="pulse"></span>
+              <span id="liveLabel">Live docs search on</span>
+              <span class="div"></span>
+              <span class="subject" id="statusSubject">Any subject</span>
+            </div>
+            <button id="send" class="send-btn" onclick="send()" aria-label="Send" disabled>
+              <svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="legal">LearnWise may surface inaccurate excerpts — verify with sources.</p>
+      </div>
+    </div>
+  </main>
+
+  <aside class="sidebar-right">
+    <div class="dossier-head">
+      <div>
+        <div class="dossier-kicker">The dossier</div>
+        <div class="dossier-title">Sources &amp; insights</div>
+      </div>
+      <svg class="ic" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>
+    </div>
+    <div class="dossier-body">
+      <div class="sec-head">
+        <h3 class="sec-title">Cited sources</h3>
+        <span class="sec-sub" id="srcCount">0 references</span>
+      </div>
+      <div id="sources"></div>
+
+      <div class="divider"></div>
+
+      <div class="sec-head"><h3 class="sec-title">Study tools</h3></div>
+      <div class="tools-grid">
+        <button class="tool" id="quizTool" onclick="generateQuiz()">
+          <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z"/></svg></span>
+          <span class="tool-label" id="quizToolLabel">Quiz me</span>
+          <span class="tool-hint">5 questions</span>
+        </button>
+        <button class="tool" id="summaryTool" onclick="generateSummary()">
+          <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5z"/></svg></span>
+          <span class="tool-label" id="summaryToolLabel">Summary</span><span class="tool-hint">TL;DR</span>
+        </button>
+        <button class="tool" disabled>
+          <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.5 8.5 0 018 8z"/></svg></span>
+          <span class="tool-label">Ask more</span><span class="tool-hint">Coming soon</span>
+        </button>
+        <button class="tool" id="exploreTool" onclick="generateExplore()">
+          <span class="tool-icon"><svg class="ic-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg></span>
+          <span class="tool-label" id="exploreToolLabel">Explore</span><span class="tool-hint">Related</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  const SUBJECTS = ["Any subject","Python","FastAPI","React","JavaScript","TypeScript","SQL","Docker","Machine Learning","Git","Linux"];
+  const SUGGESTIONS = [
+    {q:"How does async/await work?", tag:"Concurrency"},
+    {q:"FastAPI dependency injection", tag:"FastAPI"},
+    {q:"useEffect vs useLayoutEffect", tag:"React"},
+    {q:"SQL JOIN queries explained", tag:"SQL"}
+  ];
+
+  const uid = () => Math.random().toString(36).slice(2,10);
+
+  const state = {
+    subject: "Any subject",
+    live: true,
+    threads: [{id:uid(), title:"New conversation", updatedAt:Date.now(), messages:[]}],
+    activeId: null,
+    sources: [],
+    isStreaming: false,
+    quizData: null,
+    quizAnswers: {}
+  };
+  state.activeId = state.threads[0].id;
+
+  const subjSel = document.getElementById('subject');
+  SUBJECTS.forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; subjSel.appendChild(o); });
+  subjSel.addEventListener('change', e => {
+    state.subject = e.target.value;
+    document.getElementById('statusSubject').textContent = e.target.value;
+  });
+
+  function toggleLive(){
+    state.live = !state.live;
+    document.getElementById('toggle').classList.toggle('on', state.live);
+    document.getElementById('pulse').classList.toggle('off', !state.live);
+    document.getElementById('liveLabel').textContent = state.live ? 'Live docs search on' : 'Base knowledge only';
+  }
+
+  function getActive(){ return state.threads.find(t => t.id === state.activeId); }
+
+  function renderHistory(){
+    const el = document.getElementById('history');
+    const sorted = [...state.threads].sort((a,b)=>b.updatedAt-a.updatedAt);
+    el.innerHTML = sorted.map(t => `
+      <div class="thread ${t.id===state.activeId?'active':''}" onclick="selectThread('${t.id}')">
+        <div class="thread-row">
+          <span class="thread-dot"></span>
+          <span style="min-width:0;flex:1">
+            <span class="thread-title">${escapeHtml(t.title||'Untitled')}</span>
+            <span class="thread-meta">${t.messages.length} ${t.messages.length===1?'message':'messages'}</span>
+          </span>
+        </div>
+        <button class="thread-del" onclick="event.stopPropagation();deleteThread('${t.id}')" aria-label="Delete">
+          <svg class="ic-sm" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function selectThread(id){
+    if(state.isStreaming) return;
+    state.activeId = id;
+    state.sources = [];
+    renderAll();
+  }
+
+  function newThread(){
+    if(state.isStreaming) return;
+    const t={id:uid(),title:"New conversation",updatedAt:Date.now(),messages:[]};
+    state.threads.unshift(t);
+    state.activeId=t.id;
+    state.sources=[];
+    renderAll();
+    document.getElementById('input').focus();
+  }
+
+  function deleteThread(id){
+    state.threads = state.threads.filter(t=>t.id!==id);
+    if(state.threads.length===0) state.threads.push({id:uid(),title:"New conversation",updatedAt:Date.now(),messages:[]});
+    if(!state.threads.find(t=>t.id===state.activeId)) state.activeId = state.threads[0].id;
+    renderAll();
+  }
+
+  function renderBody(){
+    const a = getActive();
+    document.getElementById('convTitle').textContent = a?.title || 'New conversation';
+    const body = document.getElementById('body');
+    if(!a || a.messages.length === 0){
+      body.innerHTML = `
+        <div class="welcome">
+          <div class="rule-row"><span class="rule"></span><span class="label">The morning edition</span><span class="rule"></span></div>
+          <h2>Ask anything,<br><span class="it">learn anything.</span></h2>
+          <p>LearnWise is an editorial AI tutor that consults live documentation and returns well-sourced, footnoted answers. Start with a question, or pick a prompt below.</p>
+          <div class="suggestions">
+            ${SUGGESTIONS.map((s,i)=>`
+              <button class="sugg" onclick="send(${JSON.stringify(s.q)})">
+                <span class="sugg-num">${String(i+1).padStart(2,'0')}</span>
+                <div style="min-width:0;flex:1">
+                  <div class="sugg-tag">${s.tag}</div>
+                  <div class="sugg-q">${s.q}</div>
+                </div>
+                <svg class="sugg-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </button>
+            `).join('')}
+          </div>
+        </div>`;
+    } else {
+      body.innerHTML = `<div class="conv">${a.messages.map((m,i)=>renderMessage(m,i)).join('')}</div>`;
+      const sc = body;
+      requestAnimationFrame(()=>{ sc.scrollTo({top:sc.scrollHeight, behavior:'smooth'}); });
+    }
+  }
+
+  function renderMessage(m, i){
+    if(m.role==='user'){
+      return `<div class="msg-user">
+        <div class="msg-label">You · ${String(i+1).padStart(2,'0')}</div>
+        <div class="bubble-user">${marked.parseInline(escapeHtml(m.content))}</div>
+      </div>`;
+    }
+    if(m.role==='error'){
+      return `<article class="msg-ai">
+        <header class="msg-ai-head">
+          <span class="msg-ai-mark">L</span>
+          <span class="msg-label">LearnWise · Error</span>
+          <span class="msg-ai-rule"></span>
+        </header>
+        <div class="msg-error">${escapeHtml(m.content)}</div>
+      </article>`;
+    }
+    return `<article class="msg-ai">
+      <header class="msg-ai-head">
+        <span class="msg-ai-mark">L</span>
+        <span class="msg-label">LearnWise · The answer</span>
+        <span class="msg-ai-rule"></span>
+      </header>
+      <div class="msg-ai-body${m.streaming?' streaming':''}" id="${m.id}">${marked.parse(m.content||'')}</div>
+    </article>`;
+  }
+
+  function renderSources(){
+    const c = document.getElementById('sources');
+    document.getElementById('srcCount').textContent = `${state.sources.length} references`;
+    if(state.sources.length===0){
+      c.innerHTML = `<div class="empty">When you ask a question, live documentation citations will appear here, numbered as footnotes alongside the answer.</div>`;
+      return;
+    }
+    c.innerHTML = `<ol class="src-list">${state.sources.map(s=>`
+      <li><a class="src" href="${s.url}" target="_blank" rel="noreferrer">
+        <div class="src-row">
+          <span class="src-num">${s.n}</span>
+          <div class="src-body">
+            <div class="src-title">${escapeHtml(s.title)}</div>
+            <div class="src-meta">
+              <svg class="ic-sm" viewBox="0 0 24 24" style="width:10px;height:10px"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+              <span>${escapeHtml(s.site)}</span>
+            </div>
+          </div>
+          <svg class="ic-sm" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+        </div>
+      </a></li>`).join('')}</ol>`;
+  }
+
+  function renderAll(){ renderHistory(); renderBody(); renderSources(); }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function siteFromUrl(url){
+    try { return new URL(url).hostname.replace(/^www\./,''); } catch { return url; }
+  }
+
+  const ta = document.getElementById('input');
+  function autoresize(){ ta.style.height='auto'; ta.style.height = Math.min(ta.scrollHeight,160)+'px'; }
+  function updateSendBtn(){ document.getElementById('send').disabled = !ta.value.trim() || state.isStreaming; }
+  ta.addEventListener('input', () => { autoresize(); updateSendBtn(); });
+  ta.addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); }});
+  document.addEventListener('keydown', e => { if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='n'){ e.preventDefault(); newThread(); }});
+
+  async function send(presetText){
+    if(state.isStreaming) return;
+    const inp = document.getElementById('input');
+    const content = (typeof presetText === 'string' ? presetText : inp.value).trim();
+    if(!content) return;
+
+    const a = getActive(); if(!a) return;
+
+    a.messages.push({id:uid(), role:'user', content});
+    if(a.messages.length === 1) a.title = content.slice(0,48);
+    a.updatedAt = Date.now();
+
+    const aiMsgId = uid();
+    a.messages.push({id:aiMsgId, role:'ai', content:'', streaming:true});
+
+    inp.value = '';
+    autoresize();
+    state.isStreaming = true;
+    updateSendBtn();
+    ta.disabled = true;
+    renderAll();
+
+    const payloadMessages = a.messages
+      .filter(m => m.id !== aiMsgId)
+      .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }));
+
+    const subjectValue = state.subject === 'Any subject' ? null : state.subject;
+    let fullText = '';
+
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: payloadMessages,
+          subject: subjectValue,
+          search: state.live,
+        }),
+      });
+
+      if(!resp.ok){
+        let detail = 'Something went wrong';
+        try { const err = await resp.json(); detail = err.detail || detail; } catch {}
+        const idx = a.messages.findIndex(m=>m.id===aiMsgId);
+        a.messages[idx] = {id:uid(), role:'error', content: detail};
+        renderAll();
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let expectSources = false;
+
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for(const line of lines){
+          if(line === 'event: sources'){ expectSources = true; continue; }
+
+          if(line.startsWith('data: ')){
+            const data = line.slice(6);
+
+            if(expectSources){
+              expectSources = false;
+              try {
+                const sources = JSON.parse(data);
+                if(Array.isArray(sources)){
+                  state.sources = sources.map((s,i) => ({
+                    n: i+1,
+                    title: s.title || 'Untitled source',
+                    site: siteFromUrl(s.url),
+                    url: s.url
+                  }));
+                  renderSources();
+                  continue;
+                }
+              } catch {}
+            }
+
+            if(data === '[DONE]'){
+              const m = a.messages.find(m=>m.id===aiMsgId);
+              if(m) m.streaming = false;
+              break;
+            }
+
+            try {
+              const chunk = JSON.parse(data);
+              fullText += chunk;
+              const m = a.messages.find(m=>m.id===aiMsgId);
+              if(m) m.content = fullText;
+              const el = document.getElementById(aiMsgId);
+              if(el){
+                el.innerHTML = marked.parse(fullText);
+                const body = document.getElementById('body');
+                body.scrollTop = body.scrollHeight;
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch(err){
+      const idx = a.messages.findIndex(m=>m.id===aiMsgId);
+      a.messages[idx] = {id:uid(), role:'error', content: 'Connection error: ' + err.message};
+    } finally {
+      state.isStreaming = false;
+      ta.disabled = false;
+      updateSendBtn();
+      a.updatedAt = Date.now();
+      renderAll();
+      ta.focus();
+    }
+  }
+
+  async function generateQuiz(){
+    const a = getActive();
+    if(!a || a.messages.filter(m=>m.role!=='error').length === 0){
+      alert('Have a conversation first, then I can quiz you on it!');
+      return;
+    }
+    const btn = document.getElementById('quizTool');
+    const label = document.getElementById('quizToolLabel');
+    btn.disabled = true;
+    label.textContent = 'Generating…';
+
+    try {
+      const payloadMessages = a.messages
+        .filter(m => m.role === 'user' || m.role === 'ai')
+        .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }));
+
+      const subjectValue = state.subject === 'Any subject' ? null : state.subject;
+
+      const resp = await fetch('/api/quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: payloadMessages, subject: subjectValue }),
+      });
+
+      if(!resp.ok){
+        let detail = 'Failed to generate quiz';
+        try { const err = await resp.json(); detail = err.detail || detail; } catch {}
+        throw new Error(detail);
+      }
+
+      state.quizData = await resp.json();
+      state.quizAnswers = {};
+      renderQuiz(state.quizData);
+    } catch(err){
+      alert('Could not generate quiz: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      label.textContent = 'Quiz me';
+    }
+  }
+
+  function renderQuiz(data){
+    const existing = document.getElementById('quizOverlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'quiz-overlay';
+    overlay.id = 'quizOverlay';
+
+    const questionsHtml = data.questions.map((q, qi) => `
+      <div class="quiz-question" id="qq-${qi}">
+        <p>${qi + 1}. ${escapeHtml(q.question)}</p>
+        ${q.options.map(opt => `
+          <button class="quiz-option" data-qi="${qi}" data-letter="${opt[0]}"
+            onclick="answerQuestion(${qi}, '${opt[0]}', '${q.answer}')">
+            ${escapeHtml(opt)}
+          </button>`).join('')}
+        <div class="quiz-explanation" id="exp-${qi}">${escapeHtml(q.explanation)}</div>
+      </div>`).join('');
+
+    overlay.innerHTML = `
+      <div class="quiz-modal">
+        <h2>Quiz: ${escapeHtml(data.topic)}</h2>
+        <div class="quiz-subtitle">${data.questions.length} questions · based on your conversation</div>
+        ${questionsHtml}
+        <div class="quiz-footer">
+          <div class="quiz-score" id="quizScore">Score: 0 / ${data.questions.length}</div>
+          <button class="quiz-close" onclick="document.getElementById('quizOverlay').remove()">Close</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+  }
+
+  function answerQuestion(qi, chosen, correct){
+    if(state.quizAnswers[qi] !== undefined) return;
+    state.quizAnswers[qi] = chosen;
+
+    const container = document.getElementById('qq-' + qi);
+    container.querySelectorAll('.quiz-option').forEach(btn => {
+      btn.disabled = true;
+      if(btn.dataset.letter === correct) btn.classList.add('correct');
+      else if(btn.dataset.letter === chosen) btn.classList.add('wrong');
+    });
+
+    document.getElementById('exp-' + qi).classList.add('show');
+    updateQuizScore();
+  }
+
+  function updateQuizScore(){
+    if(!state.quizData) return;
+    const correct = state.quizData.questions.filter((q,i) => state.quizAnswers[i] === q.answer).length;
+    const answered = Object.keys(state.quizAnswers).length;
+    const total = state.quizData.questions.length;
+    document.getElementById('quizScore').textContent =
+      `Score: ${correct} / ${total}` + (answered === total ? (correct === total ? ' 🎉' : '') : '');
+  }
+
+  renderAll();
+
+  async function generateSummary(){
+  const a = getActive();
+  if(!a || a.messages.filter(m=>m.role!=='error').length === 0){
+    alert('Have a conversation first, then I can summarize it!');
+    return;
+  }
+  const btn = document.getElementById('summaryTool');
+  const label = document.getElementById('summaryToolLabel');
+  btn.disabled = true;
+  label.textContent = 'Summarizing…';
+
+  try {
+    const payloadMessages = a.messages
+      .filter(m => m.role === 'user' || m.role === 'ai')
+      .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }));
+    const subjectValue = state.subject === 'Any subject' ? null : state.subject;
+
+    const resp = await fetch('/api/summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: payloadMessages, subject: subjectValue }),
+    });
+    if(!resp.ok){
+      let detail = 'Failed to generate summary';
+      try { const err = await resp.json(); detail = err.detail || detail; } catch {}
+      throw new Error(detail);
+    }
+    const data = await resp.json();
+    renderSummary(data.summary);
+  } catch(err){
+    alert('Could not generate summary: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    label.textContent = 'Summary';
+  }
+}
+
+function renderSummary(markdown){
+  const existing = document.getElementById('quizOverlay');
+  if(existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'quiz-overlay';
+  overlay.id = 'quizOverlay';
+  overlay.innerHTML = `
+    <div class="quiz-modal">
+      <h2>Study recap</h2>
+      <div class="quiz-subtitle">Generated from your conversation</div>
+      <div class="msg-ai-body">${marked.parse(markdown)}</div>
+      <div class="quiz-footer">
+        <div></div>
+        <button class="quiz-close" onclick="document.getElementById('quizOverlay').remove()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function generateExplore(){
+  const a = getActive();
+  if(!a || a.messages.filter(m=>m.role!=='error').length === 0){
+    alert('Have a conversation first, then I can find related links!');
+    return;
+  }
+  const btn = document.getElementById('exploreTool');
+  const label = document.getElementById('exploreToolLabel');
+  btn.disabled = true;
+  label.textContent = 'Searching…';
+
+  try {
+    const payloadMessages = a.messages
+      .filter(m => m.role === 'user' || m.role === 'ai')
+      .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }));
+    const subjectValue = state.subject === 'Any subject' ? null : state.subject;
+
+    const resp = await fetch('/api/explore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: payloadMessages, subject: subjectValue }),
+    });
+    if(!resp.ok){
+      let detail = 'Failed to find related links';
+      try { const err = await resp.json(); detail = err.detail || detail; } catch {}
+      throw new Error(detail);
+    }
+    const data = await resp.json();
+    renderExplore(data);
+  } catch(err){
+    alert('Could not explore: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    label.textContent = 'Explore';
+  }
+}
+
+function renderExplore(data){
+  const existing = document.getElementById('quizOverlay');
+  if(existing) existing.remove();
+
+  const linksHtml = data.links.map(l => `
+    <a class="src" href="${l.url}" target="_blank" rel="noreferrer" style="display:block;margin-bottom:8px">
+      <div class="src-row">
+        <div class="src-body">
+          <div class="src-title">${escapeHtml(l.title || l.url)}</div>
+          <div class="src-meta"><span>${escapeHtml(siteFromUrl(l.url))}</span></div>
+        </div>
+      </div>
+    </a>`).join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'quiz-overlay';
+  overlay.id = 'quizOverlay';
+  overlay.innerHTML = `
+    <div class="quiz-modal">
+      <h2>Explore related topics</h2>
+      <div class="quiz-subtitle">${data.links.length} links found</div>
+      ${linksHtml || '<div class="empty">No related links found.</div>'}
+      <div class="quiz-footer">
+        <div></div>
+        <button class="quiz-close" onclick="document.getElementById('quizOverlay').remove()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+</script>
+</body>
+</html>
