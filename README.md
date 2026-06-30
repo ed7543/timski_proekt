@@ -36,34 +36,121 @@ uvicorn backend.main:app --reload
 
 Open http://localhost:8000
 
-## Project Structure
+## Project Architecture
 
 ```
-learnwise/
 .
-├── README.md
-├── backend
-│   ├── ai
-│   │   └── chat.py
-│   ├── main.py
-│   ├── models
-│   │   ├── QuizRequest.py
-│   │   ├── chatRequest.py
-│   │   ├── exploreRequest.py
-│   │   ├── message.py
-│   │   ├── searchResult.py
-│   │   └── summaryRequest.py
-│   ├── routes
-│   │   ├── chatRoute.py
-│   │   └── health.py
-│   ├── static
-│   │   ├── index.html
-│   │   └── learnwise-2.html
-│   └── web_search
-│       └── search.py
-├── config.py
-└── requirements.txt
+├── README.md                    # Project documentation
+├── config.py                    # Environment variables & app config
+├── requirements.txt             # Python dependencies
+│
+└── backend/                     # Main application root
+    │
+    ├── main.py                  # FastAPI entry point - registers all routes
+    │
+    ├── ai/                      # AI integration layer
+    │   └── chat.py              # GROQ API calls & streaming responses
+    │
+    ├── database/                # Data storage layer
+    │   └── __init__.py          # Database models & connection (coming soon)
+    │
+    ├── middleware/              # Request/response processing
+    │   └── __init__.py          # Auth, rate limiting, CORS (coming soon)
+    │
+    ├── models/                  # Pydantic schemas
+    │   ├── message.py           # Message schema: {role, content}
+    │   ├── chatRequest.py       # Chat request: {messages, subject, search}
+    │   ├── searchResult.py      # Search result: {title, url, snippet}
+    │   ├── QuizRequest.py       # Quiz generation request
+    │   ├── exploreRequest.py    # Topic exploration request
+    │   └── summaryRequest.py    # Summary generation request
+    │
+    ├── routes/                  # API endpoints (controllers)
+    │   ├── health.py            # /api/health - Service health check
+    │   ├── chatRoute.py         # /api/chat - Main streaming chat endpoint
+    │   └── auth/                # Authentication routes (coming soon)
+    │       └── __init__.py      # /api/auth/* - Register, Login, Logout
+    │
+    ├── services/                # Business logic layer
+    │   └── __init__.py          # Auth, Chat, Quiz services (coming soon)
+    │
+    ├── static/                  # Frontend static files
+    │   ├── index.html           # Main chat UI
+    │   └── learnwise-2.html     # Alternative UI design
+    │
+    ├── utils/                   # Helper functions
+    │   └── __init__.py          # Validators, ID generators (coming soon)
+    │
+    ├── web_search/              # Web search integration
+    │   └── search.py            # Tavily API - search, query building
+    │
+    └── tests/                   # Unit & integration tests
+        └── __init__.py          # Test files (coming soon)
 ```
+
+## Architecture Layers Explained
+
+| Layer | Directory | Purpose |
+|-------|-----------|---------|
+| Presentation | routes/ | API endpoints - handles HTTP requests/responses |
+| Business Logic | services/ | Core functionality - quiz generation, auth logic |
+| Data Access | database/ | Database models and connections |
+| AI Integration | ai/ | GROQ API calls and prompt engineering |
+| Search | web_search/ | Tavily API integration for live documentation |
+| Middleware | middleware/ | Request processing - auth, rate limiting |
+| Models | models/ | Pydantic schemas for request/response validation |
+| Utils | utils/ | Helper functions used across the app |
+| Static | static/ | Frontend HTML, CSS, JS files |
+| Tests | tests/ | Unit and integration tests |
+
+## Data Flow
+
+```
+1. User sends message → routes/chatRoute.py
+2. Web search (if enabled) → web_search/search.py → Tavily API
+3. Build context → ai/chat.py
+4. AI response → GROQ API (streaming)
+5. Save to database → database/models.py
+6. Return response → routes/chatRoute.py → User
+```
+
+## Key Components
+
+### AI Layer (ai/chat.py)
+- Handles all GROQ API interactions
+- Manages system prompts and context injection
+- Streams responses back to the client
+
+### Web Search (web_search/search.py)
+- Integrates with Tavily Search API
+- Builds optimized search queries
+- Formats search results for AI context
+
+### Routes (routes/)
+- chatRoute.py: Main chat endpoint with SSE streaming
+- health.py: Service health monitoring
+- auth/: Authentication endpoints (planned)
+
+### Models (models/)
+- Request/response validation using Pydantic
+- Type-safe data structures
+- Automatic API documentation generation
+
+## Current Status
+
+| Component | Status   |
+|-----------|----------|
+| AI Chat with Streaming | Complete |
+| Web Search Integration | Complete |
+| Static UI | Complete |
+| User Authentication | Planned  |
+| Chat History | Planned  |
+| Quiz Generator | Complete |
+| Summary Service | Complete |
+| Explore Feature | Complete |
+| Database Layer | Planned  |
+| Middleware | Planned  |
+| Tests | Planned  |
 
 ## How It Works
 
