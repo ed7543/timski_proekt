@@ -95,7 +95,6 @@ from youtube_transcript_api import YouTubeTranscriptApi
 transcript = YouTubeTranscriptApi.get_transcript(video_id)
 ```
 
-### Replace Brave with other search providers
+### Replace Tavily with other search providers
 - **SerpAPI** (google results, paid)
-- **Tavily** (optimized for AI, free tier)
 - **DuckDuckGo** (unofficial, free, rate-limited)
