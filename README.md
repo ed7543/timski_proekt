@@ -1,14 +1,14 @@
-# 🧠 LearnWise – AI Tutor with Live Search
+# LearnWise – AI Tutor with Live Search
 
 An AI tutor that searches live documentation before answering, so you always get accurate, up-to-date answers with sources.
 
 ## Features
 
-- 💬 **Streaming AI chat** — answers appear word by word
-- 🔍 **Live web search** — fetches current docs via Brave Search API
-- 📎 **Source sidebar** — see exactly where the AI got its info
-- 📚 **Subject mode** — focus on Python, FastAPI, React, etc.
-- 🎨 **Clean dark UI** — markdown rendered, code highlighted
+-  **Streaming AI chat** — answers appear word by word
+-  **Live web search** — fetches current docs via Brave Search API
+-  **Source sidebar** — see exactly where the AI got its info
+-  **Subject mode** — focus on Python, FastAPI, React, etc.
+-  **Clean dark UI** — markdown rendered, code highlighted
 
 ## Setup
 
