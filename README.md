@@ -2,6 +2,9 @@
 
 An AI tutor that searches live documentation before answering, so you always get accurate, up-to-date answers with sources.
 
+## Trello Board
+https://trello.com/b/UqREXgJa/timski-proekt
+
 ## Features
 
 -  **Streaming AI chat** — answers appear word by word
