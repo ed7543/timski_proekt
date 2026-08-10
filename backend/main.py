@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 
-from backend.routes import health, chatRoute
+from backend.routes import health, chatRoute, auth, conversationRoute
 
 app = FastAPI(title="LearnWise AI Tutor")
 
@@ -30,3 +30,5 @@ async def root():
 
 app.include_router(health.router)
 app.include_router(chatRoute.router)
+app.include_router(auth.router)
+app.include_router(conversationRoute.router)

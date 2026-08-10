@@ -9,3 +9,4 @@ class ChatRequest(BaseModel):
     messages: List[Message]
     subject: Optional[str] = None   # e.g. "Python", "FastAPI", "React"
     search: bool = True             # toggle live search on/off
+    conversation_id: Optional[int] = None  # existing conversation to append to; omit to start a new one
