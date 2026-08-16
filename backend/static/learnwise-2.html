@@ -955,13 +955,14 @@ function renderAskMore(questions){
   if(existing) existing.remove();
 
   const questionsHtml = questions.map((q, i) => `
-    <button class="sugg" style="margin-bottom:10px;width:100%" onclick="pickFollowup(${JSON.stringify(q)})">
+    <button class="sugg" style="margin-bottom:10px;width:100%" data-question="${escapeHtml(q)}" onclick="pickFollowup(this.dataset.question)">
       <span class="sugg-num">${String(i+1).padStart(2,'0')}</span>
       <div style="min-width:0;flex:1">
         <div class="sugg-q">${escapeHtml(q)}</div>
       </div>
       <svg class="sugg-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>`).join('');
+
 
   const overlay = document.createElement('div');
   overlay.className = 'quiz-overlay';
@@ -987,6 +988,7 @@ function pickFollowup(question){
   updateSendBtn();
   inp.focus();
   inp.setSelectionRange(inp.value.length, inp.value.length);
+  send();
 }
 
 // ---------- Export ----------
