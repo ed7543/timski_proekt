@@ -75,7 +75,7 @@ async def stream_groq_response(messages: List[Message], context: str, subject: O
                         continue
 
 
-async def generate_quiz(messages: List[Message], subject: Optional[str]):
+async def generate_quiz(messages: List[Message], subject: Optional[str], course_context: Optional[str] = None):
     """Generate a multiple-choice quiz based on the conversation."""
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not set")
@@ -91,6 +91,7 @@ CONVERSATION:
 {conversation}
 
 {"The topic is: " + subject if subject else ""}
+{course_context if course_context else ""}
 
 Respond ONLY with a valid JSON object in exactly this format, no markdown, no extra text:
 {{
@@ -128,7 +129,7 @@ Respond ONLY with a valid JSON object in exactly this format, no markdown, no ex
         raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         return json.loads(raw)
 
-async def generate_summary(messages: List[Message], subject: Optional[str]):
+async def generate_summary(messages: List[Message], subject: Optional[str], course_context: Optional[str] = None):
     """Summarize the entire conversation into a concise study recap."""
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not set")
@@ -141,6 +142,7 @@ CONVERSATION:
 {conversation}
 
 {"The topic is: " + subject if subject else ""}
+{course_context if course_context else ""}
 
 Write a clear, well-organized summary covering:
 1. The main concepts discussed
@@ -170,7 +172,9 @@ Use markdown with short headers and bullet points. Keep it concise — aim for s
         return {"summary": data["choices"][0]["message"]["content"]}
 
 
-async def generate_explore_queries(messages: List[Message], subject: Optional[str]) -> List[str]:
+async def generate_explore_queries(
+    messages: List[Message], subject: Optional[str], course_context: Optional[str] = None
+) -> List[str]:
     """Ask Groq for 3 focused search queries related to the conversation topic."""
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not set")
@@ -184,6 +188,7 @@ CONVERSATION:
 {conversation}
 
 {"The topic is: " + subject if subject else ""}
+{course_context if course_context else ""}
 
 Respond ONLY with a valid JSON array of exactly 3 strings, no markdown, no extra text.
 Example: ["FastAPI background tasks vs Celery", "Python async context managers", "uvicorn worker tuning"]"""
@@ -216,7 +221,9 @@ Example: ["FastAPI background tasks vs Celery", "Python async context managers",
             pass
         return []
 
-async def generate_followups(messages: List[Message], subject: Optional[str]) -> List[str]:
+async def generate_followups(
+    messages: List[Message], subject: Optional[str], course_context: Optional[str] = None
+) -> List[str]:
     """Suggest 4 smart follow-up questions based on the conversation so far."""
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not set")
@@ -231,6 +238,7 @@ CONVERSATION:
 {conversation}
 
 {"The topic is: " + subject if subject else ""}
+{course_context if course_context else ""}
 
 Respond ONLY with a valid JSON array of exactly 4 short question strings, no markdown, no extra text.
 Example: ["What happens if the await fails?", "How does this compare to threading?", "When should I avoid this pattern?", "Can you show a real-world example?"]"""

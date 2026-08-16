@@ -6,3 +6,4 @@ from backend.models.message import Message
 class SummaryRequest(BaseModel):
     messages: List[Message]
     subject: Optional[str] = None
+    course_id: Optional[int] = None

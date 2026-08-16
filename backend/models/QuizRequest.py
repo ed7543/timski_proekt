@@ -8,3 +8,4 @@ from backend.models.message import Message
 class QuizRequest(BaseModel):
     messages: List[Message]
     subject: Optional[str] = None
+    course_id: Optional[int] = None

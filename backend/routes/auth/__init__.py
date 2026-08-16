@@ -1,12 +1,13 @@
 import secrets
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from backend.database.session import get_db
 from backend.database.models import User, VerificationToken
 from backend.middleware.auth import get_current_user
+from backend.middleware.rate_limit import limiter
 from backend.models.authRequest import (
     RegisterRequest,
     LoginRequest,
@@ -14,6 +15,7 @@ from backend.models.authRequest import (
     ForgotPasswordRequest,
     ResetPasswordRequest,
 )
+from backend.utils.email import send_verification_email, send_password_reset_email
 from backend.utils.security import hash_password, verify_password, create_access_token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -37,35 +39,35 @@ def _create_token(db: Session, user: User, purpose: str, expire_hours: int) -> s
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(request: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def register(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
     """Create a new user account and return a JWT access token."""
-    existing = db.query(User).filter(User.email == request.email).first()
+    existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     user = User(
-        email=request.email,
-        hashed_password=hash_password(request.password),
-        full_name=request.full_name,
+        email=payload.email,
+        hashed_password=hash_password(payload.password),
+        full_name=payload.full_name,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
 
     verify_token = _create_token(db, user, "verify_email", VERIFICATION_TOKEN_EXPIRE_HOURS)
-    # TODO: replace with a real email send (SendGrid/SMTP/etc). For now we just log it
-    # so the flow can be tested end-to-end without an email provider configured.
-    print(f"[DEV] Email verification link for {user.email}: /api/auth/verify-email?token={verify_token}")
+    send_verification_email(user.email, verify_token)
 
     token = create_access_token({"sub": user.email, "user_id": user.id})
     return TokenResponse(access_token=token)
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(request: Request, payload: LoginRequest, db: Session = Depends(get_db)):
     """Verify credentials and return a JWT access token."""
-    user = db.query(User).filter(User.email == request.email).first()
-    if not user or not verify_password(request.password, user.hashed_password):
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
     token = create_access_token({"sub": user.email, "user_id": user.id})
@@ -108,30 +110,30 @@ async def verify_email(token: str, db: Session = Depends(get_db)):
 
 
 @router.post("/forgot-password")
-async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Request a password reset link. Always returns the same message so we don't leak
     which emails are registered."""
-    user = db.query(User).filter(User.email == request.email).first()
+    user = db.query(User).filter(User.email == payload.email).first()
     if user:
         reset_token = _create_token(db, user, "reset_password", RESET_TOKEN_EXPIRE_HOURS)
-        # TODO: replace with a real email send. Logged for now so the flow is testable.
-        print(f"[DEV] Password reset link for {user.email}: /reset-password?token={reset_token}")
+        send_password_reset_email(user.email, reset_token)
     return {"message": "If that email exists, a reset link has been sent"}
 
 
 @router.post("/reset-password")
-async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+async def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Set a new password using a token obtained from /forgot-password."""
     record = (
         db.query(VerificationToken)
-        .filter(VerificationToken.token == request.token, VerificationToken.purpose == "reset_password")
+        .filter(VerificationToken.token == payload.token, VerificationToken.purpose == "reset_password")
         .first()
     )
     if not record or record.expires_at < datetime.utcnow():
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     user = db.query(User).filter(User.id == record.user_id).first()
-    user.hashed_password = hash_password(request.new_password)
+    user.hashed_password = hash_password(payload.new_password)
     db.delete(record)
     db.commit()
     return {"message": "Password reset successfully"}
