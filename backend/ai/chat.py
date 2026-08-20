@@ -7,6 +7,11 @@ from fastapi import HTTPException
 from backend.models.message import Message
 from config import GROQ_API_KEY
 
+# llama-3.3-70b-versatile was retired from Groq's catalog - GET /openai/v1/models
+# no longer lists it (confirmed 2026-08-20). openai/gpt-oss-120b is the closest
+# replacement in size/capability among what's currently available.
+GROQ_MODEL = "openai/gpt-oss-120b"
+
 SYSTEM_PROMPT = """You are LearnWise, an expert AI tutor. Your job is to help students understand technical topics clearly and accurately.
 
 When answering:
@@ -49,7 +54,7 @@ async def stream_groq_response(messages: List[Message], context: str, subject: O
                     "Content-Type": "application/json",
                 },
                 json={
-                    "model": "llama-3.3-70b-versatile",
+                    "model": GROQ_MODEL,
                     "messages": groq_messages,
                     "stream": True,
                     "max_tokens": 1500,
@@ -114,7 +119,7 @@ Respond ONLY with a valid JSON object in exactly this format, no markdown, no ex
                 "Content-Type": "application/json",
             },
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": GROQ_MODEL,
                 "messages": [{"role": "user", "content": quiz_prompt}],
                 "max_tokens": 2000,
                 "temperature": 0.5,
@@ -159,7 +164,7 @@ Use markdown with short headers and bullet points. Keep it concise — aim for s
                 "Content-Type": "application/json",
             },
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": GROQ_MODEL,
                 "messages": [{"role": "user", "content": summary_prompt}],
                 "max_tokens": 800,
                 "temperature": 0.4,
@@ -201,7 +206,7 @@ Example: ["FastAPI background tasks vs Celery", "Python async context managers",
                 "Content-Type": "application/json",
             },
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": GROQ_MODEL,
                 "messages": [{"role": "user", "content": query_prompt}],
                 "max_tokens": 200,
                 "temperature": 0.6,
@@ -251,7 +256,7 @@ Example: ["What happens if the await fails?", "How does this compare to threadin
                 "Content-Type": "application/json",
             },
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": GROQ_MODEL,
                 "messages": [{"role": "user", "content": followup_prompt}],
                 "max_tokens": 300,
                 "temperature": 0.7,
