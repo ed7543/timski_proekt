@@ -9,7 +9,7 @@ import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
 import { ChatPage } from './pages/ChatPage';
 import { CoursesPage } from './pages/CoursesPage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
-import { ProgressStub } from './pages/ProgressStub';
+import { ProgressPage } from './pages/ProgressPage';
 import { AdminStub } from './pages/AdminStub';
 import { NotFoundPage } from './pages/NotFoundPage';
 
@@ -37,7 +37,7 @@ function App() {
             <Route path="/chat/:conversationId" element={<ChatPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
-            <Route path="/progress" element={<ProgressStub />} />
+            <Route path="/progress" element={<ProgressPage />} />
             <Route path="/admin" element={<AdminStub />} />
           </Route>
 
