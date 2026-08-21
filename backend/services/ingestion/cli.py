@@ -7,15 +7,21 @@ Usage:
     python -m backend.services.ingestion.cli --source snimki --limit 3
     python -m backend.services.ingestion.cli --source predmeti
     python -m backend.services.ingestion.cli --source predmeti --create-missing
+    python -m backend.services.ingestion.cli --source lessons \\
+        --courses-db-path "C:\\Users\\stoja\\Downloads\\courses_db.json" \\
+        --course-codes F23L1W005,F23L1W020,F23L2W002,F23L2W031,F23L2W041,F23L1S003,F23L1S016,F23L1S023,F23L1S045,F23L1S146
 """
 import argparse
 import asyncio
 import logging
+from pathlib import Path
 
 from backend.database.session import SessionLocal
 from backend.services.ingestion.finki_hub_client import FinkiHubClient
 from backend.services.ingestion.predmeti_scraper import fetch_predmeti_courses
 from backend.services.ingestion.snimki_scraper import fetch_course, list_course_files
+from backend.services.ingestion import seed_lessons
+from backend.services.ingestion.lesson_matching import DEFAULT_CONFIDENCE_THRESHOLD
 from backend.services.ingestion.upsert import (
     create_course_from_predmeti,
     find_course_by_name,
@@ -127,9 +133,39 @@ async def main_async(args: argparse.Namespace) -> None:
         await ingest_predmeti(limit=args.limit, create_missing=args.create_missing)
 
 
+def run_lessons(args: argparse.Namespace) -> None:
+    """--source lessons is synchronous (local JSON + sync Gemini calls, no
+    finki-hub scraping involved) and takes its own required args - handled
+    outside main_async()/asyncio entirely. See seed_lessons.py for what
+    actually happens per course."""
+    if not args.courses_db_path or not args.course_codes:
+        raise SystemExit("--source lessons requires --courses-db-path and --course-codes")
+
+    course_codes = [c.strip() for c in args.course_codes.split(",") if c.strip()]
+    from datetime import datetime
+    report_path = args.report_path or Path(
+        f"lesson_seed_report_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.md"
+    )
+
+    db = SessionLocal()
+    try:
+        report = seed_lessons.run(
+            db,
+            courses_db_path=args.courses_db_path,
+            course_codes=course_codes,
+            threshold=args.threshold,
+            force_regenerate=args.force_regenerate,
+        )
+    finally:
+        db.close()
+
+    report.write(report_path)
+    print(f"Готово. Извештај: {report_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest FINKI course data from finki-hub.com")
-    parser.add_argument("--source", choices=["all", "predmeti", "snimki"], default="all")
+    parser.add_argument("--source", choices=["all", "predmeti", "snimki", "lessons"], default="all")
     parser.add_argument("--limit", type=int, default=None, help="Cap the number of courses processed")
     parser.add_argument(
         "--slugs", type=str, default=None,
@@ -140,8 +176,32 @@ def main() -> None:
         help="For --source predmeti: also create new Course rows for courses with no snimki page "
              "(default: only enrich courses that already exist)",
     )
+    parser.add_argument(
+        "--courses-db-path", type=Path, default=None,
+        help="For --source lessons: path to courses_db.json (lives outside the repo, e.g. in Downloads)",
+    )
+    parser.add_argument(
+        "--course-codes", type=str, default=None,
+        help="For --source lessons: comma-separated course_code list to process (one batch)",
+    )
+    parser.add_argument(
+        "--threshold", type=float, default=DEFAULT_CONFIDENCE_THRESHOLD,
+        help="For --source lessons: minimum lesson<->source-section match confidence to generate content for",
+    )
+    parser.add_argument(
+        "--force-regenerate", action="store_true",
+        help="For --source lessons: regenerate lessons that already have documentation (default: skip them)",
+    )
+    parser.add_argument(
+        "--report-path", type=Path, default=None,
+        help="For --source lessons: where to write the run's markdown report (default: timestamped file in cwd)",
+    )
     args = parser.parse_args()
-    asyncio.run(main_async(args))
+
+    if args.source == "lessons":
+        run_lessons(args)
+    else:
+        asyncio.run(main_async(args))
 
 
 if __name__ == "__main__":

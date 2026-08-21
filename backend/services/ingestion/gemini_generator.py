@@ -49,6 +49,12 @@ logging.getLogger("google_genai.models").setLevel(logging.ERROR)
 
 GEMINI_MODEL = "gemini-3.6-flash"
 
+# Hard-ish cap on documentation length (real lectures are ~50-60 slides worth
+# of content, not multi-page essays) - enforced via the prompt instruction
+# below, and checked (not truncated - just logged) by seed_lessons.py after
+# generation, since word-count instructions aren't always followed exactly.
+MAX_DOCUMENTATION_WORDS = 1000
+
 _client: Optional[genai.Client] = None
 
 
@@ -106,8 +112,12 @@ def build_documentation_prompt(
           произлегуваат директно од изворниот текст.
         - Не користи изрази како "според изворот" или "текстот вели" -
           пиши директно, како нормална учебна документација.
-        - Должина: онолку колку што темата бара за јасно објаснување
-          (обично 400-900 зборови), не вештачки продолжувај.
+        - Должина: НАЈМНОГУ {MAX_DOCUMENTATION_WORDS} зборови (тврд лимит -
+          ова е една лекција/предавање, не поглавје од книга). Но ова е
+          горна граница, не цел - НЕ додавај содржина, повторувања или
+          вештачки проширувања само за да се приближиш до тој број. Ако
+          темата природно бара помалку зборови за јасно да се објасни, нека
+          биде пократко.
         - Пиши исклучиво на македонски јазик, дури и ако изворниот текст
           е на англиски - преведи ги концептите природно.
 
@@ -184,6 +194,10 @@ def build_quiz_prompt(lesson_title: str, documentation_text: str) -> str:
 # ---------------------------------------------------------------------------
 # 3. ВИСТИНСКИ ПОВИЦИ КОН GEMINI API
 # ---------------------------------------------------------------------------
+
+def documentation_word_count(documentation: str) -> int:
+    return len(documentation.split())
+
 
 def generate_documentation(
     course_name_mk: str,
