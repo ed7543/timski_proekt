@@ -201,3 +201,18 @@ def extract_sections(url: str, cache_dir: Path) -> List[Section]:
         text = extract_pdf_text(raw)
         return split_pdf_text_into_sections(text)
     return split_html_into_sections(raw)
+
+
+def extract_sections_multi(urls: List[str], cache_dir: Path) -> List[Section]:
+    """Fetches+extracts multiple URLs (see source_discovery.py -
+    most real textbooks are one page per chapter, not one page total) and
+    combines their Sections into a single list. One page's fetch/parse
+    failure is logged and skipped, not fatal to the whole course - a
+    half-successful multi-page source is still far better than none."""
+    all_sections: List[Section] = []
+    for url in urls:
+        try:
+            all_sections.extend(extract_sections(url, cache_dir))
+        except Exception:
+            logger.exception("Failed to extract %s - skipping this page", url)
+    return all_sections

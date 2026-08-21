@@ -59,7 +59,8 @@ from backend.services.ingestion.lesson_upsert import (
     replace_course_sources,
     upsert_lesson,
 )
-from backend.services.ingestion.source_text import extract_sections
+from backend.services.ingestion.source_discovery import discover_content_pages
+from backend.services.ingestion.source_text import extract_sections_multi
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +102,11 @@ class Report:
         self.errors = 0
         self.length_warnings = 0
 
-    def course_header(self, course_code: str, course_name: str) -> None:
-        self.lines.append(f"\n## {course_code} — {course_name}\n")
+    def course_header(self, course_code: str, course_name: str, discovered_urls: List[str]) -> None:
+        self.lines.append(f"\n## {course_code} — {course_name}\n\n_Пронајдени страници ({len(discovered_urls)}):_\n")
+        for u in discovered_urls:
+            self.lines.append(f"- {u}\n")
+        self.lines.append("\n")
 
     def local_file_skip(self, course_code: str, course_name: str) -> None:
         self.skipped_local_file += 1
@@ -202,13 +206,18 @@ def seed_course(
         return
 
     source = course["source"]
-    try:
-        sections = extract_sections(source["url"], cache_dir)
-    except Exception as e:
-        report.course_extract_error(course_code, course_name, str(e))
+    discovered_urls = discover_content_pages(
+        source.get("title", ""), source.get("author", ""), source["url"]
+    )
+    sections = extract_sections_multi(discovered_urls, cache_dir)
+    if not sections:
+        report.course_extract_error(
+            course_code, course_name,
+            f"Ниту една од {len(discovered_urls)} откриени страници не даде извлечлив текст",
+        )
         return
 
-    report.course_header(course_code, course_name)
+    report.course_header(course_code, course_name, discovered_urls)
     replace_course_sources(db, course_id, source, course.get("additional_sources"))
 
     for i, lesson in enumerate(lessons, start=1):
