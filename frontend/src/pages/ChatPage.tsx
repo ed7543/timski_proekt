@@ -288,7 +288,9 @@ export function ChatPage() {
       <MessageList messages={messages} onPickSuggestion={handleSend} />
       <MessageInput ref={inputRef} disabled={isStreaming} live={live} subject={subject} onSend={handleSend} />
 
-      {modal?.kind === 'quiz' && <QuizModal data={modal.data} onClose={() => setModal(null)} />}
+      {modal?.kind === 'quiz' && (
+        <QuizModal data={modal.data} subject={subjectValue} onClose={() => setModal(null)} />
+      )}
       {modal?.kind === 'summary' && <SummaryModal summary={modal.data} onClose={() => setModal(null)} />}
       {modal?.kind === 'explore' && <ExploreModal data={modal.data} onClose={() => setModal(null)} />}
       {modal?.kind === 'askMore' && (

@@ -132,6 +132,16 @@ export function BookIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ChartIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <path d="M4 20V10" />
+      <path d="M12 20V4" />
+      <path d="M20 20v-6" />
+    </svg>
+  );
+}
+
 export function PlayIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
