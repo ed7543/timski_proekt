@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ChatIcon, BookIcon } from '../icons';
+import { ChatIcon, BookIcon, ChartIcon } from '../icons';
 
 export function NavTabs() {
   return (
@@ -9,6 +9,9 @@ export function NavTabs() {
       </NavLink>
       <NavLink to="/courses" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>
         <BookIcon /> Courses
+      </NavLink>
+      <NavLink to="/progress" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>
+        <ChartIcon /> Progress
       </NavLink>
     </nav>
   );
