@@ -41,6 +41,12 @@ from config import GEMINI_API_KEY
 
 logger = logging.getLogger(__name__)
 
+# Silence google-genai's one-time "use Chat.send_message instead of
+# Models.generate_content" notice - harmless (we deliberately don't use
+# automatic function calling or the Chat wrapper here), just noisy on every
+# fresh process. Scoped to that one library logger only.
+logging.getLogger("google_genai.models").setLevel(logging.ERROR)
+
 GEMINI_MODEL = "gemini-3.6-flash"
 
 _client: Optional[genai.Client] = None
