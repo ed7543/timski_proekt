@@ -1,4 +1,4 @@
-"""Generates lesson documentation + quizzes via Google Gemini (gemini-2.5-flash),
+"""Generates lesson documentation + quizzes via Google Gemini (gemini-3.6-flash),
 for the standalone lesson-content pipeline (course_code -> lessons, sourced from
 courses_db.json / the "LearnWise - база извори" spreadsheet).
 
@@ -41,7 +41,7 @@ from config import GEMINI_API_KEY
 
 logger = logging.getLogger(__name__)
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.6-flash"
 
 _client: Optional[genai.Client] = None
 
