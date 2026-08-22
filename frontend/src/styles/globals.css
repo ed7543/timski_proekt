@@ -322,28 +322,63 @@ main {
 }
 .masthead-r {
   margin-left: auto;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .select-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 6px;
+  padding: 0 26px 0 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.select-wrap:hover {
+  background: var(--cream);
+  border-color: var(--ink-soft);
+}
+.select-wrap-icon {
+  flex-shrink: 0;
+  display: flex;
+  color: var(--muted);
+}
+.select-wrap:hover .select-wrap-icon {
+  color: var(--ink-soft);
 }
 select {
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid var(--border);
-  background: var(--card);
-  padding: 6px 30px 6px 12px;
-  border-radius: 6px;
+  border: none;
+  background: none;
+  padding: 6px 0;
   font-size: 12px;
   font-weight: 500;
   color: var(--ink);
   cursor: pointer;
   font-family: inherit;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-select:hover {
-  background: var(--cream);
+/* Course names (real FINKI subjects) run far longer than the fixed
+   English "Subject" list - cap this one tighter so it can't dominate
+   the masthead and push the toggle/other select out of view. */
+.select-wrap-course select {
+  max-width: 150px;
+}
+.masthead-divider {
+  height: 20px;
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
 }
 .select-wrap::after {
   content: '';

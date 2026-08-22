@@ -10,6 +10,7 @@ import type {
 interface ToolPayload {
   messages: ChatMessage[];
   subject?: string | null;
+  course_id?: number | null;
 }
 
 export function generateQuiz(payload: ToolPayload): Promise<QuizResponse> {

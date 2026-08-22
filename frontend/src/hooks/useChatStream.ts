@@ -35,7 +35,7 @@ export function useChatStream() {
   const send = useCallback(
     async (
       payloadMessages: ChatMessage[],
-      opts: { subject: string | null; search: boolean; conversationId: number | null },
+      opts: { subject: string | null; search: boolean; conversationId: number | null; courseId?: number | null },
       callbacks: StreamCallbacks,
       onChunk: (fullText: string) => void,
     ) => {
@@ -58,6 +58,7 @@ export function useChatStream() {
             subject: opts.subject,
             search: opts.search,
             conversation_id: opts.conversationId,
+            course_id: opts.courseId ?? null,
           }),
           signal: controller.signal,
         });
