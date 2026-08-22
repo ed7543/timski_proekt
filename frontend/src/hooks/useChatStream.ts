@@ -7,6 +7,9 @@ export interface DisplayMessage {
   role: 'user' | 'ai' | 'error';
   content: string;
   streaming?: boolean;
+  /** Set when a stream ended with an error - shown alongside any partial
+   * content already rendered, rather than replacing it (see ChatPage). */
+  error?: string;
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -15,6 +18,7 @@ interface StreamCallbacks {
   onConversationInfo?: (info: { id: number; title: string }) => void;
   onSources?: (sources: ChatSource[]) => void;
   onSessionExpired?: () => void;
+  onError?: (message: string) => void;
   onDone?: () => void;
 }
 
@@ -80,6 +84,8 @@ export function useChatStream() {
         let buffer = '';
         let expectSources = false;
         let expectConversation = false;
+        let expectError = false;
+        let doneReceived = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -96,6 +102,10 @@ export function useChatStream() {
             }
             if (line === 'event: sources') {
               expectSources = true;
+              continue;
+            }
+            if (line === 'event: error') {
+              expectError = true;
               continue;
             }
 
@@ -128,7 +138,19 @@ export function useChatStream() {
                 }
               }
 
+              if (expectError) {
+                expectError = false;
+                try {
+                  const errPayload = JSON.parse(data);
+                  callbacks.onError?.(errPayload?.message || 'The AI tutor had trouble responding.');
+                } catch {
+                  callbacks.onError?.('The AI tutor had trouble responding.');
+                }
+                continue;
+              }
+
               if (data === '[DONE]') {
+                doneReceived = true;
                 callbacks.onDone?.();
                 continue;
               }
@@ -143,6 +165,23 @@ export function useChatStream() {
             }
           }
         }
+
+        // The connection closed without a [DONE] sentinel and without throwing
+        // (e.g. the server process died or a proxy cut the connection mid-stream)
+        // - without this, the message would be left showing the "typing" state
+        // forever with no explanation.
+        if (!doneReceived) {
+          callbacks.onError?.('Connection to the tutor was lost - the answer above may be incomplete.');
+          callbacks.onDone?.();
+        }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          // User clicked "stop" - not a failure, just end cleanly and keep
+          // whatever text streamed in so far.
+          callbacks.onDone?.();
+          return;
+        }
+        throw err;
       } finally {
         setIsStreaming(false);
         abortRef.current = null;
@@ -151,7 +190,11 @@ export function useChatStream() {
     [],
   );
 
-  return { send, isStreaming };
+  const abort = useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
+
+  return { send, isStreaming, abort };
 }
 
 export { uid };

@@ -765,6 +765,9 @@ select:hover {
   color: var(--muted);
   cursor: not-allowed;
 }
+.stop-btn:hover {
+  background: var(--destructive);
+}
 .legal {
   margin-top: 8px;
   text-align: center;

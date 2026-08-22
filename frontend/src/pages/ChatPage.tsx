@@ -41,7 +41,7 @@ export function ChatPage() {
 
   const skipNextLoad = useRef(false);
   const inputRef = useRef<MessageInputHandle>(null);
-  const { send, isStreaming } = useChatStream();
+  const { send, isStreaming, abort } = useChatStream();
   const conversations = useConversations();
 
   // Load (or reset) the active conversation whenever the route param changes,
@@ -153,6 +153,13 @@ export function ChatPage() {
               ),
             );
           },
+          onError: (message) => {
+            // Attach the error to the existing AI bubble instead of replacing
+            // it, so any partial answer already streamed in isn't discarded.
+            setMessages((prev) =>
+              prev.map((m) => (m.id === aiMsgId ? { ...m, streaming: false, error: message } : m)),
+            );
+          },
           onDone: () => {
             setMessages((prev) => prev.map((m) => (m.id === aiMsgId ? { ...m, streaming: false } : m)));
           },
@@ -162,8 +169,12 @@ export function ChatPage() {
         },
       )
         .catch((err: Error) => {
+          // Same principle as onError above: keep whatever content already
+          // rendered, just mark it as failed rather than wiping it out.
           setMessages((prev) =>
-            prev.map((m) => (m.id === aiMsgId ? { id: uid(), role: 'error', content: err.message || 'Connection error' } : m)),
+            prev.map((m) =>
+              m.id === aiMsgId ? { ...m, streaming: false, error: err.message || 'Connection error' } : m,
+            ),
           );
         })
         .finally(() => {
@@ -243,7 +254,9 @@ export function ChatPage() {
 
   const pickFollowup = (question: string) => {
     setModal(null);
-    inputRef.current?.setValue(question);
+    // handleSend takes the question directly - clear (rather than fill) the
+    // composer so there's nothing left sitting in it to accidentally resend.
+    inputRef.current?.clear();
     inputRef.current?.focus();
     handleSend(question);
   };
@@ -286,7 +299,7 @@ export function ChatPage() {
     >
       <ChatMasthead title={title} subject={subject} onSubjectChange={setSubject} live={live} onToggleLive={() => setLive((l) => !l)} />
       <MessageList messages={messages} onPickSuggestion={handleSend} />
-      <MessageInput ref={inputRef} disabled={isStreaming} live={live} subject={subject} onSend={handleSend} />
+      <MessageInput ref={inputRef} disabled={isStreaming} live={live} subject={subject} onSend={handleSend} onStop={abort} />
 
       {modal?.kind === 'quiz' && <QuizModal data={modal.data} onClose={() => setModal(null)} />}
       {modal?.kind === 'summary' && <SummaryModal summary={modal.data} onClose={() => setModal(null)} />}
