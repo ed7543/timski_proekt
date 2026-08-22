@@ -45,11 +45,19 @@ def _tokenize(text: str) -> Set[str]:
     return {w for w in words if len(w) > 2 and w not in _STOPWORDS_MK and w not in _STOPWORDS_EN}
 
 
-def score_section(lesson_title: str, section: Section) -> float:
+def score_section(lesson_title: str, section: Section, title_en: Optional[str] = None) -> float:
     """Overlap ratio in [0, 1]: how much of the lesson title's vocabulary
     shows up in this section, with heading matches weighted 2x over body-text
-    matches (headings are short and precise; body text is noisy)."""
+    matches (headings are short and precise; body text is noisy).
+
+    `title_en` (see title_translation.py) is an optional English translation
+    of `lesson_title`, unioned into the vocabulary before matching. Sources
+    like OpenStax/MDN/learncpp are English-only, so without this a Macedonian
+    lesson title scores ~0 against every section no matter how well it
+    actually matches - see title_translation.py's module docstring."""
     lesson_words = _tokenize(lesson_title)
+    if title_en:
+        lesson_words |= _tokenize(title_en)
     if not lesson_words:
         return 0.0
 
@@ -74,10 +82,14 @@ def find_best_excerpt(
     lesson_title: str,
     sections: List[Section],
     threshold: float = DEFAULT_CONFIDENCE_THRESHOLD,
+    title_en: Optional[str] = None,
 ) -> MatchResult:
     """Picks the best-matching section for `lesson_title`, plus immediately
     -following sections that still look related (in case one lesson's topic
     spans a couple of short sections), up to MAX_EXCERPT_CHARS.
+
+    `title_en`: see score_section() - optional English translation of
+    `lesson_title`, for matching against English-language sources.
 
     Returns MatchResult(excerpt=None, ...) if nothing clears `threshold` -
     the caller should then skip generation entirely for this lesson."""
@@ -85,7 +97,7 @@ def find_best_excerpt(
         return MatchResult(None, 0.0, None)
 
     scored = sorted(
-        ((score_section(lesson_title, s), i, s) for i, s in enumerate(sections)),
+        ((score_section(lesson_title, s, title_en), i, s) for i, s in enumerate(sections)),
         key=lambda triple: triple[0],
         reverse=True,
     )
@@ -98,7 +110,7 @@ def find_best_excerpt(
     for s in sections[best_idx:]:
         if total_len >= MAX_EXCERPT_CHARS:
             break
-        if s is not best_section and score_section(lesson_title, s) < threshold * 0.5:
+        if s is not best_section and score_section(lesson_title, s, title_en) < threshold * 0.5:
             break  # ran into a clearly unrelated section - stop extending
         excerpt_parts.append(f"## {s.heading}\n{s.text}")
         total_len += len(s.text)

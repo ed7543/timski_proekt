@@ -9,7 +9,8 @@ Usage:
     python -m backend.services.ingestion.cli --source predmeti --create-missing
     python -m backend.services.ingestion.cli --source lessons \\
         --courses-db-path "C:\\Users\\stoja\\Downloads\\courses_db.json" \\
-        --course-codes F23L1W005,F23L1W020,F23L2W002,F23L2W031,F23L2W041,F23L1S003,F23L1S016,F23L1S023,F23L1S045,F23L1S146
+        --course-codes F23L1W005,F23L1W020,F23L2W002,F23L2W031,F23L2W041,F23L1S003,F23L1S016,F23L1S023,F23L1S045,F23L1S146 \\
+        --skip-quiz
 """
 import argparse
 import asyncio
@@ -155,6 +156,8 @@ def run_lessons(args: argparse.Namespace) -> None:
             course_codes=course_codes,
             threshold=args.threshold,
             force_regenerate=args.force_regenerate,
+            generate_quiz_flag=not args.skip_quiz,
+            local_materials_dir=args.local_materials_dir,
         )
     finally:
         db.close()
@@ -193,8 +196,18 @@ def main() -> None:
         help="For --source lessons: regenerate lessons that already have documentation (default: skip them)",
     )
     parser.add_argument(
+        "--skip-quiz", action="store_true",
+        help="For --source lessons: documentation-only pass, skip the quiz Gemini call "
+             "(halves API usage per generated lesson - quiz can be backfilled later)",
+    )
+    parser.add_argument(
         "--report-path", type=Path, default=None,
         help="For --source lessons: where to write the run's markdown report (default: timestamped file in cwd)",
+    )
+    parser.add_argument(
+        "--local-materials-dir", type=Path, default=None,
+        help="For --source lessons: base folder for LOCAL_FILE_ONLY_CODES courses, one subfolder "
+             "per course_code (default: 'course_materials' next to --courses-db-path)",
     )
     args = parser.parse_args()
 
