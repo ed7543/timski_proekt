@@ -1,6 +1,5 @@
 """Idempotent upserts for ingested course/material/recording data - re-running
 ingestion must never create duplicates, only refresh timestamps/content."""
-from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.dialects.postgresql import insert
@@ -8,13 +7,14 @@ from sqlalchemy.orm import Session
 
 from backend.database.models import Course, CourseMaterial, Recording
 from backend.services.ingestion.predmeti_scraper import PredmetiCourse
+from backend.utils.time import utcnow
 from backend.services.ingestion.snimki_scraper import CourseScrapeResult, MaterialItem, RecordingItem
 
 
 def upsert_course_from_snimki(db: Session, scraped: CourseScrapeResult) -> int:
     """Upsert a Course row keyed on its unique `slug`, from a snimki scrape result.
     Returns the course id."""
-    now = datetime.utcnow()
+    now = utcnow()
     stmt = insert(Course).values(
         slug=scraped.slug,
         name=scraped.name,
@@ -51,15 +51,15 @@ def upsert_course_metadata_from_predmeti(db: Session, course_id: int, predmeti: 
     if predmeti.semester and not course.semester:
         course.semester = predmeti.semester
     course.description = predmeti.to_description()
-    course.updated_at = datetime.utcnow()
-    course.last_scraped_at = datetime.utcnow()
+    course.updated_at = utcnow()
+    course.last_scraped_at = utcnow()
     db.commit()
 
 
 def create_course_from_predmeti(db: Session, slug: str, predmeti: PredmetiCourse) -> int:
     """Create a brand-new Course row for a predmeti-only course (no snimki page),
     keyed on a synthesized slug. Idempotent on that slug like the snimki path."""
-    now = datetime.utcnow()
+    now = utcnow()
     stmt = insert(Course).values(
         slug=slug,
         name=predmeti.name,
@@ -94,7 +94,7 @@ def find_course_by_name(db: Session, name: str) -> Optional[Course]:
 def upsert_recordings_for_course(
     db: Session, course_id: int, recordings: list[RecordingItem], source_page_url: str
 ) -> int:
-    now = datetime.utcnow()
+    now = utcnow()
     count = 0
     for item in recordings:
         stmt = insert(Recording).values(
@@ -125,7 +125,7 @@ def upsert_recordings_for_course(
 
 
 def upsert_materials_for_course(db: Session, course_id: int, materials: list[MaterialItem]) -> int:
-    now = datetime.utcnow()
+    now = utcnow()
     count = 0
     for item in materials:
         stmt = insert(CourseMaterial).values(

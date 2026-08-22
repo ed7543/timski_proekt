@@ -75,6 +75,15 @@ python -m backend.services.ingestion.cli --source all
 ```
 Pulls course/lecture-recording data from the public finki-hub.com sites into the `courses`/`course_materials`/`recordings` tables — see "Course Data" below before running this at full scale.
 
+### 7. Run the tests
+```bash
+source .venv/bin/activate
+pytest backend/tests/ -v
+```
+Needs a real Postgres database reachable via `DATABASE_URL` with `alembic upgrade head` already applied (some tests exercise the `pg_trgm` fuzzy-match extension directly — there's no SQLite fallback). No frontend tests exist yet (see "Current Status").
+
+If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend/__init__.py` is missing. Without it, pytest's own import-path resolution stops one directory too shallow (inserts `backend/` onto `sys.path` instead of the project root) and `backend.xxx` imports fail - even though the app itself runs fine either way, since `uvicorn`/`python -m` add the project root differently. The file should already exist in this repo; if it's gone, `touch backend/__init__.py` fixes it.
+
 ## Project Architecture
 
 ```
@@ -155,7 +164,10 @@ Pulls course/lecture-recording data from the public finki-hub.com sites into the
     │   └── search.py            # Tavily API - search, query building
     │
     └── tests/                   # Unit & integration tests
-        └── test_search_cache.py # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
+        ├── test_search_cache.py  # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
+        ├── test_course_context.py # format_course_context() + _get_course_context() coverage
+        ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
+        └── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
 ```
 
 ## Architecture Layers Explained
@@ -221,7 +233,7 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 - **Email verification / password reset**: `backend/utils/email.py::send_email()` sends via the Resend API if `RESEND_API_KEY` is set; otherwise it falls back to **printing the link to the server console** (`[DEV] ... link: ...`). Fine for local dev/demo without a Resend account configured.
 - **Chat history**: every chat lives in a `Conversation` (id, user, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, timestamp). Deleting a conversation cascades and deletes its messages. Conversations are strictly per-user — `conversationRoute.py`'s `_get_owned_conversation` helper returns a 404 (not a 403) if you try to access someone else's conversation, so you can't even tell whether a given conversation ID belongs to someone else.
 - **Streaming + persistence**: `/api/chat` streams the AI's reply via SSE. Because the database session tied to the HTTP request closes as soon as the streaming response starts, the code opens a **second, fresh database session** partway through the stream just to save the assistant's final reply once it's fully generated.
-- **Graceful failure mid-stream**: if Groq errors out partway through a response (rate limit, timeout, etc.), the backend catches it, sends the client a proper `event: error` SSE frame with a readable message (e.g. "You're sending messages too fast"), and still saves whatever partial answer had already been generated instead of losing it. The frontend shows the error alongside the partial answer rather than replacing it.
+- **Graceful failure mid-stream**: if Groq errors out partway through a response (rate limit, timeout, etc.), the backend catches it, sends the client a proper `event: error` SSE frame with a readable message (e.g. "You're sending messages too fast"), and still saves whatever partial answer had already been generated instead of losing it. The frontend shows the error alongside the partial answer rather than replacing it. Covered by `backend/tests/test_chat_route.py` — verified the tests actually catch a regression here, not just pass regardless, by temporarily reverting the fix and confirming they failed.
 - **Stop generating**: the composer's send button turns into a stop button while a response is streaming (`useChatStream`'s `abort()`, backed by a real `AbortController`). Clicking it always stops the client from receiving/showing more text. **Known limitation**: unlike the server-error case above, a client-initiated disconnect doesn't reliably trigger the same save-partial-reply path — Starlette/anyio can raise `RuntimeError: aclose(): asynchronous generator is already running` when cleaning up the stream generator on a client disconnect, which is a deeper async cleanup issue than this fix addresses. So stopping generation is instant and reliable; the partial answer being saved to that conversation's history on a *user-initiated* stop is not guaranteed (it is guaranteed on a *server-side* error).
 
 ## Frontend (frontend/)
@@ -245,7 +257,7 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 - **predmeti.finki-hub.com** turned out to be a React SPA whose own data comes from a single public JSON asset (`assets.finki-hub.com/courses.json`) — `predmeti_scraper.py` fetches that directly, no HTML parsing needed.
 - **snimki.finki-hub.com** is a static VitePress site built from Markdown in `github.com/finki-hub/recordings-listing` — `snimki_scraper.py` fetches the raw Markdown from GitHub and parses it (headers → categories/presenter+year groups, links → recordings or materials).
 - **Important limitation, read before relying on this for real studying**: neither source publishes an actual course **syllabus**. `Course.description` is a synthesized blurb from metadata (course code, semester, credits, professors, prerequisites, tags) — FINKI's real syllabi live only behind the gated Moodle. `services/course_context.py` supplements this with the course's actual lecture-recording **topic titles** (e.g. "Циклуси (дел 1)", "Покажувачи") and its ingested **materials** (solved exercises, past-exercise sites, source repos — with real links) as the closest available stand-in for real course content, since those come from real lecture titles and real linked resources. This is disclosed in that file's docstring — don't oversell this feature as "the AI has read the syllabus."
-- **The tutor is instructed not to fabricate resources**: early testing of the materials context showed the AI padding a real 3-item materials list with two invented, non-existent ones (a "FINKI portal" page and a fake GitHub search link) to seem more thorough. Fixed with an explicit system-prompt rule (`backend/ai/chat.py`) forbidding invented URLs/resources — re-verified afterward that it lists only what's actually provided.
+- **The tutor is instructed not to fabricate resources**: early testing of the materials context showed the AI padding a real 3-item materials list with two invented, non-existent ones (a "FINKI portal" page and a fake GitHub search link) to seem more thorough. Fixed with an explicit system-prompt rule (`backend/ai/chat.py`) forbidding invented URLs/resources — re-verified afterward that it lists only what's actually provided. `backend/tests/test_ai_chat.py` guards the prompt text itself (that the rule can't be silently deleted) and that `course_context` actually reaches every prompt-builder function, though "the model doesn't hallucinate" isn't something a unit test can fully cover — that part stays on live verification.
 - Ingestion is a standalone, manual/cron-able script (`python -m backend.services.ingestion.cli`), never triggered by live API traffic. It's a well-behaved client: real User-Agent, `robots.txt` check, ~1.5s delay between requests. Re-running it is safe (idempotent upserts, no duplicates).
 - 67 courses have been ingested so far — run the CLI yourself to pull more or refresh existing ones.
 
@@ -264,7 +276,7 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 | Database Layer | Complete (PostgreSQL + SQLAlchemy + Alembic) |
 | Search-Result Caching | Complete (`cached_searches` table, exact + pg_trgm fuzzy match) |
 | Middleware | Complete (JWT auth guard on all endpoints, CORS origin allowlist, rate limiting on auth routes) |
-| Tests | Started (`backend/tests/test_search_cache.py`) |
+| Tests | Backend: 29 tests across 4 files (search cache, course context, AI prompt construction, SSE error handling). Frontend: none yet — no test framework configured |
 | Course data / study content | Complete for 67 ingested courses (see "Course Data" above) — metadata + lecture topics + materials, no real syllabus text available from any public source |
 | Course-aware chat (frontend) | Complete — course picker in the chat masthead, threads `course_id` through every chat/study-tool call |
 | Quiz from lecture video | Not started — R&D idea only, see Roadmap |
