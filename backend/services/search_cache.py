@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import List, Optional, Tuple
 
 from sqlalchemy import func
@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.database.models import CachedSearch
 from backend.models.searchResult import SearchResult
+from backend.utils.time import utcnow
 from backend.web_search.search import build_search_query, web_search
 
 # Similarity threshold for the pg_trgm fuzzy-match fallback (0..1, higher = stricter).
@@ -54,7 +55,7 @@ def _to_search_results(raw: list) -> List[SearchResult]:
 
 def _record_hit(db: Session, entry: CachedSearch) -> None:
     entry.hit_count += 1
-    entry.last_used_at = datetime.utcnow()
+    entry.last_used_at = utcnow()
     db.commit()
 
 
@@ -82,11 +83,11 @@ async def get_or_search(
     entry = find_cached(db, question, subject)
 
     if entry:
-        if datetime.utcnow() - entry.last_refreshed_at > STALE_AFTER:
+        if utcnow() - entry.last_refreshed_at > STALE_AFTER:
             fresh_results = await web_search(entry.raw_query, num_results=num_results)
             if fresh_results:
                 entry.results = _serialize(fresh_results)
-                entry.last_refreshed_at = datetime.utcnow()
+                entry.last_refreshed_at = utcnow()
         _record_hit(db, entry)
         return _to_search_results(entry.results), True
 

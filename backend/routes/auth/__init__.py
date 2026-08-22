@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
@@ -8,6 +8,7 @@ from backend.database.session import get_db
 from backend.database.models import User, VerificationToken
 from backend.middleware.auth import get_current_user
 from backend.middleware.rate_limit import limiter
+from backend.utils.time import utcnow
 from backend.models.authRequest import (
     RegisterRequest,
     LoginRequest,
@@ -31,7 +32,7 @@ def _create_token(db: Session, user: User, purpose: str, expire_hours: int) -> s
         user_id=user.id,
         token=token,
         purpose=purpose,
-        expires_at=datetime.utcnow() + timedelta(hours=expire_hours),
+        expires_at=utcnow() + timedelta(hours=expire_hours),
     )
     db.add(record)
     db.commit()
@@ -99,7 +100,7 @@ async def verify_email(token: str, db: Session = Depends(get_db)):
         .filter(VerificationToken.token == token, VerificationToken.purpose == "verify_email")
         .first()
     )
-    if not record or record.expires_at < datetime.utcnow():
+    if not record or record.expires_at < utcnow():
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     user = db.query(User).filter(User.id == record.user_id).first()
@@ -129,7 +130,7 @@ async def reset_password(payload: ResetPasswordRequest, db: Session = Depends(ge
         .filter(VerificationToken.token == payload.token, VerificationToken.purpose == "reset_password")
         .first()
     )
-    if not record or record.expires_at < datetime.utcnow():
+    if not record or record.expires_at < utcnow():
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     user = db.query(User).filter(User.id == record.user_id).first()

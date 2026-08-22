@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
@@ -7,6 +6,7 @@ from backend.database.models import ChatMessage, Conversation, User
 from backend.database.session import SessionLocal
 from backend.models.chatRequest import ChatRequest
 from backend.routes.conversationRoute import _get_owned_conversation
+from backend.utils.time import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def resolve_conversation(db: Session, request: ChatRequest, current_user: User, 
 
 def save_user_message(db: Session, conversation: Conversation, content: str) -> None:
     db.add(ChatMessage(conversation_id=conversation.id, role="user", content=content))
-    conversation.updated_at = datetime.utcnow()
+    conversation.updated_at = utcnow()
     db.commit()
 
 
@@ -42,7 +42,7 @@ def save_assistant_reply(conversation_id: int, content: str) -> None:
         save_db.add(ChatMessage(conversation_id=conversation_id, role="assistant", content=content))
         conv = save_db.query(Conversation).filter(Conversation.id == conversation_id).first()
         if conv:
-            conv.updated_at = datetime.utcnow()
+            conv.updated_at = utcnow()
         save_db.commit()
     except Exception:
         save_db.rollback()

@@ -30,7 +30,7 @@ export function MessageList({ messages, onPickSuggestion }: Props) {
           {messages.map((m, i) => {
             if (m.role === 'user') return <MessageBubbleUser key={m.id} content={m.content} index={i} />;
             if (m.role === 'error') return <MessageBubbleError key={m.id} content={m.content} />;
-            return <MessageBubbleAI key={m.id} content={m.content} streaming={m.streaming} />;
+            return <MessageBubbleAI key={m.id} content={m.content} streaming={m.streaming} error={m.error} />;
           })}
         </div>
       )}

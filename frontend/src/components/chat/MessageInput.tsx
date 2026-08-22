@@ -1,21 +1,26 @@
 import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from 'react';
 import type { KeyboardEvent } from 'react';
-import { SendIcon } from '../icons';
+import { SendIcon, StopIcon } from '../icons';
 
 interface Props {
   disabled: boolean;
   live: boolean;
   subject: string;
   onSend: (text: string) => void;
+  /** While `disabled` is true because a response is streaming, showing this
+   * turns the send button into a "stop generating" button instead of just
+   * graying it out. */
+  onStop?: () => void;
 }
 
 export interface MessageInputHandle {
   setValue: (text: string) => void;
+  clear: () => void;
   focus: () => void;
 }
 
 export const MessageInput = forwardRef<MessageInputHandle, Props>(function MessageInput(
-  { disabled, live, subject, onSend },
+  { disabled, live, subject, onSend, onStop },
   ref,
 ) {
   const [value, setValue] = useState('');
@@ -34,6 +39,7 @@ export const MessageInput = forwardRef<MessageInputHandle, Props>(function Messa
 
   useImperativeHandle(ref, () => ({
     setValue: (text: string) => setValue(text),
+    clear: () => setValue(''),
     focus: () => textareaRef.current?.focus(),
   }));
 
@@ -71,14 +77,20 @@ export const MessageInput = forwardRef<MessageInputHandle, Props>(function Messa
               <span className="div" />
               <span className="subject">{subject}</span>
             </div>
-            <button
-              className="send-btn"
-              aria-label="Send"
-              disabled={!value.trim() || disabled}
-              onClick={() => submit()}
-            >
-              <SendIcon />
-            </button>
+            {disabled && onStop ? (
+              <button className="send-btn stop-btn" aria-label="Stop generating" onClick={onStop}>
+                <StopIcon />
+              </button>
+            ) : (
+              <button
+                className="send-btn"
+                aria-label="Send"
+                disabled={!value.trim() || disabled}
+                onClick={() => submit()}
+              >
+                <SendIcon />
+              </button>
+            )}
           </div>
         </div>
         <p className="legal">LearnWise may surface inaccurate excerpts — verify with sources.</p>

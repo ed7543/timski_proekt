@@ -8,6 +8,7 @@ export interface ChatRequest {
   subject?: string | null;
   search?: boolean;
   conversation_id?: number | null;
+  course_id?: number | null;
 }
 
 export interface ChatSource {

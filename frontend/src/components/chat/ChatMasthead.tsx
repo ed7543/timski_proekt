@@ -1,4 +1,5 @@
-import { GlobeIcon } from '../icons';
+import { BookIcon, GlobeIcon } from '../icons';
+import type { CourseOut } from '../../types/course';
 
 const SUBJECTS = [
   'Any subject',
@@ -20,9 +21,21 @@ interface Props {
   onSubjectChange: (subject: string) => void;
   live: boolean;
   onToggleLive: () => void;
+  courses: CourseOut[];
+  courseId: number | null;
+  onCourseChange: (courseId: number | null) => void;
 }
 
-export function ChatMasthead({ title, subject, onSubjectChange, live, onToggleLive }: Props) {
+export function ChatMasthead({
+  title,
+  subject,
+  onSubjectChange,
+  live,
+  onToggleLive,
+  courses,
+  courseId,
+  onCourseChange,
+}: Props) {
   return (
     <header className="masthead">
       <div className="masthead-l">
@@ -31,6 +44,30 @@ export function ChatMasthead({ title, subject, onSubjectChange, live, onToggleLi
         <h1 className="conv-title">{title}</h1>
       </div>
       <div className="masthead-r">
+        {courses.length > 0 && (
+          <>
+            <div
+              className="select-wrap select-wrap-course"
+              title="Tie this conversation to a FINKI course for course-aware answers"
+            >
+              <span className="select-wrap-icon">
+                <BookIcon />
+              </span>
+              <select
+                value={courseId ?? ''}
+                onChange={(e) => onCourseChange(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">No course</option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <span className="masthead-divider" />
+          </>
+        )}
         <div className="select-wrap">
           <select value={subject} onChange={(e) => onSubjectChange(e.target.value)}>
             {SUBJECTS.map((s) => (

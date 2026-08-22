@@ -8,6 +8,16 @@ export function PlusIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function StopIcon(props: SVGProps<SVGSVGElement>) {
+  // Inline style (not fill/stroke attrs) so it wins over the .ic class's
+  // stroke-only styling - this icon needs a solid filled square, not an outline.
+  return (
+    <svg className="ic" viewBox="0 0 24 24" style={{ fill: 'currentColor', stroke: 'none' }} {...props}>
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  );
+}
+
 export function TrashIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg className="ic-sm" viewBox="0 0 24 24" {...props}>

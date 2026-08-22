@@ -7,13 +7,13 @@ https://trello.com/b/UqREXgJa/timski-proekt
 
 ## Features
 
--  **Streaming AI chat** — answers appear word by word
+-  **Streaming AI chat** — answers appear word by word, with a stop button to cancel generation mid-answer
 -  **Live web search** — fetches current docs via the Tavily Search API
 -  **Source sidebar** — see exactly where the AI got its info
 -  **Subject mode** — focus on Python, FastAPI, React, etc.
 -  **Accounts & chat history** — register/login, and every conversation is saved, searchable, renameable, exportable
 -  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
--  **Course-aware tutoring** — pass a `course_id` to any chat/study-tool call and the tutor folds in that FINKI course's metadata + lecture topics as extra context
+-  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
 
 ## Setup
 
@@ -74,6 +74,15 @@ source .venv/bin/activate
 python -m backend.services.ingestion.cli --source all
 ```
 Pulls course/lecture-recording data from the public finki-hub.com sites into the `courses`/`course_materials`/`recordings` tables — see "Course Data" below before running this at full scale.
+
+### 7. Run the tests
+```bash
+source .venv/bin/activate
+pytest backend/tests/ -v
+```
+Needs a real Postgres database reachable via `DATABASE_URL` with `alembic upgrade head` already applied (some tests exercise the `pg_trgm` fuzzy-match extension directly — there's no SQLite fallback). No frontend tests exist yet (see "Current Status").
+
+If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend/__init__.py` is missing. Without it, pytest's own import-path resolution stops one directory too shallow (inserts `backend/` onto `sys.path` instead of the project root) and `backend.xxx` imports fail - even though the app itself runs fine either way, since `uvicorn`/`python -m` add the project root differently. The file should already exist in this repo; if it's gone, `touch backend/__init__.py` fixes it.
 
 ## Project Architecture
 
@@ -155,7 +164,10 @@ Pulls course/lecture-recording data from the public finki-hub.com sites into the
     │   └── search.py            # Tavily API - search, query building
     │
     └── tests/                   # Unit & integration tests
-        └── test_search_cache.py # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
+        ├── test_search_cache.py  # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
+        ├── test_course_context.py # format_course_context() + _get_course_context() coverage
+        ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
+        └── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
 ```
 
 ## Architecture Layers Explained
@@ -220,7 +232,9 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 - **Rate limiting**: `/api/auth/register`, `/api/auth/login`, and `/api/auth/forgot-password` are limited to 5 requests/minute per IP (`slowapi`, in-memory store — fine for a single-process deployment; swap in a Redis storage backend if this ever runs with multiple workers).
 - **Email verification / password reset**: `backend/utils/email.py::send_email()` sends via the Resend API if `RESEND_API_KEY` is set; otherwise it falls back to **printing the link to the server console** (`[DEV] ... link: ...`). Fine for local dev/demo without a Resend account configured.
 - **Chat history**: every chat lives in a `Conversation` (id, user, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, timestamp). Deleting a conversation cascades and deletes its messages. Conversations are strictly per-user — `conversationRoute.py`'s `_get_owned_conversation` helper returns a 404 (not a 403) if you try to access someone else's conversation, so you can't even tell whether a given conversation ID belongs to someone else.
-- **Streaming + persistence quirk**: `/api/chat` streams the AI's reply via SSE. Because the database session tied to the HTTP request closes as soon as the streaming response starts, the code opens a **second, fresh database session** partway through the stream just to save the assistant's final reply once it's fully generated. This works, but doesn't yet roll back cleanly if that second save fails — a known rough edge (see Roadmap).
+- **Streaming + persistence**: `/api/chat` streams the AI's reply via SSE. Because the database session tied to the HTTP request closes as soon as the streaming response starts, the code opens a **second, fresh database session** partway through the stream just to save the assistant's final reply once it's fully generated.
+- **Graceful failure mid-stream**: if Groq errors out partway through a response (rate limit, timeout, etc.), the backend catches it, sends the client a proper `event: error` SSE frame with a readable message (e.g. "You're sending messages too fast"), and still saves whatever partial answer had already been generated instead of losing it. The frontend shows the error alongside the partial answer rather than replacing it. Covered by `backend/tests/test_chat_route.py` — verified the tests actually catch a regression here, not just pass regardless, by temporarily reverting the fix and confirming they failed.
+- **Stop generating**: the composer's send button turns into a stop button while a response is streaming (`useChatStream`'s `abort()`, backed by a real `AbortController`). Clicking it always stops the client from receiving/showing more text. **Known limitation**: unlike the server-error case above, a client-initiated disconnect doesn't reliably trigger the same save-partial-reply path — Starlette/anyio can raise `RuntimeError: aclose(): asynchronous generator is already running` when cleaning up the stream generator on a client disconnect, which is a deeper async cleanup issue than this fix addresses. So stopping generation is instant and reliable; the partial answer being saved to that conversation's history on a *user-initiated* stop is not guaranteed (it is guaranteed on a *server-side* error).
 
 ## Frontend (frontend/)
 
@@ -229,9 +243,11 @@ A Vite + React + TypeScript SPA that replaces `backend/static/learnwise-2.html` 
 - **Routing**: `react-router-dom` — `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email` are public; `/chat`, `/chat/:conversationId`, `/courses`, `/courses/:courseId`, `/progress`, `/admin` require auth (a `ProtectedRoute` wrapper redirects to `/login` otherwise). `/courses` and `/courses/:courseId` are real pages (catalog + detail, browsing the `/api/courses/*` backend from Phase 3); `/progress`/`/admin` are still placeholder "coming soon" stub pages — seams for future work.
 - **Courses section**: `CoursesPage` lists ingested courses grouped by semester with a search box; `CourseDetailPage` shows a course's metadata pills, description, materials list, and recordings grouped by category (Предавања/Аудиториски вежби/etc.), each linking out to its source. A left-sidebar nav (`NavTabs`, shared with the chat page) switches between Chat and Courses.
 - **Auth**: JWT kept in `localStorage` (same trade-off the old HTML app had — the backend only issues bearer tokens, not httpOnly cookies, so this wasn't "fixed" here, just carried forward knowingly). `AuthContext` calls `GET /api/auth/me` on load to restore a session; a central API client clears the token and redirects to `/login` on any `401`.
-- **Streaming chat**: `useChatStream` replicates the backend's exact SSE framing via `fetch` + `ReadableStream` (native `EventSource` can't send the required `Authorization` header) — same approach the old vanilla-JS app used, just ported into a hook.
+- **Streaming chat**: `useChatStream` replicates the backend's exact SSE framing via `fetch` + `ReadableStream` (native `EventSource` can't send the required `Authorization` header) — same approach the old vanilla-JS app used, just ported into a hook. It also exposes `abort()` (backed by a real `AbortController`) for the composer's stop-generating button, and treats a connection that ends without a `[DONE]` sentinel as its own error state instead of leaving the message stuck showing "typing" forever.
+- **Markdown rendering is sanitized**: AI responses and summaries render through `frontend/src/utils/markdown.ts`, which pipes `marked`'s output through DOMPurify before it hits `dangerouslySetInnerHTML`. `marked` alone does not sanitize — since responses can embed live web-search content, unsanitized output would be a real XSS vector.
 - **State/data**: no react-query or similar — plain `fetch` wrapped in a small typed API client (`frontend/src/api/`) plus React Context/hooks. Deliberate: there are only ~6 REST resources, and a query library would fight the raw SSE code path more than it would help.
 - **Study tools**: Quiz/Summary/Explore/Ask More render as modals over the chat page (not separate routes), matching the original app's UX.
+- **Course picker in the chat masthead**: `ChatMasthead` fetches `GET /api/courses` once on load and shows a course dropdown (a bordered "pill" with a book icon, next to the existing free-text Subject dropdown, separated by a divider since they're different things — course ties you to a specific FINKI course's real data, subject just nudges the live web search). Selecting one threads `course_id` through every chat/quiz/summary/explore/ask-more call. Hidden entirely if no courses are ingested yet, so it degrades gracefully. Both dropdowns are width-capped with ellipsis truncation — course names can run 60+ characters in Cyrillic, and without a cap the select would balloon and shove everything else in the masthead out of place.
 - **Dev vs prod**: in dev, Vite proxies `/api` to `:8000` (see `frontend/vite.config.ts`) — no CORS needed. In prod, `npm run build` produces `frontend/dist`, which `backend/main.py` mounts directly at `/` if present, so the whole app can ship as a single FastAPI process.
 
 ## Course Data (courses / course_materials / recordings)
@@ -240,9 +256,10 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 
 - **predmeti.finki-hub.com** turned out to be a React SPA whose own data comes from a single public JSON asset (`assets.finki-hub.com/courses.json`) — `predmeti_scraper.py` fetches that directly, no HTML parsing needed.
 - **snimki.finki-hub.com** is a static VitePress site built from Markdown in `github.com/finki-hub/recordings-listing` — `snimki_scraper.py` fetches the raw Markdown from GitHub and parses it (headers → categories/presenter+year groups, links → recordings or materials).
-- **Important limitation, read before relying on this for real studying**: neither source publishes an actual course **syllabus**. `Course.description` is a synthesized blurb from metadata (course code, semester, credits, professors, prerequisites, tags) — FINKI's real syllabi live only behind the gated Moodle. `services/course_context.py` supplements this with the course's actual lecture-recording **topic titles** (e.g. "Циклуси (дел 1)", "Покажувачи") as the closest available stand-in for a topic outline, since those come from real lecture titles. This is disclosed in that file's docstring — don't oversell this feature as "the AI has read the syllabus."
+- **Important limitation, read before relying on this for real studying**: neither source publishes an actual course **syllabus**. `Course.description` is a synthesized blurb from metadata (course code, semester, credits, professors, prerequisites, tags) — FINKI's real syllabi live only behind the gated Moodle. `services/course_context.py` supplements this with the course's actual lecture-recording **topic titles** (e.g. "Циклуси (дел 1)", "Покажувачи") and its ingested **materials** (solved exercises, past-exercise sites, source repos — with real links) as the closest available stand-in for real course content, since those come from real lecture titles and real linked resources. This is disclosed in that file's docstring — don't oversell this feature as "the AI has read the syllabus."
+- **The tutor is instructed not to fabricate resources**: early testing of the materials context showed the AI padding a real 3-item materials list with two invented, non-existent ones (a "FINKI portal" page and a fake GitHub search link) to seem more thorough. Fixed with an explicit system-prompt rule (`backend/ai/chat.py`) forbidding invented URLs/resources — re-verified afterward that it lists only what's actually provided. `backend/tests/test_ai_chat.py` guards the prompt text itself (that the rule can't be silently deleted) and that `course_context` actually reaches every prompt-builder function, though "the model doesn't hallucinate" isn't something a unit test can fully cover — that part stays on live verification.
 - Ingestion is a standalone, manual/cron-able script (`python -m backend.services.ingestion.cli`), never triggered by live API traffic. It's a well-behaved client: real User-Agent, `robots.txt` check, ~1.5s delay between requests. Re-running it is safe (idempotent upserts, no duplicates).
-- Only 3 courses have been ingested so far as a verification sample (`strukturno-programiranje`, `objektno-orientirano-programiranje`, `algoritmi-i-podatochni-strukturi`) — run the CLI yourself to pull more.
+- 67 courses have been ingested so far — run the CLI yourself to pull more or refresh existing ones.
 
 ## Current Status
 
@@ -259,8 +276,9 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 | Database Layer | Complete (PostgreSQL + SQLAlchemy + Alembic) |
 | Search-Result Caching | Complete (`cached_searches` table, exact + pg_trgm fuzzy match) |
 | Middleware | Complete (JWT auth guard on all endpoints, CORS origin allowlist, rate limiting on auth routes) |
-| Tests | Started (`backend/tests/test_search_cache.py`) |
-| Course data / study content | Complete for a 3-course sample (see "Course Data" above) — metadata + lecture topics ingested, no real syllabus text available from any public source |
+| Tests | Backend: 29 tests across 4 files (search cache, course context, AI prompt construction, SSE error handling). Frontend: none yet — no test framework configured |
+| Course data / study content | Complete for 67 ingested courses (see "Course Data" above) — metadata + lecture topics + materials, no real syllabus text available from any public source |
+| Course-aware chat (frontend) | Complete — course picker in the chat masthead, threads `course_id` through every chat/study-tool call |
 | Quiz from lecture video | Not started — R&D idea only, see Roadmap |
 | Courses browsing (frontend) | Complete — catalog + detail pages, listing materials/recordings per course |
 | Progress/Admin frontend pages | Stub placeholders only — real UI not built yet |
@@ -321,7 +339,7 @@ The team has agreed on the following next steps, roughly in priority order. See 
 
 1. **Backend hardening + search-result caching** ✅ done — Tavily results are now cached in `cached_searches` (exact + `pg_trgm` fuzzy match on the normalized query), so a repeated or near-duplicate question is answered from cache instead of a fresh API call. Also landed: CORS now uses an explicit `ALLOWED_ORIGINS` allowlist instead of `*`, rate limiting on `/login`/`/register`/`/forgot-password` (5/min via `slowapi`), real email sending via Resend (falls back to console logging if unconfigured), consistent auth across `/api/quiz`/`/api/summary`/`/api/explore`/`/api/ask-more`, and the `services/` layer now actually has code in it (`search_cache.py`, `chat_service.py`).
 2. **React frontend** ✅ done — `backend/static/learnwise-2.html` has been replaced by a real Vite + TypeScript SPA in `frontend/`, against the exact same REST API. FastAPI is now a pure JSON API (`backend/main.py` no longer serves the old static HTML); the old files are left on disk for reference but are unreferenced. See "Frontend" above. `/courses` and `/courses/:courseId` are real pages now (see item 3); `/progress` and `/admin` remain placeholder stubs — no real UI behind them yet.
-3. **Course/study data** ✅ done for an initial sample — `Course`/`CourseMaterial`/`Recording` tables exist, `/api/courses/*` endpoints are live, the AI tutor accepts an optional `course_id` on chat/quiz/summary/explore/ask-more and folds in course context, and the frontend has a real Courses catalog + detail page (`/courses`, `/courses/:courseId`) to browse it all. See "Course Data" above for the **important caveat**: no real syllabus text exists in any public source, so this is metadata + lecture topics, not a full curriculum. Only 3 courses ingested so far — run the ingestion CLI to pull more.
+3. **Course/study data** ✅ done, 67 courses ingested — `Course`/`CourseMaterial`/`Recording` tables exist, `/api/courses/*` endpoints are live, the AI tutor accepts an optional `course_id` on chat/quiz/summary/explore/ask-more and folds in course metadata + topics + materials, and the frontend has a real Courses catalog + detail page (`/courses`, `/courses/:courseId`) *plus* a course picker right in the chat masthead so `course_id` actually gets used day-to-day, not just via the API. See "Course Data" above for the **important caveat**: no real syllabus text exists in any public source, so this is metadata + lecture topics + materials, not a full curriculum — and for the anti-hallucination fix that keeps the tutor from inventing resources that aren't actually in that data.
 4. **Quiz generation from lecture recordings** (idea, not yet started) — `snimki.finki-hub.com` only lists links to recordings (almost certainly YouTube), with no transcripts, and the lectures are in Macedonian with a lot of Macedonian/English code-switching around technical terms. Plan: try YouTube's own (even auto-generated) captions first via `youtube-transcript-api`; if quality is too poor on real sample lectures, fall back to self-hosted Whisper transcription; cache whatever transcript is produced permanently, the same way search results get cached in step 1. This needs a short manual quality spike on a couple of real lectures before any pipeline gets built — Macedonian ASR quality on code-heavy lectures is the real risk here, not the engineering.
 
 ## Extending It
