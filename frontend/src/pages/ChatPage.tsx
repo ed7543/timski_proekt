@@ -15,8 +15,10 @@ import { useChatStream, uid } from '../hooks/useChatStream';
 import type { DisplayMessage } from '../hooks/useChatStream';
 import { useConversations } from '../hooks/useConversations';
 import { getConversation, exportConversation } from '../api/conversations';
+import { listCourses } from '../api/courses';
 import * as chatTools from '../api/chatTools';
 import type { ChatSource, QuizResponse, ExploreResponse } from '../types/chat';
+import type { CourseOut } from '../types/course';
 
 type ModalState =
   | { kind: 'quiz'; data: QuizResponse }
@@ -35,6 +37,8 @@ export function ChatPage() {
   const [sources, setSources] = useState<ChatSource[]>([]);
   const [subject, setSubject] = useState('Any subject');
   const [live, setLive] = useState(true);
+  const [courses, setCourses] = useState<CourseOut[]>([]);
+  const [courseId, setCourseId] = useState<number | null>(null);
   const [modal, setModal] = useState<ModalState>(null);
   const [toolLoading, setToolLoading] = useState<null | 'quiz' | 'summary' | 'explore' | 'askMore'>(null);
   const [exporting, setExporting] = useState(false);
@@ -43,6 +47,16 @@ export function ChatPage() {
   const inputRef = useRef<MessageInputHandle>(null);
   const { send, isStreaming, abort } = useChatStream();
   const conversations = useConversations();
+
+  // Load the course catalog once, for the "tie this chat to a course" picker
+  // in the masthead - courses.finki-hub data, not required to use the app.
+  useEffect(() => {
+    listCourses()
+      .then(setCourses)
+      .catch(() => {
+        /* course picker just stays empty/hidden on failure - not critical */
+      });
+  }, []);
 
   // Load (or reset) the active conversation whenever the route param changes,
   // unless we just set it ourselves right after streaming created a new one.
@@ -127,7 +141,7 @@ export function ChatPage() {
 
       send(
         payloadMessages,
-        { subject: subjectValue, search: live, conversationId: activeId },
+        { subject: subjectValue, search: live, conversationId: activeId, courseId },
         {
           onConversationInfo: (info) => {
             setActiveId(info.id);
@@ -182,7 +196,7 @@ export function ChatPage() {
           inputRef.current?.focus();
         });
     },
-    [isStreaming, messages, subject, live, activeId, send, navigate, conversations],
+    [isStreaming, messages, subject, live, activeId, courseId, send, navigate, conversations],
   );
 
   const conversationMessages = () =>
@@ -208,7 +222,7 @@ export function ChatPage() {
     }
     setToolLoading(kind);
     try {
-      const payload = { messages: conversationMessages(), subject: subjectValue };
+      const payload = { messages: conversationMessages(), subject: subjectValue, course_id: courseId };
       if (kind === 'quiz') {
         const data = await chatTools.generateQuiz(payload);
         setModal({ kind: 'quiz', data });
@@ -297,7 +311,16 @@ export function ChatPage() {
         />
       }
     >
-      <ChatMasthead title={title} subject={subject} onSubjectChange={setSubject} live={live} onToggleLive={() => setLive((l) => !l)} />
+      <ChatMasthead
+        title={title}
+        subject={subject}
+        onSubjectChange={setSubject}
+        live={live}
+        onToggleLive={() => setLive((l) => !l)}
+        courses={courses}
+        courseId={courseId}
+        onCourseChange={setCourseId}
+      />
       <MessageList messages={messages} onPickSuggestion={handleSend} />
       <MessageInput ref={inputRef} disabled={isStreaming} live={live} subject={subject} onSend={handleSend} onStop={abort} />
 

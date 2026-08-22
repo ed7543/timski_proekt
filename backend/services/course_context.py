@@ -6,9 +6,10 @@ of context alongside live web search results.
 NOTE: Course.description is a synthesized metadata blurb (code, semester,
 credits, professors, prerequisite, tags), not a real syllabus - FINKI doesn't
 publish full syllabi anywhere public (see backend/services/ingestion/
-predmeti_scraper.py docstring). The recording topics list below is the closest
-thing to a topic outline we can offer, since it reflects the actual lecture
-titles taught.
+predmeti_scraper.py docstring). The recording topics list and materials list
+below are the closest thing to real course content this data source can
+offer, since they reflect actual lecture titles and linked resources rather
+than official curriculum text.
 """
 from typing import Optional
 
@@ -16,8 +17,8 @@ from backend.database.models import Course
 
 
 def format_course_context(course: Optional[Course]) -> str:
-    """Format a Course (with its metadata + recording topics) into a context
-    block for the AI. Returns "" if no course was given."""
+    """Format a Course (with its metadata, recording topics, and materials)
+    into a context block for the AI. Returns "" if no course was given."""
     if not course:
         return ""
 
@@ -38,6 +39,19 @@ def format_course_context(course: Optional[Course]) -> str:
         lines.append("\nTopics covered in lectures/recordings for this course:")
         for topic in topics[:40]:
             lines.append(f"- {topic}")
+
+    # Supplementary materials (exercise solutions, example exam problems,
+    # notes, external repos) - real, already-ingested data that wasn't being
+    # surfaced to the AI at all before. Include the URL so the tutor can
+    # actually point the student at it, same as it does for web search hits.
+    if course.materials:
+        lines.append("\nAdditional materials for this course:")
+        for m in course.materials[:20]:
+            label = f"- {m.title}"
+            if m.category:
+                label += f" ({m.category})"
+            label += f": {m.url}"
+            lines.append(label)
 
     if course.source_url:
         lines.append(f"\nSource: {course.source_url}")
