@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Optional
 
 from fastapi import HTTPException, APIRouter, Depends
@@ -20,6 +21,8 @@ from backend.services.search_cache import get_or_search, get_or_search_many
 from backend.web_search.search import format_search_context
 from config import GROQ_API_KEY, TAVILY_API_KEY
 from fastapi.responses import StreamingResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -95,14 +98,29 @@ async def chat(
             ])
             yield f"event: sources\ndata: {sources_payload}\n\n"
 
-        # Then stream the AI response, accumulating the full text so we can save it
+        # Then stream the AI response, accumulating the full text so we can save it.
+        # This whole block is wrapped in try/except: by the time we're here, the
+        # HTTP 200 + headers have already been sent (StreamingResponse consumes
+        # this generator after starting the response), so a raw exception here
+        # can't become a clean HTTP error - it just kills the connection with no
+        # explanation and silently drops whatever the user's message was left
+        # without a reply. Instead we emit an `event: error` frame the frontend
+        # can render, and still persist whatever partial text was generated.
         full_response = ""
-        async for chunk in stream_groq_response(request.messages, context, request.subject):
-            full_response += chunk
-            yield f"data: {json.dumps(chunk)}\n\n"
-
-        if full_response:
-            save_assistant_reply(conv_id, full_response)
+        try:
+            async for chunk in stream_groq_response(request.messages, context, request.subject):
+                full_response += chunk
+                yield f"data: {json.dumps(chunk)}\n\n"
+        except Exception as exc:
+            logger.exception("Groq streaming failed for conversation %s", conv_id)
+            if isinstance(exc, HTTPException) and exc.status_code == 429:
+                message = "You're sending messages too fast - please wait a moment and try again."
+            else:
+                message = "The AI tutor had trouble responding. Please try again."
+            yield f"event: error\ndata: {json.dumps({'message': message})}\n\n"
+        finally:
+            if full_response:
+                save_assistant_reply(conv_id, full_response)
 
         yield "data: [DONE]\n\n"
 

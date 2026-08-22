@@ -1,13 +1,14 @@
-import { marked } from 'marked';
 import { useMemo } from 'react';
+import { renderMarkdown } from '../../utils/markdown';
 
 interface Props {
   content: string;
   streaming?: boolean;
+  error?: string;
 }
 
-export function MessageBubbleAI({ content, streaming }: Props) {
-  const html = useMemo(() => marked.parse(content || '', { async: false }) as string, [content]);
+export function MessageBubbleAI({ content, streaming, error }: Props) {
+  const html = useMemo(() => renderMarkdown(content), [content]);
 
   return (
     <article className="msg-ai">
@@ -16,10 +17,13 @@ export function MessageBubbleAI({ content, streaming }: Props) {
         <span className="msg-label">LearnWise · The answer</span>
         <span className="msg-ai-rule" />
       </header>
-      <div
-        className={`msg-ai-body${streaming ? ' streaming' : ''}`}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      {content && (
+        <div
+          className={`msg-ai-body${streaming ? ' streaming' : ''}`}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      )}
+      {error && <div className="msg-error">{error}</div>}
     </article>
   );
 }

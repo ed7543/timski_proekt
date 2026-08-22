@@ -1,9 +1,9 @@
-import { marked } from 'marked';
 import { useMemo } from 'react';
 import { ModalShell } from './ModalShell';
+import { renderMarkdown } from '../../utils/markdown';
 
 export function SummaryModal({ summary, onClose }: { summary: string; onClose: () => void }) {
-  const html = useMemo(() => marked.parse(summary || '', { async: false }) as string, [summary]);
+  const html = useMemo(() => renderMarkdown(summary), [summary]);
 
   return (
     <ModalShell onClose={onClose}>
