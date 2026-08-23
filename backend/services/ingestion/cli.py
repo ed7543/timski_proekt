@@ -31,6 +31,7 @@ from backend.services.ingestion.upsert import (
     upsert_materials_for_course,
     upsert_recordings_for_course,
 )
+from backend.utils.time import utcnow
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -143,9 +144,8 @@ def run_lessons(args: argparse.Namespace) -> None:
         raise SystemExit("--source lessons requires --courses-db-path and --course-codes")
 
     course_codes = [c.strip() for c in args.course_codes.split(",") if c.strip()]
-    from datetime import datetime
     report_path = args.report_path or Path(
-        f"lesson_seed_report_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.md"
+        f"lesson_seed_report_{utcnow().strftime('%Y%m%d_%H%M%S')}.md"
     )
 
     db = SessionLocal()

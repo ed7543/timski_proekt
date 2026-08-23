@@ -31,9 +31,9 @@ crashed partway through just picks up where it left off, without re-spending
 API calls on lessons already done).
 """
 import argparse
+import json
 import logging
 import time
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -61,6 +61,7 @@ from backend.services.ingestion.lesson_upsert import (
 )
 from backend.services.ingestion.source_text import extract_local_files_sections, extract_sections_multi
 from backend.services.ingestion.title_translation import translate_title_mk_to_en
+from backend.utils.time import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -179,7 +180,7 @@ class Report:
     def write(self, path: Path) -> None:
         summary = (
             f"# Извештај за генерирање лекции\n\n"
-            f"_{datetime.utcnow().isoformat()} UTC_\n\n"
+            f"_{utcnow().isoformat()} UTC_\n\n"
             f"- Генерирани: {self.generated}\n"
             f"- Прескокнати (без поклопување со извор): {self.skipped_no_match}\n"
             f"- Прескокнати (веќе генерирани порано): {self.skipped_already_done}\n"
@@ -294,7 +295,14 @@ def seed_course(
                 quiz = _call_with_retries(
                     generate_quiz, lesson_title=topic_title, documentation_text=documentation
                 )
-        except genai_errors.APIError as e:
+        except (genai_errors.APIError, RuntimeError, json.JSONDecodeError) as e:
+            # RuntimeError (e.g. GEMINI_API_KEY unset) and JSONDecodeError
+            # (a malformed quiz response - gemini_generator.generate_quiz's
+            # own docstring flags this as a real possibility despite the
+            # schema constraint) used to propagate past this except clause,
+            # which only caught genai_errors.APIError - either one aborted
+            # the whole multi-course run and lost this report. One bad
+            # lesson should never take down the rest of the batch.
             report.lesson_error(topic_title, str(e))
             continue
 
@@ -366,7 +374,7 @@ def main() -> None:
     args = parser.parse_args()
 
     course_codes = [c.strip() for c in args.course_codes.split(",") if c.strip()]
-    report_path = args.report_path or Path(f"lesson_seed_report_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.md")
+    report_path = args.report_path or Path(f"lesson_seed_report_{utcnow().strftime('%Y%m%d_%H%M%S')}.md")
 
     db = SessionLocal()
     try:

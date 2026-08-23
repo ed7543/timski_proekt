@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { marked } from 'marked';
 import { getLesson, generateLessonQuiz } from '../../api/courses';
 import type { LessonOut, LessonDetailOut, QuizQuestionOut } from '../../types/course';
 import { ApiError } from '../../api/client';
 import { BackArrowIcon } from '../icons';
 import { ModalShell } from '../modals/ModalShell';
+import { renderMarkdown } from '../../utils/markdown';
 
 interface Props {
   courseId: number;
@@ -178,7 +178,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
   const html = useMemo(
     () =>
       detail?.documentation
-        ? (marked.parse(stripCourseHeading(detail.documentation, lesson.topic_title), { async: false }) as string)
+        ? renderMarkdown(stripCourseHeading(detail.documentation, lesson.topic_title))
         : '',
     [detail?.documentation, lesson.topic_title],
   );

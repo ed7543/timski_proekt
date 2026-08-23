@@ -8,12 +8,12 @@ plain FK+PK tables), so this does a manual find-then-update-or-insert
 instead. That's fine here: seed_lessons.py runs single-process, sequentially,
 never concurrently against the same course.
 """
-from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.orm import Session
 
 from backend.database.models import Course, CourseSource, Lesson
+from backend.utils.time import utcnow
 
 
 def find_course_id(db: Session, course_code: str, course_name_mk: str) -> Optional[int]:
@@ -52,7 +52,7 @@ def upsert_lesson(
     documentation/quiz=None leaves those columns untouched if the row already
     exists (so a "topic-only" pass - see seed_lessons.py's no-source-course
     handling - never wipes previously generated content)."""
-    now = datetime.utcnow()
+    now = utcnow()
     lesson = (
         db.query(Lesson)
         .filter(Lesson.course_id == course_id, Lesson.order_index == order_index)
@@ -91,7 +91,7 @@ def replace_course_sources(
     current courses_db.json source/additional_sources - simplest way to stay
     idempotent without a unique constraint to key an upsert off."""
     db.query(CourseSource).filter(CourseSource.course_id == course_id).delete()
-    now = datetime.utcnow()
+    now = utcnow()
 
     def _row(src: dict, is_primary: bool) -> CourseSource:
         return CourseSource(

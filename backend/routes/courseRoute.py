@@ -1,7 +1,7 @@
-from datetime import datetime
+import json
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from google.genai import errors as genai_errors
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from backend.database.models import Course, CourseMaterial, Lesson, Recording, User
 from backend.database.session import get_db
 from backend.middleware.auth import get_current_user
+from backend.middleware.rate_limit import limiter
 from backend.models.courseResponse import (
     CourseDetailOut,
     CourseMaterialOut,
@@ -18,6 +19,7 @@ from backend.models.courseResponse import (
     RecordingOut,
 )
 from backend.services.ingestion import gemini_generator
+from backend.utils.time import utcnow
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
 
@@ -155,7 +157,9 @@ async def get_course_lesson(course_id: int, lesson_id: int, db: Session = Depend
 
 
 @router.post("/{course_id}/lessons/{lesson_id}/quiz", response_model=LessonDetailOut)
+@limiter.limit("5/minute")
 async def generate_lesson_quiz(
+    request: Request,
     course_id: int,
     lesson_id: int,
     db: Session = Depends(get_db),
@@ -166,7 +170,9 @@ async def generate_lesson_quiz(
     (gemini_generator.generate_quiz), based on the lesson's already-generated
     documentation. Unlike the read-only GETs above, this requires auth - it
     triggers a real, billed Gemini API call, so it shouldn't be reachable
-    anonymously. 400s if the lesson has no documentation yet (nothing to base
+    anonymously. Also rate-limited (5/minute per IP, same as the auth
+    endpoints) since it's a real cost per call, not just an abuse-prevention
+    measure. 400s if the lesson has no documentation yet (nothing to base
     a quiz on)."""
     _get_course_or_404(db, course_id)
     lesson = _get_lesson_or_404(db, course_id, lesson_id)
@@ -184,8 +190,13 @@ async def generate_lesson_quiz(
             status_code=502,
             detail="Quiz generation failed (Gemini API error) - please try again.",
         )
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=502,
+            detail="Quiz generation returned an unexpected response - please try again.",
+        )
     lesson.quiz = quiz
-    lesson.quiz_generated_at = datetime.utcnow()
+    lesson.quiz_generated_at = utcnow()
     db.commit()
     db.refresh(lesson)
     return _lesson_detail_out(lesson)

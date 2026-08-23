@@ -192,9 +192,9 @@ class Lesson(Base):
     quiz: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     documentation_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     quiz_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     course: Mapped["Course"] = relationship(back_populates="lessons")
@@ -218,6 +218,6 @@ class CourseSource(Base):
     url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
     course: Mapped["Course"] = relationship(back_populates="sources")
