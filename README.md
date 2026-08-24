@@ -284,7 +284,7 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 
 A separate, deeper layer on top of Course Data: instead of just metadata + lecture topic titles, each lesson gets real AI-generated study documentation (and an on-demand quiz), grounded in an actual textbook/course-material excerpt — not the model's general knowledge.
 
-**This is not a self-contained scraper** — it's a content-*generation* pipeline driven by a hand-curated input file, `courses_db.json` (course → source textbook → lesson topic titles), that **lives outside this repo** (currently on a teammate's machine, exported from a shared "LearnWise - база извори" spreadsheet). There's no `.example.json`/schema file yet, so if you need to touch this pipeline, ask whoever's working on `ms/lesson-content` for a copy rather than trying to reconstruct it from the code.
+**This is not a self-contained scraper** — it's a content-*generation* pipeline driven by a hand-curated input file, `courses_db.json` (course → source textbook → lesson topic titles), exported from a shared "LearnWise - база извори" spreadsheet. It now lives in the repo at `backend/services/ingestion/courses_db.json`. There's no `.example.json`/schema file yet, so if you need to hand-edit it, coordinate with whoever's working on `ms/lesson-content` rather than trying to reconstruct it from the code.
 
 **How it works** (`backend/services/ingestion/`):
 1. `courses_db.py` loads `courses_db.json` and looks up the requested `--course-codes`.
@@ -295,10 +295,10 @@ A separate, deeper layer on top of Course Data: instead of just metadata + lectu
 6. `gemini_generator.py` generates the documentation from that excerpt *only* (explicit prompt rule against adding outside knowledge — the same lesson learned the hard way with course materials, see above), then the quiz from the documentation.
 7. `lesson_upsert.py` writes it all to the `lessons`/`course_sources` tables (migration `bc6e93a07557`), resumable by default — a lesson that already has documentation is skipped unless `--force-regenerate` is passed, so a crashed batch just picks up where it left off without re-spending API calls.
 
-**To run it**, you need `courses_db.json` (see above) and a `GEMINI_API_KEY` in `.env` (get one free at https://aistudio.google.com/apikey):
+**To run it**, you need a `GEMINI_API_KEY` in `.env` (get one free at https://aistudio.google.com/apikey) — `courses_db.json` ships in the repo, so `--courses-db-path` can just point at it:
 ```bash
 python -m backend.services.ingestion.cli --source lessons \
-    --courses-db-path /path/to/courses_db.json \
+    --courses-db-path backend/services/ingestion/courses_db.json \
     --course-codes F23L1W005,F23L1W020,F23L2W002
 ```
 Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls per lesson), `--force-regenerate`, `--threshold <float>`, `--report-path <file>` (defaults to a timestamped markdown file listing what happened to every lesson touched — matched/skipped/errored with reasons).
@@ -307,7 +307,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 
 **Security note, already fixed on the branch**: the first version of `LessonDetail.tsx` rendered AI-generated documentation via raw `dangerouslySetInnerHTML` instead of the sanitized `renderMarkdown()` helper every other AI-output view uses — a real stored-XSS vector, since that text is ultimately derived from fetched external content. Fixed before merge; if you're reviewing this branch elsewhere, check that fix actually landed.
 
-**Current state in this environment**: 0 rows in `lessons` — nobody has run the pipeline here yet (no `courses_db.json`, no `GEMINI_API_KEY` locally). The Lessons section will correctly show "No lessons generated for this course yet" until someone does.
+**Current state in this environment**: 0 rows in `lessons` — nobody has run the pipeline here yet (no `GEMINI_API_KEY` locally). The Lessons section will correctly show "No lessons generated for this course yet" until someone does.
 
 ## Current Status
 
