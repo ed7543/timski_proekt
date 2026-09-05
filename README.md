@@ -15,6 +15,9 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
 -  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
 -  **AI-generated lesson content** *(in progress, `ms/lesson-content` branch, not yet merged)* — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
+-  **Marketplace** — premium users submit new courses (with materials), an admin approves or rejects them, and approved ones go live for everyone — free or priced
+-  **Billing (Stripe, test-mode)** — a recurring subscription unlocks course submission; a one-time purchase unlocks a single priced course's materials/recordings
+-  **File uploads** — course material files (PDFs, slides, videos) upload to Supabase Storage and get a public URL
 
 ## Setup
 
@@ -50,11 +53,24 @@ DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/learnwise
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
+**STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET / STRIPE_PRICE_ID / FRONTEND_URL** (optional — needed for Marketplace billing)
+→ Test-mode keys at https://dashboard.stripe.com/test/apikeys, create a recurring Price for STRIPE_PRICE_ID, run `stripe listen --forward-to localhost:8000/api/billing/webhook` (step 6 below) for STRIPE_WEBHOOK_SECRET
+
+**SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / SUPABASE_STORAGE_BUCKET** (optional — needed for course material uploads)
+→ Free project at https://supabase.com, copy the Project URL + `service_role` key from Settings > API, create a Public bucket named `course-materials` under Storage
+
 ### 3. Set up the database
 ```bash
 alembic upgrade head
 ```
-This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `recordings`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+
+### 3b. Create an admin account
+There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it directly in the database:
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
+```
+Needed to reach the Admin panel and approve/reject Marketplace course submissions.
 
 ### 4. Run the backend
 ```bash
@@ -72,14 +88,21 @@ Open http://localhost:5173 — Vite's dev server proxies `/api/*` straight to th
 
 For a production build, `cd frontend && npm run build` produces `frontend/dist`, which `backend/main.py` will serve directly at `/` if the directory exists (no separate frontend server needed in that case).
 
-### 6. (Optional) Ingest course data
+### 6. (Optional) Run the Stripe webhook listener
+Requires the Stripe CLI (https://stripe.com/docs/stripe-cli) installed first.
+```bash
+stripe listen --forward-to localhost:8000/api/billing/webhook
+```
+Needed for Marketplace billing to actually work in dev — without this running, Stripe has no way to tell the backend a checkout succeeded, so `is_premium`/`CoursePurchase` never update even after a successful test payment. Keep it running alongside the backend/frontend while testing subscriptions or course purchases. The first time you run it, it prints the `STRIPE_WEBHOOK_SECRET` to put in `.env`.
+
+### 7. (Optional) Ingest course data
 ```bash
 source .venv/bin/activate
 python -m backend.services.ingestion.cli --source all
 ```
 Pulls course/lecture-recording data from the public finki-hub.com sites into the `courses`/`course_materials`/`recordings` tables — see "Course Data" below before running this at full scale.
 
-### 7. Run the tests
+### 8. Run the tests
 ```bash
 source .venv/bin/activate
 pytest backend/tests/ -v
@@ -120,7 +143,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── database/                # Data storage layer
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
-    │                            #   CachedSearch, Course, CourseMaterial, Recording,
+    │                            #   CachedSearch, Course, CourseMaterial, Recording, CoursePurchase,
     │                            #   Lesson, CourseSource (ms/lesson-content, not yet merged)
     │
     ├── middleware/               # Request/response processing
@@ -137,14 +160,18 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
     │   ├── conversationRequest.py # Conversation create/update/list/detail schemas
-    │   └── courseResponse.py    # Course/CourseMaterial/Recording/Lesson response schemas
+    │   ├── courseResponse.py    # Course/CourseMaterial/Recording/Lesson/AdminCourseOut response schemas
+    │   └── courseSubmitRequest.py # Course submission + admin reject-reason schemas
     │
     ├── routes/                  # API endpoints (controllers)
     │   ├── health.py            # /api/health - Service health check
     │   ├── chatRoute.py         # /api/chat, /api/quiz, /api/summary, /api/explore, /api/ask-more
     │   ├── conversationRoute.py # /api/conversations/* - CRUD + export for chat history
-    │   ├── courseRoute.py       # /api/courses/* - public course/material/recording catalog,
+    │   ├── courseRoute.py       # /api/courses/* - catalog, Marketplace submission, deletion, uploads,
     │   │                        #   + lessons endpoints (ms/lesson-content, not yet merged)
+    │   ├── adminRoute.py        # /api/admin/* - course approval/rejection queue
+    │   ├── billingRoute.py      # /api/billing/* - Stripe subscription + one-time course purchase
+    │   ├── uploadRoute.py       # /api/courses/upload-material - Supabase Storage file uploads
     │   └── auth/                # /api/auth/* - Register, Login, Logout, Me, verify, reset
     │       └── __init__.py
     │
@@ -183,10 +210,17 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   └── search.py            # Tavily API - search, query building
     │
     └── tests/                   # Unit & integration tests
-        ├── test_search_cache.py  # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
+        ├── conftest.py            # Shared helpers (register_and_login, cleanup_test_data) + disables the register rate limit for the run
+        ├── test_search_cache.py   # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
         ├── test_course_context.py # format_course_context() + _get_course_context() coverage
         ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
-        └── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
+        ├── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
+        ├── test_course_submission.py  # Submission gating, pending/rejected visibility, /mine, has_submitted_courses
+        ├── test_admin_approval.py     # Admin approve/reject state machine + permission gating
+        ├── test_marketplace_pricing.py # source/price_filter listing, priced-course locking rules
+        ├── test_course_deletion.py    # Owner/admin delete permissions, official-catalog guard
+        ├── test_billing.py            # Stripe checkout/cancel/webhook (Stripe SDK mocked, no real keys needed)
+        └── test_upload_material.py    # Supabase upload endpoint (Supabase SDK mocked, no real keys needed)
 ```
 
 ## Architecture Layers Explained
@@ -324,12 +358,15 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Database Layer | Complete (PostgreSQL + SQLAlchemy + Alembic) |
 | Search-Result Caching | Complete (`cached_searches` table, exact + pg_trgm fuzzy match) |
 | Middleware | Complete (JWT auth guard on all endpoints, CORS origin allowlist, rate limiting on auth routes) |
-| Tests | Backend: 29 tests across 4 files (search cache, course context, AI prompt construction, SSE error handling). Frontend: none yet — no test framework configured |
+| Tests | Backend: 29 tests across the original 4 files (search cache, course context, AI prompt construction, SSE error handling), plus 65 more across 6 files covering Marketplace/admin/billing/uploads (Stripe and Supabase calls mocked - see "Run the tests"). Frontend: none yet — no test framework configured |
 | Course data / study content | Complete for 67 ingested courses (see "Course Data" above) — metadata + lecture topics + materials, no real syllabus text available from any public source |
 | Course-aware chat (frontend) | Complete — course picker in the chat masthead, threads `course_id` through every chat/study-tool call |
 | Quiz from lecture video | Not started — R&D idea only, see Roadmap |
 | Courses browsing (frontend) | Complete — catalog + detail pages, listing materials/recordings per course |
-| Progress/Admin frontend pages | Stub placeholders only — real UI not built yet |
+| Marketplace / course submission | Complete — submit → admin approve/reject → public listing, free or priced |
+| Admin panel | Complete — pending/approved/rejected/all filters, approve/reject/delete |
+| Billing (Stripe) | Complete, test-mode only — submission subscription + per-course one-time purchase |
+| Progress frontend page | Complete — real UI built (see `elena/feat/recommendation-and-progress`) |
 | Lesson content (AI-generated docs + quizzes) | In progress on `ms/lesson-content`, not yet merged — pipeline + UI built, but needs an externally-held `courses_db.json` + a `GEMINI_API_KEY` to actually generate anything. 0 lessons seeded in this environment |
 
 ### Notes for the team
@@ -367,11 +404,28 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `POST /api/explore` - `{messages, subject?, course_id?}` → related links (cache-backed, same as `/api/chat`)
 - `POST /api/ask-more` - `{messages, subject?, course_id?}` → suggested follow-up questions
 
-### Courses (`/api/courses`) - public, no auth needed (read-only catalog data, not user-specific)
-- `GET /?semester=&search=` - list courses, optionally filtered
+### Courses (`/api/courses`) - public, no auth needed (read-only catalog data, not user-specific) unless noted
+- `GET /?semester=&search=&source=official|community|all&price_filter=free|purchased` - list courses; `source` splits the scraped catalog from Marketplace; `price_filter=purchased` requires auth
 - `GET /{id}` - course detail, including `material_count`/`recording_count`
-- `GET /{id}/materials` - non-recording resources (notes, external links, etc.)
-- `GET /{id}/recordings?category=` - lecture/exercise recording links
+- `GET /{id}/materials` - non-recording resources (notes, external links, etc.) - `402` if the course is priced and locked
+- `GET /{id}/recordings?category=` - lecture/exercise recording links - `402` if the course is priced and locked
+- `GET /mine` - **requires auth** - every course the current user has submitted, any status
+- `POST /submit` - **requires a premium subscription** - `{name, materials, price, ...}`, creates a course with status `"pending"`
+- `POST /upload-material` - **requires a premium subscription** - uploads a file, returns `{url, resource_type, original_filename}` (Supabase Storage-backed)
+- `DELETE /{id}` - **requires auth** - the course's own submitter or an admin only; refuses to touch the scraped catalog
+
+### Admin (`/api/admin`) - all require an admin account
+- `GET /courses/pending` - pending submissions (Admin panel's default view)
+- `GET /courses?status=pending|approved|rejected|all` - all user-submitted courses by status
+- `POST /courses/{id}/approve`
+- `POST /courses/{id}/reject` - `{reason}` (required, shown back to the submitter)
+
+### Billing (`/api/billing`)
+- `GET /plans` - public - live Stripe price/name/interval for the submission subscription
+- `POST /checkout` - **requires auth** - starts the submission-subscription Checkout, returns `{checkout_url}`
+- `POST /cancel` - **requires auth** - cancels the subscription immediately, not at period end
+- `POST /courses/{id}/checkout` - **requires auth** - one-time Checkout to unlock a priced course
+- `POST /webhook` - Stripe-only (signature-verified), not for direct use
 
 ### Lessons (`/api/courses/{course_id}/lessons`) - branch `ms/lesson-content`, not yet merged
 - `GET /` - list a course's lessons (topic title + whether documentation/a quiz already exist) - public, no auth

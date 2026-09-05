@@ -8,9 +8,15 @@ import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
 import { ChatPage } from './pages/ChatPage';
 import { CoursesPage } from './pages/CoursesPage';
+import { MarketplacePage } from './pages/MarketplacePage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
 import { ProgressPage } from './pages/ProgressPage';
-import { AdminStub } from './pages/AdminStub';
+import { AdminPage } from './pages/AdminPage';
+import { MyCoursesPage } from './pages/MyCoursesPage';
+import { SubscribePage } from './pages/SubscribePage';
+import { SubmitCoursePage } from './pages/SubmitCoursePage';
+import { BillingSuccessPage } from './pages/billing/BillingSuccessPage';
+import { BillingCancelPage } from './pages/billing/BillingCancelPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 function RootRedirect() {
@@ -37,8 +43,15 @@ function App() {
             <Route path="/chat/:conversationId" element={<ChatPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+            <Route path="/marketplace" element={<MarketplacePage />} />
+            <Route path="/marketplace/submit" element={<SubmitCoursePage />} />
+            <Route path="/marketplace/:courseId" element={<CourseDetailPage />} />
+            <Route path="/billing/success" element={<BillingSuccessPage />} />
+            <Route path="/billing/cancel" element={<BillingCancelPage />} />
             <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/admin" element={<AdminStub />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/my-courses" element={<MyCoursesPage />} />
+            <Route path="/subscribe" element={<SubscribePage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />
