@@ -14,10 +14,11 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **Accounts & chat history** — register/login, and every conversation is saved, searchable, renameable, exportable
 -  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
 -  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
--  **AI-generated lesson content** *(in progress, `ms/lesson-content` branch, not yet merged)* — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
+-  **AI-generated lesson content** — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
 -  **Marketplace** — premium users submit new courses (with materials), an admin approves or rejects them, and approved ones go live for everyone — free or priced
 -  **Billing (Stripe, test-mode)** — a recurring subscription unlocks course submission; a one-time purchase unlocks a single priced course's materials/recordings
 -  **File uploads** — course material files (PDFs, slides, videos) upload to Supabase Storage and get a public URL
+-  **Quiz progress & recommendations** — every quiz attempt is tracked per user; low-scoring subjects are surfaced back as "worth another look" recommendations
 
 ## Setup
 
@@ -38,7 +39,7 @@ cp .env.example .env
 **TAVILY_API_KEY** (optional but recommended)
 → Sign up at https://app.tavily.com/home
 
-**GEMINI_API_KEY** (optional — only needed for the `ms/lesson-content` branch's lesson-generation pipeline, not yet merged)
+**GEMINI_API_KEY** (optional — only needed for the lesson-generation pipeline, see "Lesson Content" below)
 → Get from https://aistudio.google.com/apikey
 
 **DATABASE_URL** (required)
@@ -130,7 +131,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 │       ├── hooks/                # useChatStream (SSE), useConversations
 │       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/etc.
 │       ├── components/          # layout/sidebar/chat/sources/modals/courses
-│       │                        #   (courses/LessonDetail.tsx - ms/lesson-content, not yet merged)
+│       │                        #   (courses/LessonDetail.tsx - lesson documentation + quiz UI)
 │       └── types/                # TS interfaces mirroring backend/models/*.py
 │
 └── backend/                     # Main application root
@@ -144,7 +145,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
     │                            #   CachedSearch, Course, CourseMaterial, Recording, CoursePurchase,
-    │                            #   Lesson, CourseSource (ms/lesson-content, not yet merged)
+    │                            #   Lesson, CourseSource, QuizAttempt
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -161,17 +162,20 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
     │   ├── conversationRequest.py # Conversation create/update/list/detail schemas
     │   ├── courseResponse.py    # Course/CourseMaterial/Recording/Lesson/AdminCourseOut response schemas
-    │   └── courseSubmitRequest.py # Course submission + admin reject-reason schemas
+    │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
+    │   ├── quizProgressRequest.py # Quiz attempt create/update schemas
+    │   └── quizProgressResponse.py # Quiz attempt + recommendation response schemas
     │
     ├── routes/                  # API endpoints (controllers)
     │   ├── health.py            # /api/health - Service health check
     │   ├── chatRoute.py         # /api/chat, /api/quiz, /api/summary, /api/explore, /api/ask-more
     │   ├── conversationRoute.py # /api/conversations/* - CRUD + export for chat history
     │   ├── courseRoute.py       # /api/courses/* - catalog, Marketplace submission, deletion, uploads,
-    │   │                        #   + lessons endpoints (ms/lesson-content, not yet merged)
+    │   │                        #   + lessons endpoints
     │   ├── adminRoute.py        # /api/admin/* - course approval/rejection queue
     │   ├── billingRoute.py      # /api/billing/* - Stripe subscription + one-time course purchase
     │   ├── uploadRoute.py       # /api/courses/upload-material - Supabase Storage file uploads
+    │   ├── quizProgressRoute.py # /api/quiz-progress/* - quiz attempt tracking + recommendations
     │   └── auth/                # /api/auth/* - Register, Login, Logout, Me, verify, reset
     │       └── __init__.py
     │
@@ -186,9 +190,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │       ├── upsert.py            # Idempotent ON CONFLICT DO UPDATE helpers (courses/materials/recordings)
     │       ├── cli.py               # `python -m backend.services.ingestion.cli --source all|predmeti|snimki|lessons`
     │       │
-    │       │   # Below: ms/lesson-content branch, not yet merged - AI-generated lesson
-    │       │   # content pipeline, driven by an externally-held courses_db.json (see README's
-    │       │   # "Lesson Content" section)
+    │       │   # Below: AI-generated lesson content pipeline, driven by an
+    │       │   # externally-held courses_db.json (see README's "Lesson Content" section)
     │       ├── courses_db.py        # Loads/looks up courses_db.json
     │       ├── source_discovery.py  # Gemini + Google Search grounding - finds real content-page URLs
     │       ├── source_text.py       # Fetches + splits sources into sections (HTML/PDF/local .docx)
@@ -220,7 +223,14 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_marketplace_pricing.py # source/price_filter listing, priced-course locking rules
         ├── test_course_deletion.py    # Owner/admin delete permissions, official-catalog guard
         ├── test_billing.py            # Stripe checkout/cancel/webhook (Stripe SDK mocked, no real keys needed)
-        └── test_upload_material.py    # Supabase upload endpoint (Supabase SDK mocked, no real keys needed)
+        ├── test_upload_material.py    # Supabase upload endpoint (Supabase SDK mocked, no real keys needed)
+        ├── test_datetime_usage.py     # Guards against naive/deprecated datetime.utcnow() usage creeping back in
+        ├── test_gemini_prompts.py     # Lesson-generation prompt construction/regression guards
+        ├── test_lesson_matching.py    # Source-excerpt-to-lesson-topic matching/scoring
+        ├── test_lesson_quiz_rate_limit.py # POST .../lessons/{id}/quiz rate limiting
+        ├── test_lesson_upsert.py      # Lesson/CourseSource find-then-update-or-insert logic
+        ├── test_quiz_progress_route.py # /api/quiz-progress/* CRUD + recommendations
+        └── test_seed_lessons.py       # Lesson-seeding pipeline orchestration/report generation
 ```
 
 ## Architecture Layers Explained
@@ -268,7 +278,11 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 - `health.py`: service health monitoring
 - `auth/`: authentication endpoints (register, login, logout, me, verify-email, forgot/reset password)
 - `conversationRoute.py`: chat history CRUD + export, **all require auth**
-- `courseRoute.py`: `/api/courses/*` - public, read-only course catalog (no auth needed, not user-specific)
+- `courseRoute.py`: `/api/courses/*` - catalog (public), Marketplace submission/deletion/uploads and lessons endpoints (mixed auth requirements, see "API Endpoints" below)
+- `adminRoute.py`: `/api/admin/*` - course approval/rejection queue, **requires an admin account**
+- `billingRoute.py`: `/api/billing/*` - Stripe subscription + one-time course purchase
+- `uploadRoute.py`: `/api/courses/upload-material` - Supabase Storage file uploads
+- `quizProgressRoute.py`: `/api/quiz-progress/*` - quiz attempt tracking + recommendations, **all require auth**
 
 ### Models (models/)
 - Request/response validation using Pydantic
@@ -293,7 +307,7 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 
 A Vite + React + TypeScript SPA that replaces `backend/static/learnwise-2.html` entirely — `backend/main.py` no longer serves that file. It talks to the exact REST API documented in this README (nothing frontend-specific exists on the backend beyond CORS/`ALLOWED_ORIGINS`).
 
-- **Routing**: `react-router-dom` — `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email` are public; `/chat`, `/chat/:conversationId`, `/courses`, `/courses/:courseId`, `/progress`, `/admin` require auth (a `ProtectedRoute` wrapper redirects to `/login` otherwise). `/courses` and `/courses/:courseId` are real pages (catalog + detail, browsing the `/api/courses/*` backend from Phase 3); `/progress`/`/admin` are still placeholder "coming soon" stub pages — seams for future work.
+- **Routing**: `react-router-dom` — `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email` are public; everything else requires auth (a `ProtectedRoute` wrapper redirects to `/login` otherwise): `/chat`, `/chat/:conversationId`, `/courses`, `/courses/:courseId`, `/progress`, `/admin`, `/marketplace`, `/marketplace/submit`, `/marketplace/:courseId`, `/my-courses`, `/subscribe`, `/billing/success`, `/billing/cancel`. All of these are real pages now, not stubs.
 - **Courses section**: `CoursesPage` lists ingested courses grouped by semester with a search box; `CourseDetailPage` shows a course's metadata pills, description, materials list, and recordings grouped by category (Предавања/Аудиториски вежби/etc.), each linking out to its source. A left-sidebar nav (`NavTabs`, shared with the chat page) switches between Chat and Courses.
 - **Auth**: JWT kept in `localStorage` (same trade-off the old HTML app had — the backend only issues bearer tokens, not httpOnly cookies, so this wasn't "fixed" here, just carried forward knowingly). `AuthContext` calls `GET /api/auth/me` on load to restore a session; a central API client clears the token and redirects to `/login` on any `401`.
 - **Streaming chat**: `useChatStream` replicates the backend's exact SSE framing via `fetch` + `ReadableStream` (native `EventSource` can't send the required `Authorization` header) — same approach the old vanilla-JS app used, just ported into a hook. It also exposes `abort()` (backed by a real `AbortController`) for the composer's stop-generating button, and treats a connection that ends without a `[DONE]` sentinel as its own error state instead of leaving the message stuck showing "typing" forever.
@@ -314,11 +328,11 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 - Ingestion is a standalone, manual/cron-able script (`python -m backend.services.ingestion.cli`), never triggered by live API traffic. It's a well-behaved client: real User-Agent, `robots.txt` check, ~1.5s delay between requests. Re-running it is safe (idempotent upserts, no duplicates).
 - 67 courses have been ingested so far — run the CLI yourself to pull more or refresh existing ones.
 
-## Lesson Content (lessons / course_sources) — branch `ms/lesson-content`, not yet merged
+## Lesson Content (lessons / course_sources)
 
 A separate, deeper layer on top of Course Data: instead of just metadata + lecture topic titles, each lesson gets real AI-generated study documentation (and an on-demand quiz), grounded in an actual textbook/course-material excerpt — not the model's general knowledge.
 
-**This is not a self-contained scraper** — it's a content-*generation* pipeline driven by a hand-curated input file, `courses_db.json` (course → source textbook → lesson topic titles), exported from a shared "LearnWise - база извори" spreadsheet. It now lives in the repo at `backend/services/ingestion/courses_db.json`. There's no `.example.json`/schema file yet, so if you need to hand-edit it, coordinate with whoever's working on `ms/lesson-content` rather than trying to reconstruct it from the code.
+**This is not a self-contained scraper** — it's a content-*generation* pipeline driven by a hand-curated input file, `courses_db.json` (course → source textbook → lesson topic titles), exported from a shared "LearnWise - база извори" spreadsheet. It now lives in the repo at `backend/services/ingestion/courses_db.json`. There's no `.example.json`/schema file yet, so if you need to hand-edit it, coordinate with whoever maintains it rather than trying to reconstruct it from the code.
 
 **How it works** (`backend/services/ingestion/`):
 1. `courses_db.py` loads `courses_db.json` and looks up the requested `--course-codes`.
@@ -339,9 +353,9 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 
 **Frontend**: `CourseDetailPage` shows a Lessons section per course; opening one (`LessonDetail.tsx`) shows the documentation and lets you generate/take the quiz. Fetched independently from materials/recordings, so a lessons-specific issue can't take down the rest of an otherwise-working course page.
 
-**Security note, already fixed on the branch**: the first version of `LessonDetail.tsx` rendered AI-generated documentation via raw `dangerouslySetInnerHTML` instead of the sanitized `renderMarkdown()` helper every other AI-output view uses — a real stored-XSS vector, since that text is ultimately derived from fetched external content. Fixed before merge; if you're reviewing this branch elsewhere, check that fix actually landed.
+**Security note, already fixed**: an early version of `LessonDetail.tsx` rendered AI-generated documentation via raw `dangerouslySetInnerHTML` instead of the sanitized `renderMarkdown()` helper every other AI-output view uses — a real stored-XSS vector, since that text is ultimately derived from fetched external content. Fixed - it now goes through `renderMarkdown()` like everything else.
 
-**Current state in this environment**: 0 rows in `lessons` — nobody has run the pipeline here yet (no `GEMINI_API_KEY` locally). The Lessons section will correctly show "No lessons generated for this course yet" until someone does.
+**Note**: the Lessons section only ever has content for courses the pipeline has actually been run on (needs a `GEMINI_API_KEY` - see Setup above). Until then (or for courses never covered by `courses_db.json`), it correctly shows "No lessons generated for this course yet".
 
 ## Current Status
 
@@ -358,7 +372,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Database Layer | Complete (PostgreSQL + SQLAlchemy + Alembic) |
 | Search-Result Caching | Complete (`cached_searches` table, exact + pg_trgm fuzzy match) |
 | Middleware | Complete (JWT auth guard on all endpoints, CORS origin allowlist, rate limiting on auth routes) |
-| Tests | Backend: 29 tests across the original 4 files (search cache, course context, AI prompt construction, SSE error handling), plus 65 more across 6 files covering Marketplace/admin/billing/uploads (Stripe and Supabase calls mocked - see "Run the tests"). Frontend: none yet — no test framework configured |
+| Tests | Backend: covers search cache, course context, AI prompt construction, SSE error handling, Marketplace/admin/billing/uploads (Stripe and Supabase calls mocked), lesson-content generation, and quiz progress (see "Run the tests" and the tests/ tree above). Frontend: none yet — no test framework configured |
 | Course data / study content | Complete for 67 ingested courses (see "Course Data" above) — metadata + lecture topics + materials, no real syllabus text available from any public source |
 | Course-aware chat (frontend) | Complete — course picker in the chat masthead, threads `course_id` through every chat/study-tool call |
 | Quiz from lecture video | Not started — R&D idea only, see Roadmap |
@@ -366,8 +380,8 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Marketplace / course submission | Complete — submit → admin approve/reject → public listing, free or priced |
 | Admin panel | Complete — pending/approved/rejected/all filters, approve/reject/delete |
 | Billing (Stripe) | Complete, test-mode only — submission subscription + per-course one-time purchase |
-| Progress frontend page | Complete — real UI built (see `elena/feat/recommendation-and-progress`) |
-| Lesson content (AI-generated docs + quizzes) | In progress on `ms/lesson-content`, not yet merged — pipeline + UI built, but needs an externally-held `courses_db.json` + a `GEMINI_API_KEY` to actually generate anything. 0 lessons seeded in this environment |
+| Progress frontend page | Complete — real UI, quiz attempts tracked and low-scoring subjects recommended for revisiting |
+| Lesson content (AI-generated docs + quizzes) | Complete — pipeline + UI built; needs a `GEMINI_API_KEY` to actually generate anything (see "Lesson Content" above) |
 
 ### Notes for the team
 
@@ -427,10 +441,16 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `POST /courses/{id}/checkout` - **requires auth** - one-time Checkout to unlock a priced course
 - `POST /webhook` - Stripe-only (signature-verified), not for direct use
 
-### Lessons (`/api/courses/{course_id}/lessons`) - branch `ms/lesson-content`, not yet merged
+### Lessons (`/api/courses/{course_id}/lessons`)
 - `GET /` - list a course's lessons (topic title + whether documentation/a quiz already exist) - public, no auth
 - `GET /{lesson_id}` - full lesson content (documentation + quiz, if generated) - public, no auth
 - `POST /{lesson_id}/quiz` - **requires auth, rate-limited to 5/minute per IP** - generates (or regenerates) the quiz for a lesson on demand via a real, billed Gemini call. 400s if the lesson has no documentation yet.
+
+### Quiz Progress (`/api/quiz-progress`) - all require auth
+- `GET /` - list the current user's quiz attempts, most recently updated first
+- `POST /` - start a new attempt - `{topic, subject?, total_questions}`
+- `PATCH /{id}` - update progress - `{answered_count, correct_count}` (auto-marks `completed` once `answered_count >= total_questions`)
+- `GET /recommendations` - up to 5 subjects where the user's average completed-quiz score is below 70%, sorted lowest-first
 
 ## How It Works
 
@@ -446,7 +466,7 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 The team has agreed on the following next steps, roughly in priority order. See the shared planning doc/Trello for full detail — this section is a living summary so nobody has to go dig for it.
 
 1. **Backend hardening + search-result caching** ✅ done — Tavily results are now cached in `cached_searches` (exact + `pg_trgm` fuzzy match on the normalized query), so a repeated or near-duplicate question is answered from cache instead of a fresh API call. Also landed: CORS now uses an explicit `ALLOWED_ORIGINS` allowlist instead of `*`, rate limiting on `/login`/`/register`/`/forgot-password` (5/min via `slowapi`), real email sending via Resend (falls back to console logging if unconfigured), consistent auth across `/api/quiz`/`/api/summary`/`/api/explore`/`/api/ask-more`, and the `services/` layer now actually has code in it (`search_cache.py`, `chat_service.py`).
-2. **React frontend** ✅ done — `backend/static/learnwise-2.html` has been replaced by a real Vite + TypeScript SPA in `frontend/`, against the exact same REST API. FastAPI is now a pure JSON API (`backend/main.py` no longer serves the old static HTML); the old files are left on disk for reference but are unreferenced. See "Frontend" above. `/courses` and `/courses/:courseId` are real pages now (see item 3); `/progress` and `/admin` remain placeholder stubs — no real UI behind them yet.
+2. **React frontend** ✅ done — `backend/static/learnwise-2.html` has been replaced by a real Vite + TypeScript SPA in `frontend/`, against the exact same REST API. FastAPI is now a pure JSON API (`backend/main.py` no longer serves the old static HTML); the old files are left on disk for reference but are unreferenced. See "Frontend" above. `/courses`, `/courses/:courseId`, `/progress`, and `/admin` are all real pages now — no stubs left.
 3. **Course/study data** ✅ done, 67 courses ingested — `Course`/`CourseMaterial`/`Recording` tables exist, `/api/courses/*` endpoints are live, the AI tutor accepts an optional `course_id` on chat/quiz/summary/explore/ask-more and folds in course metadata + topics + materials, and the frontend has a real Courses catalog + detail page (`/courses`, `/courses/:courseId`) *plus* a course picker right in the chat masthead so `course_id` actually gets used day-to-day, not just via the API. See "Course Data" above for the **important caveat**: no real syllabus text exists in any public source, so this is metadata + lecture topics + materials, not a full curriculum — and for the anti-hallucination fix that keeps the tutor from inventing resources that aren't actually in that data.
 4. **Quiz generation from lecture recordings** (idea, not yet started) — `snimki.finki-hub.com` only lists links to recordings (almost certainly YouTube), with no transcripts, and the lectures are in Macedonian with a lot of Macedonian/English code-switching around technical terms. Plan: try YouTube's own (even auto-generated) captions first via `youtube-transcript-api`; if quality is too poor on real sample lectures, fall back to self-hosted Whisper transcription; cache whatever transcript is produced permanently, the same way search results get cached in step 1. This needs a short manual quality spike on a couple of real lectures before any pipeline gets built — Macedonian ASR quality on code-heavy lectures is the real risk here, not the engineering.
 
