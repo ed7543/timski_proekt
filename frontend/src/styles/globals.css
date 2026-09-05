@@ -284,6 +284,50 @@ main {
   font-size: 11px;
   color: var(--muted);
 }
+.user-foot-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.user-foot-trigger {
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.user-foot-trigger:hover {
+  background: var(--cream);
+}
+.user-foot-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 12px;
+  right: 12px;
+  margin-bottom: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+}
+.user-foot-dropdown .user-foot-menu-item {
+  padding: 8px 10px;
+  border-radius: 5px;
+}
+.user-foot-dropdown .user-foot-menu-item:hover {
+  background: var(--cream);
+}
+.user-foot-menu-item {
+  font-size: 12.5px;
+  color: var(--ink);
+  cursor: pointer;
+}
 .masthead {
   flex-shrink: 0;
   display: flex;
@@ -921,6 +965,12 @@ select {
   font-size: 11px;
   color: var(--muted);
 }
+.src-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
 .divider {
   margin: 24px 0;
   height: 1px;
@@ -1274,10 +1324,23 @@ select {
   max-width: 420px;
   line-height: 1.6;
 }
+.nav-tabs-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 10px;
+}
 .nav-tabs {
   display: flex;
   gap: 4px;
-  padding: 0 20px 12px;
+  padding: 0 20px;
+}
+.nav-tabs-secondary .nav-tab {
+  font-size: 11px;
+  color: var(--muted);
+}
+.nav-tabs-secondary .nav-tab.active {
+  color: var(--ink);
 }
 .nav-tab {
   display: inline-flex;
@@ -1334,6 +1397,119 @@ select {
 .page-toolbar .search-input {
   width: 100%;
 }
+.filter-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.filter-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+.filter-btn.active {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.status-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.status-badge.status-approved {
+  color: var(--emerald);
+  border-color: var(--emerald);
+}
+.status-badge.status-rejected {
+  color: var(--destructive);
+  border-color: var(--destructive);
+}
+.status-badge.status-pending {
+  color: var(--ink-soft);
+}
+.plan-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.plan-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.plan-name {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 20px;
+}
+.plan-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.plan-desc {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ---------- Submit-course form ---------- */
+.submit-course-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.submit-course-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.submit-course-row .auth-field {
+  min-width: 160px;
+}
+.material-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+}
+.material-row-fields {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.material-row-fields .auth-input {
+  flex: 1;
+  min-width: 120px;
+}
 .semester-group {
   margin-top: 32px;
 }
@@ -1378,6 +1554,11 @@ select {
   font-size: 14px;
   line-height: 1.7;
   white-space: pre-line;
+}
+.course-price-pill {
+  font-weight: 600;
+  color: var(--ink);
+  border-color: var(--ink);
 }
 .course-caveat {
   margin-top: 12px;

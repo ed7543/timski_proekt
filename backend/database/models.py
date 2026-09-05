@@ -15,6 +15,20 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    role: Mapped[str] = mapped_column(String(20), default="student", nullable=False)  # "student" | "admin"
+    # True once a Stripe checkout for the "submit courses" subscription has
+    # completed (see routes/billingRoute.py). Any user with is_premium=True
+    # (of any role) can submit a course for admin review - this is
+    # deliberately independent of `role`, which is about platform
+    # permissions, not billing status.
+    is_premium: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Set from the Stripe Checkout session's `customer`/`subscription` ids
+    # when the submission-subscription webhook fires (see
+    # routes/billingRoute.py::_handle_submission_subscription). Needed so
+    # POST /api/billing/cancel knows which Stripe subscription to actually
+    # cancel - null until the user has subscribed at least once.
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
@@ -108,12 +122,52 @@ class Course(Base):
     )
     last_scraped_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
+    # Moderation workflow: courses ingested by the scraper pipeline are
+    # auto-approved (status defaults to "approved"); courses submitted by a
+    # professor through the API start as "pending" and are hidden from the
+    # public catalog (see courseRoute.list_courses) until an admin approves
+    # or rejects them (see routes/adminRoute.py).
+    status: Mapped[str] = mapped_column(String(20), default="approved", nullable=False)  # "pending" | "approved" | "rejected"
+    submitted_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    reviewed_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    rejection_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # 0 = free. Set by the submitter (see CourseSubmitRequest.price). Only
+    # meaningful for user-submitted (submitted_by_id is not null) courses -
+    # scraped FINKI courses stay 0/free. Stored in cents (int) rather than a
+    # float to avoid rounding issues, same convention Stripe itself uses for
+    # amounts. When > 0, materials/recordings are locked behind a
+    # CoursePurchase (see routes/courseRoute.py::_has_course_access) unless
+    # the viewer is the submitter or an admin.
+    price_cents: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
     materials: Mapped[list["CourseMaterial"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
     recordings: Mapped[list["Recording"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
+    purchases: Mapped[list["CoursePurchase"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan"
+    )
+    # Who submitted this course (None for the scraped FINKI catalog).
+    # foreign_keys needed since there are two FKs to users.id on this table
+    # (submitted_by_id and reviewed_by_id) - otherwise SQLAlchemy can't tell
+    # which one this relationship should join on.
+    submitted_by_user: Mapped["User | None"] = relationship(foreign_keys=[submitted_by_id], viewonly=True)
+
+    @property
+    def submitted_by_name(self) -> str | None:
+        """Display name for whoever submitted this course (None for the
+        scraped FINKI catalog, and for user-submitted courses if somehow the
+        submitting account no longer exists). Read by CourseOut/
+        CourseDetailOut/AdminCourseOut via from_attributes - not a real
+        column, just a convenience computed from submitted_by_user."""
+        user = self.submitted_by_user
+        if user is None:
+            return None
+        return user.full_name or user.email
 
 
 class CourseMaterial(Base):
@@ -162,3 +216,24 @@ class Recording(Base):
     )
 
     course: Mapped["Course"] = relationship(back_populates="recordings")
+
+
+class CoursePurchase(Base):
+    """Records that a user paid the one-time price for a course (see
+    Course.price_cents). Existence of a row = access granted; there's no
+    "amount paid" mutability concern since prices aren't retroactively
+    changed for people who already bought in. Created from the Stripe
+    webhook (see routes/billingRoute.py) once checkout.session.completed
+    fires for a course-purchase session."""
+
+    __tablename__ = "course_purchases"
+    __table_args__ = (UniqueConstraint("user_id", "course_id", name="uq_course_purchases_user_course"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id"), nullable=False, index=True)
+    amount_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+    user: Mapped["User"] = relationship()
+    course: Mapped["Course"] = relationship(back_populates="purchases")
