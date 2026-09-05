@@ -14,6 +14,7 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **Accounts & chat history** — register/login, and every conversation is saved, searchable, renameable, exportable
 -  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
 -  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
+-  **AI-generated lesson content** *(in progress, `ms/lesson-content` branch, not yet merged)* — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
 
 ## Setup
 
@@ -33,6 +34,9 @@ cp .env.example .env
 
 **TAVILY_API_KEY** (optional but recommended)
 → Sign up at https://app.tavily.com/home
+
+**GEMINI_API_KEY** (optional — only needed for the `ms/lesson-content` branch's lesson-generation pipeline, not yet merged)
+→ Get from https://aistudio.google.com/apikey
 
 **DATABASE_URL** (required)
 → You need a local PostgreSQL server. Create a database (e.g. `learnwise`), then set:
@@ -102,7 +106,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 │       ├── context/             # AuthContext (user/token/status)
 │       ├── hooks/                # useChatStream (SSE), useConversations
 │       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/etc.
-│       ├── components/          # layout/sidebar/chat/sources/modals
+│       ├── components/          # layout/sidebar/chat/sources/modals/courses
+│       │                        #   (courses/LessonDetail.tsx - ms/lesson-content, not yet merged)
 │       └── types/                # TS interfaces mirroring backend/models/*.py
 │
 └── backend/                     # Main application root
@@ -115,7 +120,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── database/                # Data storage layer
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
-    │                            #   CachedSearch, Course, CourseMaterial, Recording
+    │                            #   CachedSearch, Course, CourseMaterial, Recording,
+    │                            #   Lesson, CourseSource (ms/lesson-content, not yet merged)
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -131,13 +137,14 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
     │   ├── conversationRequest.py # Conversation create/update/list/detail schemas
-    │   └── courseResponse.py    # Course/CourseMaterial/Recording response schemas
+    │   └── courseResponse.py    # Course/CourseMaterial/Recording/Lesson response schemas
     │
     ├── routes/                  # API endpoints (controllers)
     │   ├── health.py            # /api/health - Service health check
     │   ├── chatRoute.py         # /api/chat, /api/quiz, /api/summary, /api/explore, /api/ask-more
     │   ├── conversationRoute.py # /api/conversations/* - CRUD + export for chat history
-    │   ├── courseRoute.py       # /api/courses/* - public course/material/recording catalog
+    │   ├── courseRoute.py       # /api/courses/* - public course/material/recording catalog,
+    │   │                        #   + lessons endpoints (ms/lesson-content, not yet merged)
     │   └── auth/                # /api/auth/* - Register, Login, Logout, Me, verify, reset
     │       └── __init__.py
     │
@@ -145,12 +152,24 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── search_cache.py      # Cache lookup/write in front of Tavily (exact + pg_trgm fuzzy match)
     │   ├── chat_service.py      # Conversation resolve/save helpers used by chatRoute.py
     │   ├── course_context.py    # Formats a Course into a context block for the AI prompt
-    │   └── ingestion/           # Standalone scraper/loader for finki-hub.com course data
+    │   └── ingestion/           # Standalone scrapers/loaders - never triggered by live API traffic
     │       ├── finki_hub_client.py  # Polite httpx wrapper (UA, rate limit, robots.txt check)
     │       ├── predmeti_scraper.py  # Course metadata from assets.finki-hub.com/courses.json
     │       ├── snimki_scraper.py    # Recording listings from the recordings-listing GitHub repo
-    │       ├── upsert.py            # Idempotent ON CONFLICT DO UPDATE helpers
-    │       └── cli.py               # `python -m backend.services.ingestion.cli --source all|predmeti|snimki`
+    │       ├── upsert.py            # Idempotent ON CONFLICT DO UPDATE helpers (courses/materials/recordings)
+    │       ├── cli.py               # `python -m backend.services.ingestion.cli --source all|predmeti|snimki|lessons`
+    │       │
+    │       │   # Below: ms/lesson-content branch, not yet merged - AI-generated lesson
+    │       │   # content pipeline, driven by an externally-held courses_db.json (see README's
+    │       │   # "Lesson Content" section)
+    │       ├── courses_db.py        # Loads/looks up courses_db.json
+    │       ├── source_discovery.py  # Gemini + Google Search grounding - finds real content-page URLs
+    │       ├── source_text.py       # Fetches + splits sources into sections (HTML/PDF/local .docx)
+    │       ├── title_translation.py # Macedonian -> English lesson title translation (cached)
+    │       ├── lesson_matching.py   # Scores/picks the best source excerpt per lesson topic
+    │       ├── gemini_generator.py  # Generates lesson documentation + quiz via Gemini
+    │       ├── lesson_upsert.py     # Manual find-then-update-or-insert for Lesson/CourseSource
+    │       └── seed_lessons.py      # Orchestrates the whole pipeline per course, writes a run report
     │
     ├── static/                  # Legacy static files, no longer served by main.py (kept for reference)
     │   ├── index.html           # Alternative/older UI
@@ -261,6 +280,35 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 - Ingestion is a standalone, manual/cron-able script (`python -m backend.services.ingestion.cli`), never triggered by live API traffic. It's a well-behaved client: real User-Agent, `robots.txt` check, ~1.5s delay between requests. Re-running it is safe (idempotent upserts, no duplicates).
 - 67 courses have been ingested so far — run the CLI yourself to pull more or refresh existing ones.
 
+## Lesson Content (lessons / course_sources) — branch `ms/lesson-content`, not yet merged
+
+A separate, deeper layer on top of Course Data: instead of just metadata + lecture topic titles, each lesson gets real AI-generated study documentation (and an on-demand quiz), grounded in an actual textbook/course-material excerpt — not the model's general knowledge.
+
+**This is not a self-contained scraper** — it's a content-*generation* pipeline driven by a hand-curated input file, `courses_db.json` (course → source textbook → lesson topic titles), exported from a shared "LearnWise - база извори" spreadsheet. It now lives in the repo at `backend/services/ingestion/courses_db.json`. There's no `.example.json`/schema file yet, so if you need to hand-edit it, coordinate with whoever's working on `ms/lesson-content` rather than trying to reconstruct it from the code.
+
+**How it works** (`backend/services/ingestion/`):
+1. `courses_db.py` loads `courses_db.json` and looks up the requested `--course-codes`.
+2. `source_discovery.py` (optional, Gemini + Google Search grounding) finds the real chapter/page URLs for a source whose stored URL is just a catalog page (e.g. OpenStax).
+3. `source_text.py` fetches (and disk-caches) the source — HTML split by real heading tags, PDFs split heuristically by a regex over title-like lines, or local `.docx`/`.pdf` files for the handful of courses with no public source at all.
+4. `title_translation.py` translates each Macedonian lesson title to English (cached), since most sources are English-language — needed for fair matching.
+5. `lesson_matching.py` scores every extracted section against each lesson title and picks the best excerpt, skipping (not fabricating) anything below a confidence threshold.
+6. `gemini_generator.py` generates the documentation from that excerpt *only* (explicit prompt rule against adding outside knowledge — the same lesson learned the hard way with course materials, see above), then the quiz from the documentation.
+7. `lesson_upsert.py` writes it all to the `lessons`/`course_sources` tables (migration `bc6e93a07557`), resumable by default — a lesson that already has documentation is skipped unless `--force-regenerate` is passed, so a crashed batch just picks up where it left off without re-spending API calls.
+
+**To run it**, you need a `GEMINI_API_KEY` in `.env` (get one free at https://aistudio.google.com/apikey) — `courses_db.json` ships in the repo, so `--courses-db-path` can just point at it:
+```bash
+python -m backend.services.ingestion.cli --source lessons \
+    --courses-db-path backend/services/ingestion/courses_db.json \
+    --course-codes F23L1W005,F23L1W020,F23L2W002
+```
+Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls per lesson), `--force-regenerate`, `--threshold <float>`, `--report-path <file>` (defaults to a timestamped markdown file listing what happened to every lesson touched — matched/skipped/errored with reasons).
+
+**Frontend**: `CourseDetailPage` shows a Lessons section per course; opening one (`LessonDetail.tsx`) shows the documentation and lets you generate/take the quiz. Fetched independently from materials/recordings, so a lessons-specific issue can't take down the rest of an otherwise-working course page.
+
+**Security note, already fixed on the branch**: the first version of `LessonDetail.tsx` rendered AI-generated documentation via raw `dangerouslySetInnerHTML` instead of the sanitized `renderMarkdown()` helper every other AI-output view uses — a real stored-XSS vector, since that text is ultimately derived from fetched external content. Fixed before merge; if you're reviewing this branch elsewhere, check that fix actually landed.
+
+**Current state in this environment**: 0 rows in `lessons` — nobody has run the pipeline here yet (no `GEMINI_API_KEY` locally). The Lessons section will correctly show "No lessons generated for this course yet" until someone does.
+
 ## Current Status
 
 | Component | Status   |
@@ -282,6 +330,7 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 | Quiz from lecture video | Not started — R&D idea only, see Roadmap |
 | Courses browsing (frontend) | Complete — catalog + detail pages, listing materials/recordings per course |
 | Progress/Admin frontend pages | Stub placeholders only — real UI not built yet |
+| Lesson content (AI-generated docs + quizzes) | In progress on `ms/lesson-content`, not yet merged — pipeline + UI built, but needs an externally-held `courses_db.json` + a `GEMINI_API_KEY` to actually generate anything. 0 lessons seeded in this environment |
 
 ### Notes for the team
 
@@ -323,6 +372,11 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `GET /{id}` - course detail, including `material_count`/`recording_count`
 - `GET /{id}/materials` - non-recording resources (notes, external links, etc.)
 - `GET /{id}/recordings?category=` - lecture/exercise recording links
+
+### Lessons (`/api/courses/{course_id}/lessons`) - branch `ms/lesson-content`, not yet merged
+- `GET /` - list a course's lessons (topic title + whether documentation/a quiz already exist) - public, no auth
+- `GET /{lesson_id}` - full lesson content (documentation + quiz, if generated) - public, no auth
+- `POST /{lesson_id}/quiz` - **requires auth, rate-limited to 5/minute per IP** - generates (or regenerates) the quiz for a lesson on demand via a real, billed Gemini call. 400s if the lesson has no documentation yet.
 
 ## How It Works
 

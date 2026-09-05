@@ -1,0 +1,5322 @@
+{
+  "courses": [
+    {
+      "course_code": "F23L1W005",
+      "course_name_mk": "Бизнис и менаџмент",
+      "course_name_en": "Business and Management",
+      "semester_group": "semester_1",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Principles of Management",
+        "publisher": "OpenStax",
+        "license": "CC BY 4.0",
+        "url": "https://openstax.org/details/books/principles-management",
+        "note": "Официјален пропишан учебник (Robbins & Coulter) е комерцијален; OpenStax покрива 9-10 од 13 теми директно, потврдено рачно во разговор.",
+        "content_urls": [
+          "https://openstax.org/books/principles-management/pages/1-introduction",
+          "https://openstax.org/books/principles-management/pages/1-1-what-do-managers-do",
+          "https://openstax.org/books/principles-management/pages/1-2-the-roles-managers-play",
+          "https://openstax.org/books/principles-management/pages/1-key-terms",
+          "https://openstax.org/books/principles-management/pages/2-introduction",
+          "https://openstax.org/books/principles-management/pages/3-introduction",
+          "https://openstax.org/books/principles-management/pages/4-introduction",
+          "https://openstax.org/books/principles-management/pages/5-introduction",
+          "https://openstax.org/books/principles-management/pages/6-introduction",
+          "https://openstax.org/books/principles-management/pages/7-introduction",
+          "https://openstax.org/books/principles-management/pages/8-introduction",
+          "https://openstax.org/books/principles-management/pages/9-introduction",
+          "https://openstax.org/books/principles-management/pages/9-1-strategic-management",
+          "https://openstax.org/books/principles-management/pages/10-introduction",
+          "https://openstax.org/books/principles-management/pages/11-introduction",
+          "https://openstax.org/books/principles-management/pages/12-introduction",
+          "https://openstax.org/books/principles-management/pages/13-introduction",
+          "https://openstax.org/books/principles-management/pages/14-introduction",
+          "https://openstax.org/books/principles-management/pages/15-introduction",
+          "https://openstax.org/books/principles-management/pages/16-introduction",
+          "https://openstax.org/books/principles-management/pages/17-introduction",
+          "https://openstax.org/books/principles-management/pages/17-chapter-review-questions",
+          "https://openstax.org/books/principles-management/pages/17-management-skills-application-exercises",
+          "https://openstax.org/books/principles-management/pages/18-introduction",
+          "https://openstax.org/books/principles-management/pages/index"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Менаџерите на своето работно место",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Донесување одлуки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Менаџмент на опкружувањето и културата на организацијата",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Планирање на работните активности",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Менаџирање стратегија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Дизајн на организациска структура — Основни дизајни",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Дизајн на организациска структура — Адаптивни дизајни",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Менаџирање на човечки ресурси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Креирање и менаџирање на тимови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Менаџирање на комуникации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Разбирање и управување со индивидуалното однесување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Мотивирање на вработен",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Мониторирање и контролирање",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L1W007",
+      "course_name_mk": "Вовед во компјутерските науки",
+      "course_name_en": "Introduction to computer science",
+      "semester_group": "semester_1",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "12 теми: Аналогно наспроти дигитално",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Влезни уреди",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Излезни уреди",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Хардвер",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Податоци и меморија (битови и бајти)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Табели и табеларни пресметки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Интернет",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Интеракција човек-компјутер",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Компјутерски мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Безбедност и приватност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Вовед во вештачка интелигенција",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W041",
+      "course_name_mk": "Дизајн на дигитални кола",
+      "course_name_en": "Digital circuit design",
+      "semester_group": "semester_1",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "An Animated Introduction to Digital Logic Design",
+        "author": "John D. Carpinelli",
+        "publisher": "NJIT / Open Textbook Library",
+        "license": "Open (листиран на Open Textbook Library)",
+        "url": "https://open.umn.edu/opentextbooks/textbooks/an-animated-introduction-to-digital-logic-design",
+        "note": "Покрива броевни системи, Булова алгебра, K-мапи, флип-флопови, бројачи.",
+        "content_urls": [
+          "https://digitalcommons.njit.edu/context/oat/article/1000/viewcontent/Carpinelli_Animated_Digital_Logic_Design_CompleteBook.pdf",
+          "https://digitalcommons.njit.edu/cgi/viewcontent.cgi?article=1000&context=oat"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Броеви системи и конверзии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "знаковни броеви (комплементи)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "бинарни кодови и детекција/коригирање грешки (Hamming)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Булова алгебра",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "преклопни функции и логички кола",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "минимизација (Karnaugh, Quine-McCluskey)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн на комбинациски кола",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "мултиплексери, декодери, PLA",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "флип-флопови и секвенцијални кола",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "равенки на состојби",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн на регистри (паралелно/сериско полнење, поместување)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "синхрони/асинхрони бројачи (модуло, ring, Johnson)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W031",
+      "course_name_mk": "Дискретни структури 1",
+      "course_name_en": "Discrete structures 1",
+      "semester_group": "semester_1",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Discrete Mathematics: An Open Introduction",
+        "author": "Oscar Levin",
+        "publisher": "openmathbooks.org (AIM Open Textbook Initiative)",
+        "license": "CC BY-SA",
+        "url": "https://discrete.openmathbooks.org/",
+        "note": "Официјално одобрен отворен учебник, директно покрива искажна логика, предикати, докази, множества, индукција, Булови алгебри.",
+        "content_urls": [
+          "https://discrete.openmathbooks.org/dmoi4/sec_intro-intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_intro-structures.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-statements.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-implications.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-rules.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-proofs.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-structures.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_trees.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-planar.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-paths.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_coloring.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-relations.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_matchings.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-pascal.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-combine-outcomes.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-non-disjoint.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-combperm.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-multisets.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_comb-proofs.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec-counting-probability.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_advPIE.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_count-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq_intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-growth.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-polynomial.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-exponential.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-induction.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-strong-induction.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_sequences-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_structures-sets.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_structures-functions.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_addtops-genfun.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_addtops-numbth.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Искази, операции со искази, исказни формули и логички закони",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Предикати и квантификатори",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Изведување на логички заклучоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Методи на докажување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Множества",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Функции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Графови: презентација и својства (сврзаност, ојлеров и хамилтонов пат, најкраток пат)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Изоморфност, боење и планарност на графови. Дрва: Основни поими кај дрва и коренови дрва",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Комбинаторика (премутации и комбинации со и без повторување), биномна формула",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Низи, Суми, Рекурентни релации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Релации, Рефлексивност и антирефлексивност, Симетричност, асиметричност и антисиметричност, Транзитивност",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W002",
+      "course_name_mk": "Математика 1",
+      "course_name_en": "Mathematics 1",
+      "semester_group": "semester_1",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Calculus Volume 1",
+        "author": "OpenStax",
+        "publisher": "OpenStax / Rice University",
+        "license": "CC BY 4.0",
+        "url": "https://openstax.org/details/books/calculus-volume-1",
+        "note": "Покрива функции, граници, изводи и интеграли — целосно совпаѓање со силабусот.",
+        "content_urls": [
+          "https://openstax.org/books/calculus-volume-1/pages/1-introduction",
+          "https://openstax.org/books/calculus-volume-1/pages/1-1-review-of-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/1-2-basic-classes-of-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/1-3-trigonometric-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/1-4-inverse-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/1-5-exponential-and-logarithmic-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/2-introduction",
+          "https://openstax.org/books/calculus-volume-1/pages/2-1-a-preview-of-calculus",
+          "https://openstax.org/books/calculus-volume-1/pages/2-2-the-limit-of-a-function",
+          "https://openstax.org/books/calculus-volume-1/pages/2-3-the-limit-laws",
+          "https://openstax.org/books/calculus-volume-1/pages/2-4-continuity",
+          "https://openstax.org/books/calculus-volume-1/pages/2-5-the-precise-definition-of-a-limit",
+          "https://openstax.org/books/calculus-volume-1/pages/3-introduction",
+          "https://openstax.org/books/calculus-volume-1/pages/3-1-defining-the-derivative",
+          "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+          "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules",
+          "https://openstax.org/books/calculus-volume-1/pages/3-4-derivatives-as-rates-of-change",
+          "https://openstax.org/books/calculus-volume-1/pages/3-5-derivatives-of-trigonometric-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/3-6-the-chain-rule",
+          "https://openstax.org/books/calculus-volume-1/pages/3-7-derivatives-of-inverse-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/3-8-implicit-differentiation",
+          "https://openstax.org/books/calculus-volume-1/pages/3-9-derivatives-of-exponential-and-logarithmic-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/4-introduction",
+          "https://openstax.org/books/calculus-volume-1/pages/4-1-related-rates",
+          "https://openstax.org/books/calculus-volume-1/pages/4-2-linear-approximations-and-differentials",
+          "https://openstax.org/books/calculus-volume-1/pages/4-3-maxima-and-minima",
+          "https://openstax.org/books/calculus-volume-1/pages/4-4-the-mean-value-theorem",
+          "https://openstax.org/books/calculus-volume-1/pages/4-5-derivatives-and-the-shape-of-a-graph",
+          "https://openstax.org/books/calculus-volume-1/pages/4-6-limits-at-infinity-and-asymptotes",
+          "https://openstax.org/books/calculus-volume-1/pages/4-7-applied-optimization-problems",
+          "https://openstax.org/books/calculus-volume-1/pages/4-8-lhopitals-rule",
+          "https://openstax.org/books/calculus-volume-1/pages/4-9-newtons-method",
+          "https://openstax.org/books/calculus-volume-1/pages/4-10-antiderivatives",
+          "https://openstax.org/books/calculus-volume-1/pages/5-introduction",
+          "https://openstax.org/books/calculus-volume-1/pages/5-1-approximating-areas",
+          "https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral",
+          "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
+          "https://openstax.org/books/calculus-volume-1/pages/5-4-integration-formulas-and-the-net-change-theorem",
+          "https://openstax.org/books/calculus-volume-1/pages/5-5-substitution",
+          "https://openstax.org/books/calculus-volume-1/pages/5-6-integrals-involving-exponential-and-logarithmic-functions",
+          "https://openstax.org/books/calculus-volume-1/pages/5-7-integrals-resulting-in-inverse-trigonometric-functions"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Функции — дефиниции и својства",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "полиномни и рационални функции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "тригонометриски функции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "инверзни функции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "експоненцијални и логаритамски функции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "граници (еднострани и двострани) и непрекинатост",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "изводи и примена (правила за диференцирање, тригонометриски изводи, chain rule, L'Hôpital)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интеграли (фундаментална теорема, смена, определени и неопределени интеграли, парцијална интеграција)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Литературата не е наведена во изворот"
+    },
+    {
+      "course_code": "F23L1W018",
+      "course_name_mk": "Професионални вештини",
+      "course_name_en": "Professional skills",
+      "semester_group": "semester_1",
+      "ects": 4,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Вовед",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Комуникациски вештини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Пишување CV",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Пишување е-пошта и пропратно писмо",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Бизнис писмо и писмо за препорака",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Интервју",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Организирање настани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Тимска работа",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Бизнис состаноци и техники на преговарање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Пишување на технички извештај и есеј",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Пишување на истражувачки труд",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L1W020",
+      "course_name_mk": "Структурно програмирање",
+      "course_name_en": "Structured programming",
+      "semester_group": "semester_1",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Programming Fundamentals: A Modular Structured Approach using C++",
+        "author": "Kenneth Leroy Busbee",
+        "publisher": "OpenStax CNX / Open Textbook Library / LibreTexts",
+        "license": "CC BY",
+        "url": "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Book:_Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C___(Busbee)",
+        "note": "Директно C++ структурно програмирање: низи, функции, рекурзија, покажувачи.",
+        "content_urls": [
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/01%3A_Introduction_Preface_and_Syllabus/1.01%3A_Preface",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/02%3A_Introduction_to_Programming/2.01%3A_Systems_Development_Life_Cycle",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/03%3A_Program_Planning_and_Design/3.01%3A_Program_Design",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/04%3A_Data_and_Operators/4.01%3A_Data_Types_in_C",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/05%3A_Often_Used_Data_Types/5.01%3A_Integer_Data_Type",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/06%3A_Integrated_Development_Environment/6.01%3A_Introduction_to_IDEs",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/07%3A_Program_Control_Functions/7.01%3A_Psuedocode_Examples_for_Functions",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/08%3A_Specific_Task_Functions/8.01%3A_Specific_Task_Functions",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/09%3A_Standard_Libraries/9.01%3A_Standard_Libraries",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/10%3A_Character_Data_Sizeof_Typedef_Sequence/10.01%3A_Character_Data_Type",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/11%3A_Introduction_to_Structured_Programming/11.01%3A_Structure_Programming",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/12%3A_Two_Way_Selection/12.01%3A_If_Then_Else",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/13%3A_Multiway_Selection/13.01%3A_Nested_If_Then_Else",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/14%3A_Test_After_Loops/14.01%3A_Do_While_Loop",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/15%3A_Test_Before_Loops/15.01%3A_Increment_and_Decrement_Operators",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/16%3A_Counting_Loops/16.01%3A_For_Loop",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/17%3A_String_Class_Unary_Positive_and_Negative/17.01%3A_String_Class_within_C",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/18%3A_Conditional_Operator_and_Recursion/18.01%3A_Conditional_Operator",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/19%3A_Introduction_to_Arrays/19.01%3A_Array_Data_Type",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/20%3A_File_I_O_and_Array_Functions/20.01%3A_File_Input_and_Output",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/21%3A_More_Array_Functions/21.01%3A_Finding_a_Specific_Member_of_an_Array",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/22%3A_More_on_Typedef/22.01%3A_Versatile_Code_with_Typedef",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/23%3A_Pointers/23.01%3A_Address_Operator",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/24%3A_More_Arrays_and_Compiler_Directives/24.01%3A_Multidimensional_Arrays",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/25%3A_OOP_and_HPC/25.01%3A_Object_Oriented_Programming",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/26%3A_Review_Materials/26.01%3A_Foundation_Topics_Group_1-5",
+          "https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Programming_Fundamentals_-_A_Modular_Structured_Approach_using_C_(Busbee)/27%3A_Appendix/27.01%3A_Abbreviated_Precedence_Chart_for_C_Operators"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Опсег, аритметички операции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Операции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Контрола на тек",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Алгоритми и програмирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Низи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Функции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Рекурзија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Покажувачи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Низи од знаци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Датотеки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Сортирање и пребарување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Временска сложеност",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L1S003",
+      "course_name_mk": "Архитектура и организација на компјутери",
+      "course_name_en": "Computer Architecture and Organization",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "MIPS Assembly Language Programming using QtSpim",
+        "author": "Ed Jorgensen",
+        "publisher": "UNLV (авторски објавено)",
+        "license": "CC BY-NC-SA",
+        "url": "http://www.egr.unlv.edu/~ed/mips.html",
+        "note": "Покрива MIPS instruction set, режими на адресирање, процедури/стек. НЕ покрива perf. евалуација, флоатинг-поинт аритметика, pipelining, cache/меморија.",
+        "content_urls": [
+          "http://www.egr.unlv.edu/~ed/MIPStextSMv11.pdf",
+          "http://www.egr.unlv.edu/~ed/mips.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Компјутерски апстракции и технологии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Перформанси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Инструкции и операнди во MIPS",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Програмски конструкти во MIPS и процедури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Адресирање и преведување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Компјутерска аритметика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Процесор, градење на податочна патека",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Вовед во проточност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Податочни и структурни проточни конфликти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Контролни проточни конфликти. Прекини, исклучоци, паралелизам",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Кеш меморија и перформанси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Мемориска хиерархија, кеш и виртуелна меморија",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Составен извор од 3 бесплатни ресурси - ниту еден не е буквално MIPS+pipeline+cache во едно, но заедно ја покриваат целата програма концептуално.",
+      "additional_sources": [
+        {
+          "title": "6.004 Computation Structures (Beta ISA - MIPS-сличен)",
+          "author": "MIT",
+          "publisher": "MIT OpenCourseWare",
+          "license": "CC BY-NC-SA 4.0",
+          "url": "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/",
+          "note": "За дизајн на процесор, pipelining, cache/меморија - концептуално совпаѓање, но не буквално MIPS."
+        },
+        {
+          "title": "nand2tetris (The Elements of Computing Systems)",
+          "author": "Nisan, Schocken",
+          "publisher": "nand2tetris.org",
+          "license": "CC BY-NC-SA 3.0",
+          "url": "https://www.nand2tetris.org/",
+          "note": "Дополнителна поддршка за instruction set/CPU дизајн основи."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L1S023",
+      "course_name_mk": "Бизнис статистика",
+      "course_name_en": "Business statistics",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Introductory Business Statistics, 2nd ed.",
+        "author": "OpenStax (Rice University)",
+        "publisher": "OpenStax",
+        "license": "CC BY 4.0",
+        "url": "https://openstax.org/details/books/introductory-business-statistics-2e",
+        "note": "Целосно покрива: типови податоци, дескриптивна статистика, веројатност (вкл. Бајес), сите бараани распределби, интервали на доверба, тестирање хипотези, корелација/регресија. НЕ покрива непараметриски тестови - потребен дополнителен извор за тоа поглавје.",
+        "content_urls": [
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/1-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/1-1-definitions-of-statistics-probability-and-key-terms",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/1-2-data-sampling-and-variation-in-data-and-sampling",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/1-3-levels-of-measurement",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/2-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/2-1-display-data",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/2-2-measures-of-the-location-of-the-data",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/2-3-measures-of-the-center-of-the-data",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/2-7-measures-of-the-spread-of-the-data",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/3-1-terminology",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/3-2-independent-and-mutually-exclusive-events",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/3-3-two-basic-rules-of-probability",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/3-4-contingency-tables-and-probability-trees",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/4-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/4-2-binomial-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/4-3-geometric-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/4-4-poisson-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/5-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/5-2-the-uniform-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/5-3-the-exponential-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/6-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/6-1-the-standard-normal-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/6-2-using-the-normal-distribution",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/8-1-a-confidence-interval-when-the-population-standard-deviation-is-known-or-large-sample-size",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/8-2-a-confidence-interval-when-the-population-standard-deviation-is-unknown-and-small-sample-case",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/8-3-a-confidence-interval-for-a-population-proportion",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/8-4-calculating-the-sample-size-n-continuous-and-binary-random-variables",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/9-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/9-1-null-and-alternative-hypotheses",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/9-2-outcomes-and-the-type-i-and-type-ii-errors",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/9-3-probability-distribution-needed-for-hypothesis-testing",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/9-4-full-hypothesis-test-examples",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/11-introduction",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/11-3-goodness-of-fit-test",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/11-4-test-of-independence",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/11-5-test-for-homogeneity",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/13-1-the-correlation-coefficient-r",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/13-2-testing-the-significance-of-the-correlation-coefficient",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/13-4-the-regression-equation",
+          "https://openstax.org/books/introductory-business-statistics-2e/pages/13-6-predicting-with-a-regression-equation"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во бизнис статистика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Организација и претставување на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Дескриптивни статистики",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Комбинаторика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Експерименти. Множество елементарни настани. Случајни настани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Веројатност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Случајни променливи од дискретен тип",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Случајни променливи од апсолутно-непрекинат тип",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Гранични теореми. Распределба на статистики на примерок",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Оценување на параметри",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Тестирање на хипотези - едно обележје",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Тестирање на хипотези - две обележја",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Непараметарски тестови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Линеарна регресија",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S011",
+      "course_name_mk": "Дискретна математика",
+      "course_name_en": "Discrete mathematics",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Discrete Mathematics: An Open Introduction, 4th ed.",
+        "author": "Oscar Levin",
+        "publisher": "discrete.openmathbooks.org",
+        "license": "CC BY-SA 4.0",
+        "url": "https://discrete.openmathbooks.org/dmoi4/",
+        "note": "Целосно покрива логика/докажување, множества/функции/релации, теорија на графови (Ојлер/Хамилтон патишта, боење, планарност, дрва), комбинаторика, индукција/рекурзија. [content_urls додадени рачно - иста листа sec_*.html страници како F23L2W031, наместо bare url кој даваше 0 sections.]",
+        "content_urls": [
+          "https://discrete.openmathbooks.org/dmoi4/sec_intro-intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_intro-structures.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-statements.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-implications.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-rules.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-proofs.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-structures.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_trees.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-planar.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-paths.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_coloring.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-relations.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_matchings.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-pascal.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-combine-outcomes.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-non-disjoint.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-combperm.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-multisets.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_comb-proofs.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec-counting-probability.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_advPIE.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_count-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq_intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-growth.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-polynomial.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-exponential.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-induction.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-strong-induction.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_sequences-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_structures-sets.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_structures-functions.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_addtops-genfun.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_addtops-numbth.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Искази, операции со искази, исказни формули и логички закони",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "предикатно сметање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники на докажување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "множества, функции, релации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "теорија на графови (репрезентација, поврзаност, Ојлерови и Хамилтонови патишта, најкратки патишта)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "изоморфизам на графови, боење, планарност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дрва и опфатни дрва",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "комбинаторика (пермутации и комбинации со/без повторување)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "принцип на вклучување-исклучување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "рекурзија",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S032",
+      "course_name_mk": "Дискретни структури 2",
+      "course_name_en": "Discrete structures 2",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Discrete Mathematics: An Open Introduction, 4th ed.",
+        "author": "Oscar Levin",
+        "publisher": "discrete.openmathbooks.org",
+        "license": "CC BY-SA 4.0",
+        "url": "https://discrete.openmathbooks.org/dmoi4/",
+        "note": "Иста книга како Дискретна математика - совпаѓа со релации, подредувања, комбинаторика, гулабови дупки, графови, дрва. [content_urls додадени рачно - иста листа sec_*.html страници како F23L2W031, наместо bare url кој даваше 0 sections.]",
+        "content_urls": [
+          "https://discrete.openmathbooks.org/dmoi4/sec_intro-intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_intro-structures.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-statements.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-implications.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-rules.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-proofs.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-structures.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_logic-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_trees.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-planar.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-paths.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_coloring.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-relations.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_matchings.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_gt-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-pascal.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-combine-outcomes.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-non-disjoint.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-combperm.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_counting-multisets.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_comb-proofs.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec-counting-probability.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_advPIE.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_count-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq_intro.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-growth.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-polynomial.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-exponential.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-induction.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_seq-strong-induction.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_sequences-conc.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_structures-sets.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_structures-functions.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_addtops-genfun.html",
+          "https://discrete.openmathbooks.org/dmoi4/sec_addtops-numbth.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Релации, подредувања, еквиваленции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "индукција и рекурзија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "броење, основна комбинаторика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "принцип на гулабови дупки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "напредни комбинаторни техники",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "биномна формула",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "графови (основни поими, претставување, својства)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "изоморфизам, пат, планарност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дрва и нивни својства",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дрва на пребарување",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L1S045",
+      "course_name_mk": "Компјутерски архитектури",
+      "course_name_en": "Computer architectures",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "MIPS Assembly Language Programming using QtSpim",
+        "author": "Ed Jorgensen",
+        "publisher": "UNLV (авторски објавено)",
+        "license": "CC BY-NC-SA",
+        "url": "http://www.egr.unlv.edu/~ed/mips.html",
+        "note": "Покрива MIPS instruction set и адресирање. Многу сличен предмет со Архитектура и организација на компјутери - истиот составен извор.",
+        "content_urls": [
+          "http://www.egr.unlv.edu/~ed/MIPStextSMv11.pdf",
+          "http://www.egr.unlv.edu/~ed/mips.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "преглед на функционирање на компјутер",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "карактеристики и функции на instruction set",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "начини на адресирање и формати",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "MIPS instruction set",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "структура и функција на процесор",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "instruction pipelining и суперскаларна архитектура",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "меѓусебно поврзување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "внатрешна меморија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кеш меморија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "виртуелна меморија",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Составен извор, ист принцип како Архитектура и организација на компјутери.",
+      "additional_sources": [
+        {
+          "title": "6.004 Computation Structures (Beta ISA)",
+          "author": "MIT",
+          "publisher": "MIT OpenCourseWare",
+          "license": "CC BY-NC-SA 4.0",
+          "url": "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/",
+          "note": "За pipelining, суперскаларна архитектура, кеш/виртуелна меморија."
+        },
+        {
+          "title": "nand2tetris (The Elements of Computing Systems)",
+          "author": "Nisan, Schocken",
+          "publisher": "nand2tetris.org",
+          "license": "CC BY-NC-SA 3.0",
+          "url": "https://www.nand2tetris.org/",
+          "note": "Дополнителна поддршка за структура/функција на процесор."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L1S016",
+      "course_name_mk": "Објектно-ориентирано програмирање",
+      "course_name_en": "Object-oriented programming",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "learncpp.com",
+        "author": "Alex (learncpp.com)",
+        "publisher": "learncpp.com",
+        "license": "Бесплатно засекогаш достапно (не CC, но експлицитно и трајно бесплатно, без најава/плаќање)",
+        "url": "https://www.learncpp.com/",
+        "note": "Речиси 1:1 совпаѓање: класи/животен циклус/пристап (гл.14-15), преоптоварување оператори (гл.21), наследување (гл.24), полиморфизам/апстрактни класи (гл.25), исклучоци (гл.27), templates (гл.11, 26).",
+        "content_urls": [
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-structs-members-and-member-selection/",
+          "https://www.learncpp.com/cpp-tutorial/struct-aggregate-initialization/",
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-classes/",
+          "https://www.learncpp.com/cpp-tutorial/classes-and-header-files/",
+          "https://www.learncpp.com/cpp-tutorial/public-and-private-members-and-access-specifiers/",
+          "https://www.learncpp.com/cpp-tutorial/access-functions/",
+          "https://www.learncpp.com/cpp-tutorial/the-benefits-of-data-hiding-encapsulation/",
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-constructors/",
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-the-copy-constructor/",
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-destructors/",
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-operator-overloading/",
+          "https://www.learncpp.com/cpp-tutorial/overloading-the-arithmetic-operators-using-friend-functions/",
+          "https://www.learncpp.com/cpp-tutorial/overloading-the-io-operators/",
+          "https://www.learncpp.com/cpp-tutorial/overloading-the-comparison-operators/",
+          "https://www.learncpp.com/cpp-tutorial/overloading-the-subscript-operator/",
+          "https://www.learncpp.com/cpp-tutorial/introduction-to-inheritance/",
+          "https://www.learncpp.com/cpp-tutorial/basic-inheritance-in-c/",
+          "https://www.learncpp.com/cpp-tutorial/inheritance-and-access-specifiers/",
+          "https://www.learncpp.com/cpp-tutorial/multiple-inheritance/",
+          "https://www.learncpp.com/cpp-tutorial/virtual-functions/",
+          "https://www.learncpp.com/cpp-tutorial/the-override-and-final-specifiers-and-covariant-return-types/",
+          "https://www.learncpp.com/cpp-tutorial/pure-virtual-functions-abstract-base-classes-and-interface-classes/",
+          "https://www.learncpp.com/cpp-tutorial/dynamic-casting/",
+          "https://www.learncpp.com/cpp-tutorial/printing-inherited-classes-using-operator/",
+          "https://www.learncpp.com/cpp-tutorial/basic-exception-handling/",
+          "https://www.learncpp.com/cpp-tutorial/exceptions-classes-and-inheritance/",
+          "https://www.learncpp.com/cpp-tutorial/rethrowing-exceptions/",
+          "https://www.learncpp.com/cpp-tutorial/function-try-blocks/",
+          "https://www.learncpp.com/cpp-tutorial/function-templates/",
+          "https://www.learncpp.com/cpp-tutorial/function-template-instantiation/",
+          "https://www.learncpp.com/cpp-tutorial/function-templates-with-multiple-template-types/",
+          "https://www.learncpp.com/cpp-tutorial/class-templates/",
+          "https://www.learncpp.com/cpp-tutorial/class-templates-with-member-functions/",
+          "https://www.learncpp.com/cpp-tutorial/overloading-operators-and-function-templates/"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Структури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Не-ООП C++",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Основни концепти на ООП",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Класи I",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Класи II",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Оператори",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Наследност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Полиморфизам",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Static членови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Повеќекратно наследување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Исклучоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Шаблони (templates)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null,
+      "additional_sources": [
+        {
+          "title": "cppreference.com",
+          "author": "заедница",
+          "publisher": "cppreference.com",
+          "license": "CC BY-SA 3.0",
+          "url": "https://en.cppreference.com/w/cpp/language",
+          "note": "Официјална референца за проверка на детали, комплементарна на learncpp.com туторијалот."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L2S015",
+      "course_name_mk": "Објектно ориентирана анализа и дизајн",
+      "course_name_en": "Object-oriented analysis and design",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Introduction to Software Engineering/UML (Wikibooks)",
+        "author": "Wikibooks заедница",
+        "publisher": "en.wikibooks.org",
+        "license": "CC BY-SA 4.0",
+        "url": "https://en.wikibooks.org/wiki/Introduction_to_Software_Engineering/UML",
+        "note": "Најширок бесплатен извор - опфаќа 13 од 14 UML дијаграм типови (класни, use case, activity, state, sequence, communication, component, deployment и др.)"
+      },
+      "lessons": [
+        {
+          "topic_title": "Класи, објекти, енкапсулација и полиморфизам",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во UML",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "класни дијаграми (атрибути и методи)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "релации меѓу класи и објектни дијаграми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кориснички сценарија преку use case дијаграми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "активити дијаграми, state дијаграми, sequence дијаграми, collaboration дијаграми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компонентни и развојни дијаграми",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Составен извор - Wikibooks за широчина, OSU за квалитетни примери. Длабочината на покривање варира по тип дијаграм.",
+      "additional_sources": [
+        {
+          "title": "Handbook of Software Engineering Methods, гл. 4 (UML Class & Sequence)",
+          "author": "Lara Letaw",
+          "publisher": "Oregon State Open Textbook",
+          "license": "CC BY-NC 4.0",
+          "url": "https://open.oregonstate.education/setextbook/chapter/uml-class/",
+          "note": "Подобри детални примери за класни и sequence дијаграми."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L1S146",
+      "course_name_mk": "Основи на Веб дизајн",
+      "course_name_en": "Fundamentals of Web design",
+      "semester_group": "semester_2",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "MDN Learn Web Development",
+        "author": "Mozilla",
+        "publisher": "developer.mozilla.org",
+        "license": "CC BY-SA 2.5+ (текст), код примерите се CC0/MIT",
+        "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development",
+        "note": "Целосно покрива HTML структура, CSS (box model, позиционирање, типографија), JavaScript основи, accessibility. Usability (Krug-стил) е послабо покриено - лесен gap.",
+        "content_urls": [
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Your_first_website/What_will_your_website_look_like",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Basic_HTML_syntax",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Headings_and_paragraphs",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Lists",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/What_is_CSS",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Getting_started",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Creating_links",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/HTML_images",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/HTML_video_and_audio",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/HTML_table_basics",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Tables",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/HTML_forms",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Advanced_styling_effects",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Backgrounds_and_borders",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Structuring_documents",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Web_standards/How_the_web_works",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Positioning",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Practical_positioning_examples",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Text_styling/Fundamentals",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Text_styling/Web_fonts",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/What_is_accessibility",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/HTML",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/CSS_and_JavaScript",
+          "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/WAI-ARIA_basics"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во веб дизајн и структура на веб страница",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "текст, листи и основи на CSS",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "линкови, слики и мултимедија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "табели и форми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "естетика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "напреден CSS",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектури на веб-сајтови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "box model",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "позиционирање на елементи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "типографија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "принципи на добар веб дизајн",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "употребливост (usability)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "пристапен дизајн (accessibility)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на JavaScript",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W001",
+      "course_name_mk": "Алгоритми и податочни структури",
+      "course_name_en": "Algorithms and data structures",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Open Data Structures: An Introduction",
+        "author": "Pat Morin",
+        "publisher": "Athabasca University Press / Open Textbook Library",
+        "license": "CC BY",
+        "url": "https://opendatastructures.org/ods-python.pdf",
+        "note": "Низи, листи, стекови, редови, хаш структури, дрва — достапна и C++ верзија. | URL сменет од landing страница на opendatastructures.org до директната PDF едиција (Python pseudocode) - потврдено дека содржи целосен ТОЦ со 14 поглавја."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во податочни структури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на алгоритми и сложеност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "репрезентација на основни податочни структури со низи и листи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники за дизајн на алгоритми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "линеарни податочни структури (стекови и редови)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "алгоритми за сортирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "хаш структури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "хиерархиски структури (дрва)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "графови",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null,
+      "future_note": "УКИМ е-издание достапно (дополнително, за напредна тема): 'Дизајн на алгоритми за динамичко програмирање' (Михова, Илијоски) — https://www.ukim.edu.mk/e-izdanija/FINKI/Algoritmi_za_dinamichko_programiranje.pdf"
+    },
+    {
+      "course_code": "F23L2W006",
+      "course_name_mk": "Веројатност и статистика",
+      "course_name_en": "Probability and Statistics",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Елементи на комбинаторика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "веројатност на случајни настани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дискретни и континуирани распределби",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "случајни вектори со маргинални и условни распределби",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "математичко очекување и дисперзија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примерок од популација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дескриптивна статистика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "распределби на примерок (нормална, t, хи-квадрат, F)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "проценка на параметри (метод на моменти и максимална веродостојност)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интервали на доверба",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "параметриско/непараметриско тестирање хипотези",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "линеарна регресија со метод на најмали квадрати",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Претходен извор (УКИМ Verojatnost.pdf) враќа 404 - фајлот е тргнат/преместен. Потребен нов извор."
+    },
+    {
+      "course_code": "F23L2W100",
+      "course_name_mk": "Економија за ИКТ инженери",
+      "course_name_en": "Economy for ICT engineers",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Principles of Microeconomics 3e",
+        "author": "OpenStax",
+        "publisher": "OpenStax / Rice University",
+        "license": "CC BY 4.0",
+        "url": "https://openstax.org/details/books/principles-microeconomics-3e",
+        "note": "ДЕЛУМНО покривање — прифатено вака од корисникот. Не го покрива ИКТ-специфичниот дел (вреднување ИКТ услуги, ITIL портфолио менаџмент). | ВНИМАНИЕ: главниот 'url' (details/landing страница) е JS-рендерирана и НЕ работи со автоматско преземање - додадени се само 2 потврдени работечки content_urls (сепак недоволно за сите 11 лекции, потребно дополнително истражување за целосна content_urls листа по OpenStax pages/N-slug patternот).",
+        "content_urls": [
+          "https://openstax.org/books/principles-microeconomics-3e/pages/1-introduction",
+          "https://openstax.org/books/principles-microeconomics-3e/pages/1-1-what-is-economics-and-why-is-it-important"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Што е економија? Економскиот проблем",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "понуда и побарувачка",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вреднување на ИКТ услугите",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "моделирање побарувачка на ИКТ услугите",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "менаџмент на портфолио на ИКТ услуги",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "оптимизација на услуги",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на инвестиции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "буџетирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сметководство",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ценовни механизми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "финансиска регулатива",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W109",
+      "course_name_mk": "Интернет програмирање на клиентска страна",
+      "course_name_en": "Client-side internet programming",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Eloquent JavaScript",
+        "author": "Marijn Haverbeke",
+        "publisher": "eloquentjavascript.net (авторско издание)",
+        "license": "CC BY-NC 3.0",
+        "url": "https://eloquentjavascript.net/",
+        "note": "JS основи, DOM, функции, објекти, HTTP/fetch, async - добро покриени. jQuery делот НЕ е покриен (застарена технологија). 'Интернет сервиси' (општи мрежни концепти) и 'JS библиотеки' исто НЕ се директно покриени - Eloquent JavaScript е чиста JS книга, не покрива мрежни протоколи воопшто ниту конкретни библиотеки/фрејмворци.",
+        "content_urls": [
+          "https://eloquentjavascript.net/00_intro.html",
+          "https://eloquentjavascript.net/01_values.html",
+          "https://eloquentjavascript.net/03_functions.html",
+          "https://eloquentjavascript.net/04_data.html",
+          "https://eloquentjavascript.net/05_higher_order.html",
+          "https://eloquentjavascript.net/06_object.html",
+          "https://eloquentjavascript.net/14_dom.html",
+          "https://eloquentjavascript.net/15_event.html",
+          "https://eloquentjavascript.net/18_http.html",
+          "https://eloquentjavascript.net/11_async.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во предметот",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Интернет сервиси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Вовед во скриптирање - JavaScript",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Функции во JavaScript",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Полиња во JavaScript",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Објекти во JavaScript",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "DOM",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "JSON и AJAX",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Напредни концепти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "JS библиотеки",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W046",
+      "course_name_mk": "Компјутерски мрежи",
+      "course_name_en": "Computer Networks",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Computer Networks: A Systems Approach",
+        "author": "Larry Peterson, Bruce Davie",
+        "publisher": "systemsapproach.org / Open Textbook Library",
+        "license": "CC BY",
+        "url": "https://book.systemsapproach.org/",
+        "note": "Целосно покривање на силабусот."
+      },
+      "lessons": [
+        {
+          "topic_title": "Класификација на мрежи, модел на комуникациски систем, стандарди, протоколи, слоевитост",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "data link層 со рамкување и детекција грешки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "LAN технологии, MAC протоколи, Ethernet, bridging, свичирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "пакетно комутирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "IP адресирање и рутирачки протоколи (статички и динамички)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "приватни адреси, NAT, IPv6, DHCP",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "транспортен слој (воспоставување конекција, UDP, TCP, контрола на загушување)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "апликациски протоколи (HTTP, FTP, DNS)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W014",
+      "course_name_mk": "Компјутерски мрежи и безбедност",
+      "course_name_en": "Computer Networks and Security",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "KMiB Skripta (студентска скрипта за Компјутерски мрежи и безбедност)",
+        "author": "материјал доставен од корисникот, базиран на препорачаната литература Kurose & Ross - \"Computer Networking: A Top-Down Approach\"",
+        "publisher": "интерен студентски материјал, 2021",
+        "license": "Директно доставен од корисникот - легитимно поседуван материјал",
+        "url": null,
+        "note": "146 страници, 7 методски единици кои се совпаѓаат со официјалната содржина: Вовед во компјутерски мрежи, Апликациски слој, Транспортен слој, Мрежен слој (дел 1 и 2), Линк слој, Мрежна безбедност. Одлично совпаѓање со содржината на предметната програма."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Апликациски слој",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Транспортен слој",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Мрежен слој - податочна рамнина",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Мрежен слој - контролна рамнина",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Линк слој",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Мрежна безбедност",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2W167",
+      "course_name_mk": "Шаблони за дизајн на кориснички интерфејси",
+      "course_name_en": "User Interface Design Patterns",
+      "semester_group": "semester_3",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Сопствени презентации/материјали од предметот (Информациска архитектура, Навигација, Акции и команди, Форми, Шаблони и примери)",
+        "author": "Professor materials (course-provided)",
+        "publisher": "Интерен курсен материјал доставен од корисникот",
+        "license": "Кориснички материјал за лична едукативна употреба",
+        "url": null,
+        "note": "7 документи доставени од корисникот, целосно ги покриваат темите: информациска архитектура, навигација, акции/команди, форми за внес, паѓачки шаблони итн. Одличен, точен извор."
+      },
+      "lessons": [
+        {
+          "topic_title": "Модели на кориснички однесувања",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "организација на содржина",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "принципи и модели на навигациски дизајн",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "организација на екрани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн на форми и контроли за внес податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "репрезентација на акции и команди",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интеракциски архитектури со листи на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "обрасци на интеракција на социјални медиуми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "карактеристики на интеракција на мобилни уреди",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S002",
+      "course_name_mk": "Анализа на софтверските барања",
+      "course_name_en": "Software requirements analysis",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Дефиниции на барања (продукти, проекти, ограничувања, граници на систем)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "процес на requirements engineering",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "хиерархиски нивоа од потреби до софтверски барања",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "карактеристики на барања (тестабилност, јасност, конзистентност, приоритизација)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на квалитетни атрибути (безбедност, употребливост, перформанси)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "барања во контекст на системско инженерство",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "евалуација и анализа на ризик",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со барања и следливост",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники на елицитација (интервјуа, анкети, прототипирање, набљудување)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "стандарди за документација на спецификации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "валидација преку прегледи и прототипирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн на прифатливи тестови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "формална анализа на барања",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Не најдов чист посветен отворен извор за requirements engineering. Можеби делумно преку Handbook of SE Methods (истиот извор како Софтверско инженерство)."
+    },
+    {
+      "course_code": "F23L2S030",
+      "course_name_mk": "Вештачка интелигенција",
+      "course_name_en": "Artificial Intelligence",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Artificial Intelligence: Foundations of Computational Agents, 3rd ed.",
+        "author": "David L. Poole, Alan K. Mackworth",
+        "publisher": "Cambridge University Press / artint.info (авторско бесплатно издание)",
+        "license": "Бесплатно јавно достапно од авторите на artint.info",
+        "url": "https://artint.info/3e/html/ArtInt3e.html",
+        "note": "Агенти, пребарување, CSP, Bayesian мрежи, машинско учење — солидно совпаѓање. | URL сменет од landing/purchase страница до вистинскиот HTML корен на книгата (3rd ed.) - потврдено реални поглавја."
+      },
+      "lessons": [
+        {
+          "topic_title": "За вештачката интелигенција и интелигентни агенти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "неинформирано и информирано пребарување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "задоволување ограничувања",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "adversarial search",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "генетски алгоритми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "веројатносно расудување и Бајесови мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на машинско учење (наивен Бајес)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "перцептрони",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дрва на одлучување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "невронски мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примени: обработка на природни јазици, машинска визија, роботика",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S082",
+      "course_name_mk": "Визуелно програмирање",
+      "course_name_en": "Visual Programming",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Desktop Guide for WPF and Windows Forms / C# docs",
+        "author": "Microsoft",
+        "publisher": "Microsoft Learn",
+        "license": "Бесплатна официјална документација",
+        "url": "https://learn.microsoft.com/en-us/dotnet/desktop/",
+        "note": "Официјална, бесплатна документација наместо класичен учебник — покрива UI контроли, binding, cross-platform."
+      },
+      "lessons": [
+        {
+          "topic_title": "Настанско-водено програмирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "десктоп/веб/мобилни апликациски околини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "генерирање и обработка на настани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "UI контроли за прикажување и внес податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "валидација и binding на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сопствени контроли",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кориснички менија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "навигација на форми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "локализација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "асинхрони процеси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "нишки (threading)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "поврзување со надворешни извори податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "cross-platform развој",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "пакување и дистрибуција на апликации",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S095",
+      "course_name_mk": "Дигитално процесирање на слика",
+      "course_name_en": "Digital image processing",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Историја, типови и уреди за создавање слики",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на дигитални слики и пиксели",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компоненти на боја",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дигитализација (2-D семплирање и квантизација)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во OpenCV и Python",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "трансформации на ниво пиксел, хистограми, контраст и гама корекции, адаптивна хистограмска еквализација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "линеарни филтри и конволуција (заматување, изострување)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детекција рабови (градиент, Лапласијан)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сегментација (праг, регион-базирана)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "морфолошки операции (dilation, erosion, opening, closing)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "2-D Фуриеова трансформација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "wavelets",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "template matching",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "пирамиди на слики",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компресија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детекција облик и контури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "визуелни карактеристики, keypoint детекција, панорамски слики",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Претходен извор (szeliski.org/Book/) нема директен PDF линк - книгата е само преку Dropbox, не е автоматски преземлива. Потребен нов извор."
+    },
+    {
+      "course_code": "F23L2S099",
+      "course_name_mk": "Е-влада",
+      "course_name_en": "E-government",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Модели на е-управување",
+        "author": "Смилка Јанеска-Саркањац",
+        "publisher": "УКИМ / Е-изданија на ФИНКИ",
+        "license": "Официјално бесплатно е-издание на УКИМ",
+        "url": "https://www.ukim.edu.mk/e-izdanija/FINKI/Modeli_na_e-upravuvanje.pdf",
+        "note": "ТОЧНО пропишаниот учебник, официјално бесплатно објавен од самиот УКИМ. Целосно совпаѓање со силабусот (модели, Layne-Lee, е-здравство/е-образование/е-партиципација, примена во Македонија)."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во е-влада",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дефинирање информациски системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "фази на развој, придобивки, ризици",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "модел на Layne и Lee",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "стратешки пристап на Watson и Mundy за е-Демократија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "е-здравство, е-образование, е-партиципација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "технолошка инфраструктура",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примери од Естонија, Словенија, Австрија, Данска, Ирска, Финска, Индија, Сингапур",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компаративна анализа на ИКТ проекти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "перспективи за Македонија",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S110",
+      "course_name_mk": "Интернет технологии",
+      "course_name_en": "Internet technologies",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "ASP.NET Core documentation",
+        "author": "Microsoft",
+        "publisher": "Microsoft Learn",
+        "license": "Бесплатна официјална документација",
+        "url": "https://learn.microsoft.com/en-us/aspnet/core/",
+        "note": "MVC, веб форми, состојба, бази на податоци, безбедност — official docs."
+      },
+      "lessons": [
+        {
+          "topic_title": "Архитектура на динамички веб апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "комуникација на веб",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во Web Application Development",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во ASP.NET",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на веб форми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "веб контроли",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "мастер страници и теми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со состојби",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "навигација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "работа со бази на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сигурност на веб апликација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "СОА и веб сервиси",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S119",
+      "course_name_mk": "Концепти на информатичко општество",
+      "course_name_en": "Concepts of information society",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Развој на информатичкото општество и основни поими",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "глобализација и улогата на IT",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "добитници и губитници во дигиталната ера (национално, локално, индивидуално ниво)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дигитален јаз",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "влијание на мобилни телефони, WiFi и дигитални технологии врз животниот стил",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "значењето на интернетот",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "концептуални рамки за анализа на IT влијанија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компјутерски криминал",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "паметни картички и дигитален идентитет",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компјутерска етика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "општество на надзор и IT",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "безбедносни закани",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S026",
+      "course_name_mk": "Маркетинг",
+      "course_name_en": "Marketing",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Основни маркетинг концепти: анализа на пазар, потрошувачко однесување, маркетинг микс (продукт, цена, дистрибуција, промоција)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сегментирање, таргетирање, позиционирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со односи со клиенти (CRM)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "брендинг стратегија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интернет маркетинг (е-бизнис основи, онлајн таргетирање, индексирање на пребарувачи, дигитални канали)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вирален маркетинг",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "маркетинг на социјални мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "блогирање и RSS за оптимизација на кампањи",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Тековна страница на finki.ukim.mk враќа API грешка (HTTP 500) за овој код; податоците се земени од постар PDF (стар код CSEW310) архивиран на истиот домен — содржината веројатно е стабилна, но вреди да се потврди."
+    },
+    {
+      "course_code": "F23L2S124",
+      "course_name_mk": "Медиуми и комуникации",
+      "course_name_en": "Media and communication",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Основи на теорија на комуникација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "историски развој на медиуми (традиционални до нови)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "модели на комуникација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "storytelling техники",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "јавно претставување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "социјални мрежи како медиум",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на јавно мислење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развој на бренд преку дигитални платформи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "граѓански активизам",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "виртуелни заедници",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "гејмификација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "технолошки феномени (вкл. дезинформации)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S017",
+      "course_name_mk": "Оперативни системи",
+      "course_name_en": "Operating systems",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "tHe OSkripta (Remastered) — студентска скрипта, базирана на Modern Operating Systems, 2nd ed. (Tanenbaum)",
+        "author": "Студентски автор ('tHe Special One'), базирано на Andrew S. Tanenbaum",
+        "publisher": "Кориснички материјал доставен од корисникот",
+        "license": "Кориснички материјал за лична едукативна употреба",
+        "url": null,
+        "note": "167 страници, 11 методски единици, точно се совпаѓа со официјалниот силабус: процеси, IPC, распоредување, deadlock, управување со меморија (2 дела), датотечни системи (2 дела), тврди дискови/SSD, влез/излез."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во предметот",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Процеси и нитки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Меѓупроцесна комуникација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Блокада (deadlock)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Распоредување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Виртуелизација и контејнеризација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Управување со меморија 1",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Управување со меморија 2",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Датотечни системи 1",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Датотечни системи 2",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Стабилни складишта и SSD",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Влез-излез",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L2S029",
+      "course_name_mk": "Софтверско инженерство",
+      "course_name_en": "Software engineering",
+      "semester_group": "semester_4",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Вовед во софтверско инженерство",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "карактеристики на софтвер и проекти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развојни процеси и методологии (декомпозиција, апстракција, објектни модели)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа и моделирање на барања (структурни и објектно-ориентирани пристапи)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "софтверски дизајн и архитектури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн шаблони",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "статичка/динамичка анализа",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "имплементација и документација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во тестирање (функционално и систематско тестирање)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со софтверски проекти и планирање",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Oregon State 'setextbook' landing страницата нема видливи глави/линкови до поглавја (за разлика од F23L2S015 каде истиот издавач работеше за конкретна глава); погоден URL до поглавје врати 403. Потребен нов извор или точни chapter URL-ови."
+    },
+    {
+      "course_code": "F23L3W060",
+      "course_name_mk": "Администрација на системи",
+      "course_name_en": "System administration",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Управување со корисници, фајлови и софтвер во клиент-сервер околини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "инсталација и конфигурација на intranet/internet мрежни сервиси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "администрација на безбедносни политики во Linux и Windows",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники за interoperability меѓу мешани околини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "идентификување проблеми со перформанси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн на IT инфраструктура за мали/средни бизниси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развој на скриптирачки механизми за административни задачи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "евалуација на политики за веродостојност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "инсталација и конфигурација на Linux/Windows виртуелни машини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "системи за управување со големи податочни множества",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "DigitalOcean 'sysadmin ebook' страницата е само маркетинг/landing страница - нема вистинска содржина од книгата на дадениот URL. Потребен нов извор."
+    },
+    {
+      "course_code": "F23L3W004",
+      "course_name_mk": "Бази на податоци",
+      "course_name_en": "Databases",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Database Design, 2nd ed.",
+        "author": "Adrienne Watt",
+        "publisher": "BCcampus Open Textbook Project",
+        "license": "CC BY 4.0",
+        "url": "https://opentextbc.ca/dbdesign01/",
+        "note": "ER моделирање, релациски модел, нормализација, SQL основи — солидно совпаѓање."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во системи за управување со бази на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ER моделирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "релациски модели на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "релациска алгебра и калкулус",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на SQL (DDL и DML)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "напредна употреба на SQL",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "функционални зависности и нормализација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "физичка организација на податоци (структури и индекси)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на конкурентни операции и трансакции",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null,
+      "future_note": "УКИМ е-издание достапно: 'Збирка задачи од релациони бази на податоци' — https://www.ukim.edu.mk/e-izdanija/FINKI/Zbirka_zadaci_od_relacioni_bazi_na_podatoci.pdf"
+    },
+    {
+      "course_code": "F23L3W024",
+      "course_name_mk": "Веб програмирање",
+      "course_name_en": "Web programming",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Spring официјална документација и водичи",
+        "author": "Spring Team / VMware",
+        "publisher": "spring.io",
+        "license": "Бесплатна официјална документација",
+        "url": "https://spring.io/guides",
+        "note": "Spring MVC, Spring Data, Spring Security — official docs наместо комерцијалната Craig Walls книга."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед и преглед на Spring framework",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на развој веб апликации (протоколи, клиент-сервер, генерирање HTML)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "JEE Servlets и Filters",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со состојба",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Spring MVC",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "работа со податоци (persistence, object-relational mapping)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Spring Data",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "безбедност на веб апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "тестирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "реактивни веб апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "пакување и деплојмент",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W081",
+      "course_name_mk": "Визуелизација",
+      "course_name_en": "Visualization",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Fundamentals of Data Visualization",
+        "author": "Claus O. Wilke",
+        "publisher": "O'Reilly / clauswilke.com (бесплатна веб верзија од авторот)",
+        "license": "Бесплатна веб верзија (печатената е комерцијална)",
+        "url": "https://clauswilke.com/dataviz/",
+        "note": "ДЕЛУМНО — одлично ги покрива принципите на визуелизација, но помалку ги покрива специфичните теми isosurfaces/marching cubes/волуметриска визуелизација од силабусот."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во визуелизација, основни поими, историски примери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "процес на визуелизација и work flow модел",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "типови податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "скаларна визуелизација (боја, графикони, хистограми)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "скаларна визуелизација (isosurfaces, marching cubes)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "волуметриска визуелизација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "визуелизација на векторски податоци и проток",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "информациска визуелизација (геометриски и icon-базирани техники, pixel-базирани, хиерархиски, graph-базирани, hyperbolic, cone tree, дисторзија и 3D техники)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W008",
+      "course_name_mk": "Вовед во науката за податоци",
+      "course_name_en": "Introduction to data science",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Сопствени материјали/презентации од предавања (9 теми + резиме на модели)",
+        "author": "Course lecture materials (course-provided)",
+        "publisher": "Интерен курсен материјал доставен од корисникот",
+        "license": "Кориснички материјал за лична едукативна употреба",
+        "url": null,
+        "note": "9 документи: Податочен процес, Работа со податоци, Подготовка на податоци, Машинско учење 1-3, Невронски мрежи и Deep Learning, Building Neural Networks, NLP + резиме на модели. Целосно се совпаѓа со силабусот — најсигурен извор бидејќи е директно од предавања."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Процес на науката за податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Собирање и разбирање на податоците",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Подготовка на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Машинско учење 1",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Машинско учење 2",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Машинско учење 3",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Длабоко учење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Напредни невронски мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "NLP - обработка на природен јазик",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "NLP и трансформери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Учење без надзор",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W043",
+      "course_name_mk": "Информациска безбедност",
+      "course_name_en": "Information Security",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "A Graduate Course in Applied Cryptography",
+        "author": "Dan Boneh, Victor Shoup",
+        "publisher": "crypto.stanford.edu (авторско бесплатно издание)",
+        "license": "Бесплатно јавно достапно од авторите",
+        "url": "https://crypto.stanford.edu/~dabo/cryptobook/BonehShoup_0_5.pdf",
+        "note": "ДЕЛУМНО — одлично го покрива криптографскиот дел, но не ги покрива автентикација/малициозен софтвер/OS безбедност деловите. | URL сменет од TOC-landing страница до директен PDF (verzija 0.5, Jan 2020) - најновата верзија на книгата."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во информациска безбедност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "криптографски принципи (симетрична и јавен клуч)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "методи на автентикација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "биометриски технологии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "авторизациски контроли",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "безбедносни протоколи (Kerberos, SSH, SSL/TLS)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "типови малициозен софтвер",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "безбедносни карактеристики на оперативни системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "практична настава: симетрична криптографија, authenticated encryption, размена клучеви, multi-factor автентикација, single sign-on, контрола на пристап, firewall конфигурација, детекција на упади, zero-knowledge протоколи, PKI, reverse engineering",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W035",
+      "course_name_mk": "Линеарна алгебра и примени",
+      "course_name_en": "Linear Algebra and Applications",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Linear Algebra",
+        "author": "Jim Hefferon",
+        "publisher": "joshua.smcvt.edu (авторско бесплатно издание)",
+        "license": "Бесплатно/отворено",
+        "url": "https://joshua.smcvt.edu/linearalgebra/",
+        "note": "Веќе беше дел од задолжителната литература — авторот го дистрибуира бесплатно. Целосно совпаѓање."
+      },
+      "lessons": [
+        {
+          "topic_title": "Линеарна геометрија со вектори во R²/R³, скаларен и векторски производ, равенки на прави и рамнини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "матрични операции (дефиниции, специјални типови, транспонирање, симетрија, дијагонализација, инверзни матрици)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "системи линеарни равенки (Гаусов метод, геометриска интерпретација)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "елементарни и елиминациски матрици, LU факторизација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "реални векторски простори (потпростори, линеарна независност, бази, димензии)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ортогонални бази во Rⁿ",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "линеарни трансформации, јадро и ранг",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детерминанти, сопствени вредности и вектори, дијагонализација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сингуларна декомпозиција",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "mikroprocesorski-sistemi",
+      "course_name_mk": "Микропроцесорски системи",
+      "course_name_en": "Microprocessor systems",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Архитектура и инструкциско множество на Intel x86, асемблер",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "внатрешна структура на процесор",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "прекини, BIOS, рутини на оперативен систем",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "interrupt-driven процесирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "x86 Windows системски рутини",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "I/O кола",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "микроконтролери, вградливи системи, ubiquitous computing",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектура на микрокомпјутерски системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "I/O контролери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "типови меморија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "DMA контролери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сериски/паралелни контролери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "видео/диск контролери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "програмирање со ограничени ресурси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развој на вградливи микроконтролери со високо-нивовски јазици",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Тековната страница нема код/содржина директно (само наслов); податоците се земени од стар акредитациски PDF (стар код CSEW502) на oldsite.finki.ukim.mk — вреди да се потврди дали содржината е ажурирана."
+    },
+    {
+      "course_code": "F23L3W136",
+      "course_name_mk": "Напреден веб дизајн",
+      "course_name_en": "Advanced Web Design",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Eloquent JavaScript (истиот извор како кај Интернет програмирање на клиентска страна)",
+        "author": "Marijn Haverbeke",
+        "publisher": "eloquentjavascript.net",
+        "license": "CC BY-NC 3.0",
+        "url": "https://eloquentjavascript.net/",
+        "note": "ДЕЛУМНО — го покрива JS делот, но не CSS/responsive design/CMS деловите од силабусот. [content_urls додадени рачно - иста листа поглавја како F23L2W109, наместо root url кој се извлекуваше како една гигантска секција.]",
+        "content_urls": [
+          "https://eloquentjavascript.net/00_intro.html",
+          "https://eloquentjavascript.net/01_values.html",
+          "https://eloquentjavascript.net/03_functions.html",
+          "https://eloquentjavascript.net/04_data.html",
+          "https://eloquentjavascript.net/05_higher_order.html",
+          "https://eloquentjavascript.net/06_object.html",
+          "https://eloquentjavascript.net/14_dom.html",
+          "https://eloquentjavascript.net/15_event.html",
+          "https://eloquentjavascript.net/18_http.html",
+          "https://eloquentjavascript.net/11_async.html"
+        ]
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во клиентски програмски јазици",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "веб естетика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "растерска и векторска графика (Canvas, SVG)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "напредни CSS и responsive design",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "front-end развој",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "CSS frameworks",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "мултимедиски елементи (аудио, видео)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "HTML5 offline функционалност и progressive web apps",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "style preprocessors",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интернет маркетинг",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "системи за управување содржина (CMS)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "практична настава: функционално програмирање и closures, прототипска ООП, современи client-side пристапи, front-end frameworks, компонентна архитектура, event handling, client-side routing и state management",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W140",
+      "course_name_mk": "Напредно програмирање",
+      "course_name_en": "Advanced programming",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Објектно-ориентирана парадигма",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "генеричко програмирање, генерички функции и класи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "генерички податочни структури (колекции, мапи, множества)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "генерички структури за специфични проблеми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во функционално програмирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "рефакторирање код",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во конкурентно програмирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основни поими за дизајн шаблони",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дизајн шаблони (два дела)",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Претходен извор (УКИМ Zbirka_resheni_zadachi_po_napredno_programiranje.pdf) враќа 404. Потребен нов извор.",
+      "future_note": "УКИМ е-издание достапно: 'Збирка решени задачи по напредно програмирање' (Маџаров, Андоновски) — https://www.ukim.edu.mk/e-izdanija/FINKI/Zbirka_resheni_zadachi_po_napredno_programiranje.pdf"
+    },
+    {
+      "course_code": "F23L3W148",
+      "course_name_mk": "Основи на роботиката",
+      "course_name_en": "Introduction to robotics",
+      "semester_group": "semester_5",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Modern Robotics: Mechanics, Planning, and Control",
+        "author": "Kevin M. Lynch, Frank C. Park",
+        "publisher": "Cambridge University Press / Northwestern (авторско бесплатно издание)",
+        "license": "Бесплатно јавно достапно од авторите",
+        "url": "https://hades.mech.northwestern.edu/images/7/7f/MR.pdf",
+        "note": "Кинематика, динамика, планирање, контрола — солидно совпаѓање."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во роботиката",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "роботи како интелигентни агенти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сензори и ефектори",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "степени на слобода",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кинематика и динамика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "методологии за планирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "контролни системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со однесување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "хибридни архитектури",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "мулти-робот системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "идни насоки во роботиката",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S073",
+      "course_name_mk": "Агентно-базирани системи",
+      "course_name_en": "Agent-based systems",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Reinforcement Learning: An Introduction, 2nd ed.",
+        "author": "Richard S. Sutton, Andrew G. Barto",
+        "publisher": "MIT Press / incompleteideas.net (авторско бесплатно издание)",
+        "license": "Бесплатно јавно достапно од авторите",
+        "url": "http://incompleteideas.net/book/the-book-2nd.html",
+        "note": "ДЕЛУМНО — одлично го покрива RL делот, но не и теоријата на игри/коалиции/гласање."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед, апстракција на агент, мулти-агентски системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "недетерминистички агенти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Марков процеси на одлучување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "засилено учење (reinforcement learning)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "длабоко засилено учење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примени на засилено учење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "теорија на игри во мулти-агентски системи (координација и комуникација)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "формирање коалиции, соработка, гласачки механизми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "еволутивна теорија на игри",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "моделирање и симулација",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S059",
+      "course_name_mk": "Администрација на мрежи",
+      "course_name_en": "Network administration",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Вовед во управување со мрежи (димензии, животен циклус, interoperability)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектура на управување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со уреди, агенти, MIB системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "протоколи (SNMP, CLI, syslog, netconf, netflow, IPFIX)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "FCAPS рамка (fault, configuration, accounting, performance, security)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интеграциски пристапи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "NGOSS рамки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување во NFV/SDN околини",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S093",
+      "course_name_mk": "Дигитална форензика",
+      "course_name_en": "Digital forensics",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "NIST SP 800-86: Guide to Integrating Forensic Techniques into Incident Response",
+        "author": "National Institute of Standards and Technology (US)",
+        "publisher": "NIST (владина публикација)",
+        "license": "Јавен домен (US government work)",
+        "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-86.pdf",
+        "note": "ДЕЛУМНО — солидна официјална методологија за форензика и incident response, но не ги покрива blockchain/перење пари/rootkit специфичните делови."
+      },
+      "lessons": [
+        {
+          "topic_title": "Основи на дигиталната форензика, анализа и менаџирање ситуација по напад",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "форензика на фајл системи (Linux, Android)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на Windows меморија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники за собирање податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на регистар",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "истражување rootkit",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "визуелизација на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детекција перење пари",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "истрага на интернет криминал",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "blockchain, Ethereum, chain analysis за заштита на дигитални средства",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S094",
+      "course_name_mk": "Дигитални библиотеки",
+      "course_name_en": "Digital libraries",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Вовед во дигитални библиотеки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "метаподатоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "обработка на текстуални документи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "работа со мултимедија (два дела)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "луѓето во дигиталните библиотеки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кориснички интерфејси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "протоколи и сервиси за interoperability",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интернационализациски предизвици",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "е-книги",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "идни насоки на развој",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S010",
+      "course_name_mk": "Дизајн на интеракцијата човек-компјутер",
+      "course_name_en": "Human-computer interaction design",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Introduction to Human-Computer Interaction",
+        "author": "Kasper Hornbæk, Per Ola Kristensson, Antti Oulasvirta",
+        "publisher": "Oxford University Press / introductiontohci.org",
+        "license": "Open access (2025)",
+        "url": "https://introductiontohci.org/",
+        "note": "Главен извор - покрива ја поголемиот дел од темите (Вовед, човечки фактори, употребливост, дизајн процеси, барања, прототипирање, анализа на задачи, евалуација)."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед и терминологија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "човечки фактори во HCI (физички и когнитивни аспекти)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "принципи на употребливост и пристапност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "процеси и методологии на дизајн",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "собирање барања преку интервјуа и набљудување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники за претставување дизајн (скици, прототипи)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на задачи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "принципи на дизајн на интеракција и елементи на интерфејс",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "методи за евалуација со usability heuristics",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "PACT рамка (People, Activities, Context, Technologies)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Информациска архитектура",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Мешан извор: главнина од темите покриени со Hornbæk (2025, open access); лекциите 002-PACT и 005-Информациска архитектура се засноваат на актуелните предавања за 2025/26 (доставени од корисникот), бидејќи не се покриени во учебникот.",
+      "additional_sources": [
+        {
+          "title": "PACT framework (лекција 002)",
+          "author": "David Benyon (оригинална рамка), материјал доставен од корисникот (FINKI 25/26 HCI 002 PACT)",
+          "publisher": "ФИНКИ - предавања 2025/26",
+          "license": "Интерен курсен материјал (доставен директно од предметот)",
+          "url": null,
+          "note": "PACT (People/Activities/Context/Technologies) не е покриен во Hornbæk учебникот - лекцијата ја следи оригиналната Benyon рамка според актуелните предавања."
+        },
+        {
+          "title": "Информациска архитектура (лекција 005)",
+          "author": "материјал доставен од корисникот (FINKI 25/26 HCI 005 Information Architecture)",
+          "publisher": "ФИНКИ - предавања 2025/26",
+          "license": "Интерен курсен материјал (доставен директно од предметот)",
+          "url": null,
+          "note": "Информациска архитектура (мотивација, компоненти, принципи, примери) не е покриена во Hornbæk учебникот - користени се актуелните предавања."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3S025",
+      "course_name_mk": "Електронска и мобилна трговија",
+      "course_name_en": "E-commerce",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "E-Commerce 2023: Business, Technology, Society, 17th ed.",
+        "author": "Kenneth C. Laudon, Carol Guercio Traver",
+        "publisher": "Pearson Education",
+        "license": "Материјал доставен од корисникот - легитимно поседувана копија",
+        "url": null,
+        "note": "ТОЧНО бараната литература (дури понова 17то издание наместо бараното 16то). Целосно ги покрива: вовед во е-трговија (Ch.1-2), инфраструктура (Ch.3), градење дигитално присуство/веб-сајтови/мобилни апликации (Ch.4), безбедност и плаќање (Ch.5). Многу ажурирано издание (спомнува TikTok, Web3, метаверзум)."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во е-Трговија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "бизнис рамки и инфраструктура",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развој на дигитално присуство (веб-сајтови, мобилни апликации)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "сигурност и плаќање во е-Трговија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "маркетинг стратегии и онлајн малопродажба",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S012",
+      "course_name_mk": "Интегрирани системи",
+      "course_name_en": "System Integration",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Дизајн, избор, имплементација и менаџмент на ентерпрајз IT решенија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "усогласување на апликации и инфраструктура со бизнис потреби",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "enterprise architecture рамки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "типови системска интеграција",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "моделирање податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "складишта на податоци/ETL",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "технологии за интеграција (XML, SOA, Web Services, COTS)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "виртуелизација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "cloud computing",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ERP системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување ризик",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа трошоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "нови IT стратегии",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S118",
+      "course_name_mk": "Континуирана интеграција и испорака",
+      "course_name_en": "Continuous Integration and Delivery",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Pro Git",
+        "author": "Scott Chacon, Ben Straub",
+        "publisher": "git-scm.com (официјална Git книга)",
+        "license": "CC BY-NC-SA 3.0",
+        "url": "https://git-scm.com/book/en/v2",
+        "note": "За верзионирање софтвер, работни текови, автоматизација на репозиториуми."
+      },
+      "lessons": [
+        {
+          "topic_title": "DevOps основи (CAMS: Culture, Automation, Measurement, Sharing)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "усогласување развој-операции",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "continuous integration работни текови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "автоматско тестирање преку pipelines",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "continuous delivery практики",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со технички долг",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "верзионирање софтвер",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување конфигурации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "мониторинг процеси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "автоматизација на репозиториуми",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "оркестрација на сервиси",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Главен извор: Pro Git + официјални CI/CD документации. Дополнето со Docker и Kubernetes книги (лично поседувани од корисникот) за темата оркестрација/контејнеризација.",
+      "additional_sources": [
+        {
+          "title": "Jenkins User Documentation",
+          "author": "Jenkins проект",
+          "publisher": "jenkins.io",
+          "license": "Официјална бесплатна open-source документација",
+          "url": "https://www.jenkins.io/doc/book/",
+          "note": "За continuous integration pipelines и автоматско тестирање."
+        },
+        {
+          "title": "GitHub Actions - Quickstart",
+          "author": "GitHub",
+          "publisher": "docs.github.com",
+          "license": "Официјална бесплатна документација",
+          "url": "https://docs.github.com/en/actions/get-started/quickstart",
+          "note": "За CI/CD pipelines и работни текови."
+        },
+        {
+          "title": "GitLab CI/CD Documentation",
+          "author": "GitLab",
+          "publisher": "docs.gitlab.com",
+          "license": "Официјална бесплатна документација",
+          "url": "https://docs.gitlab.com/ci/",
+          "note": "За continuous integration/delivery практики."
+        },
+        {
+          "title": "GitOps Tutorial",
+          "author": "Atlassian",
+          "publisher": "atlassian.com",
+          "license": "Официјална бесплатна документација",
+          "url": "https://www.atlassian.com/git/tutorials/gitops",
+          "note": "За оркестрација/деплојмент практики."
+        },
+        {
+          "title": "The Docker Book",
+          "author": "James Turnbull",
+          "publisher": "самоиздадена книга",
+          "license": "Материјал доставен од корисникот - легитимно поседувана копија",
+          "url": null,
+          "note": "За контејнеризација, дел од автоматизација/оркестрација на репозиториуми."
+        },
+        {
+          "title": "The Kubernetes Book",
+          "author": "Nigel Poulton",
+          "publisher": "самоиздадена книга",
+          "license": "Материјал доставен од корисникот - легитимно поседувана копија",
+          "url": null,
+          "note": "За оркестрација на сервиси - директно совпаѓање со таа тема од силабусот."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3S135",
+      "course_name_mk": "Мултимедиски системи",
+      "course_name_en": "Multimedia systems",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Основи на обработка на мултимедијални податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "создавање сигнал (AD конверзија, Фуриеова трансформација, семплирање, квантизација)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "формати за претставување слика/видео/аудио",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "теорија на боја",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компресија (ентрописки пристапи, Huffman и aritmetic coding, LZW, vector quantization)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "стандарди GIF, PNG, MPEG, MPEG-2000",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "видео компресија (темпорална редундантност, block-базирана предикција, вектори на движење, GOP структури)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "компресија на аудио",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "QoS/QoE основи",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S150",
+      "course_name_mk": "Податочно рударење",
+      "course_name_en": "Data Mining",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Mining of Massive Datasets",
+        "author": "Jure Leskovec, Anand Rajaraman, Jeff Ullman",
+        "publisher": "Cambridge University Press / mmds.org (авторско бесплатно издание)",
+        "license": "Бесплатно јавно достапно од авторите",
+        "url": "http://www.mmds.org/",
+        "note": "Класичен, широко користен бесплатен учебник за податочно рударење."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед со метрики за растојание/сличност за номинални, бинарни и нумерички атрибути",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "препроцесирање податоци (квалитет, чистење, интеграција, трансформација)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "напредна визуелизација на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "предиктивно моделирање и регресија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "класификација преку дрва на одлучување и LDA",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники за клустерирање и евалуација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детекција на outliers",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "рамки за евалуација на модели",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на временски серии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ETL процеси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "завршен проект",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3S019",
+      "course_name_mk": "Софтверски квалитет и тестирање",
+      "course_name_en": "Software quality and testing",
+      "semester_group": "semester_6",
+      "ects": 6,
+      "status": "deferred_user_will_provide_materials",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Основи на софтверско тестирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "agile методологии за тестирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "input space partitioning",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "graph-базирано моделирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "автоматизирано тестирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "тестирање на објектно-ориентирани апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "моделирање логички изрази",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "синтаксно-базирано моделирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "mutation testing",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "тестирање веб апликации/сервиси",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W088",
+      "course_name_mk": "Вовед во паметни градови",
+      "course_name_en": "Introduction to Smart Cities",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Smart Cities - Foundations and Perspectives (2023, IntechOpen)",
+        "author": "разни автори (edited volume)",
+        "publisher": "IntechOpen",
+        "license": "CC BY 4.0",
+        "url": "https://www.intechopen.com/books/13505",
+        "note": "Покрива концепти, ICT/IoT слој, енергија, транспорт (EV), безбедност."
+      },
+      "lessons": [
+        {
+          "topic_title": "Основни концепти на паметни градови",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектурни и дизајн рамки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "хардвер и мрежни технологии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "слоеви податоци и апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интелигентни урбани енергетски мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "паметен транспорт",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "урбана здравствена инфраструктура",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "урбано моделирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "агентно-базирани симулациски модели",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примени на машинско учење во урбани контексти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "студии на случај од постоечки паметни градови",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Составен извор од 4 отворени публикации бидејќи сите официјални книги се комерцијални. Не најдено покривање за агентно-базирано симулациско моделирање и урбана здравствена инфраструктура како посветени теми.",
+      "additional_sources": [
+        {
+          "title": "Internet of Things Applications",
+          "author": "Vermesan & Friess (eds.)",
+          "publisher": "OAPEN/EU Horizon",
+          "license": "Open Access (EU-финансирано)",
+          "url": "https://library.oapen.org/handle/20.500.12657/59718",
+          "note": "За хардвер/мрежни технологии/дата слоеви."
+        },
+        {
+          "title": "Smart Grids and Smart Charging - лекции",
+          "author": "TU Delft",
+          "publisher": "TU Delft OpenCourseWare",
+          "license": "CC BY-NC-SA 4.0",
+          "url": "https://ocw.tudelft.nl/themes/infrastructures-and-mobility/",
+          "note": "За интелигентни урбани енергетски мрежи и транспорт."
+        },
+        {
+          "title": "Smart Cities journal",
+          "author": "разни автори",
+          "publisher": "MDPI",
+          "license": "CC BY (целосно отворен журнал)",
+          "url": "https://www.mdpi.com/journal/smartcities",
+          "note": "За ML во урбани контексти и case studies."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3W064",
+      "course_name_mk": "Дистрибуирани системи",
+      "course_name_en": "Distributed systems",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Вовед во дистрибуирани системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "време и настани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вектор часовници",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "подредување настани",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "класификација на дефекти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "веродостојна испорака и репликација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "консензус",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "партиционирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Merkle дрва",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "практична настава: мрежно програмирање во Java, клиент-сервер развој, серијализација, работа со редови (queues), интеграција со Kafka",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Потврдено: изворот (distributed-systems.net) бара е-пошта + CAPTCHA за преземање - не е автоматски достапен ниту за пипелајн ниту рачно без чекање на email. Потребен нов извор."
+    },
+    {
+      "course_code": "F23L3W103",
+      "course_name_mk": "Имплементација на софтверски системи со слободен и отворен код",
+      "course_name_en": "Implementation of free and open source software systems",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Producing Open Source Software",
+        "author": "Karl Fogel",
+        "publisher": "producingoss.com",
+        "license": "CC BY-SA 4.0 (потврдено)",
+        "url": "https://producingoss.com/en/producingoss.html",
+        "note": "Одлично покрива: FOSS филозофија, лиценцирање (вкл. GPL), економска анализа, управување со проекти, заедници, документација. НЕ покрива: технички преглед на конкретен апликативен софтвер/OS/алатки, build системи, архитектурни обрасци, веб апликациски техники - овие се надвор од опфатот на книгата (таа е за governance/процес, не техничка книга)."
+      },
+      "lessons": [
+        {
+          "topic_title": "FOSS филозофија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "економска и бизнис анализа на open-source системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "лиценцирање (GNU GPL)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "апликативен софтвер, оперативни системи, образовни платформи и развојни алатки во open-source екосистемот",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со проекти",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развојни рамки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "build системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кодекс стандарди",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "безбедносни разгледувања",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "заедници за поддршка",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектурни обрасци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "веб апликациски техники",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "документација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "идни трендови",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Governance/лиценцирачкиот дел целосно покриен; техничкиот дел (build системи, веб техники, архитектурни обрасци) бара дополнителен извор."
+    },
+    {
+      "course_code": "F23L3W123",
+      "course_name_mk": "Машинска визија",
+      "course_name_en": "Machine Vision",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Вовед во компјутерска визија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "камери и оптички системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "обработка на пиксели и филтри",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "обработка на слика во фреквентен домен и пирамиди на слики",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детекција рабови и match на линии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "детекција на интересни точки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дескриптори на интересни точки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "поврзување карактеристики и RANSAC",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "длабоко учење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примени на длабоко учење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "препознавање лица",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "нови трендови во машинска визија",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Ист проблем како F23L2S095 (истиот извор, szeliski.org/Book/) - нема директен PDF линк. Потребен нов извор."
+    },
+    {
+      "course_code": "F23L3W126",
+      "course_name_mk": "Методологија на истражувањето во ИКТ",
+      "course_name_en": "Research methodologies in ICT",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "The Turing Way (прирачник за репродуктивна/отворена наука)",
+        "author": "The Turing Way Community",
+        "publisher": "book.the-turing-way.org",
+        "license": "CC BY (потврдено на сајтот)",
+        "url": "https://book.the-turing-way.org/",
+        "note": "Покрива: отворена наука, репродуктивност, Jupyter Notebooks, контејнери, соработка, истражувачка етика."
+      },
+      "lessons": [
+        {
+          "topic_title": "Организација на предметот",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "чекори во истражувањето",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "методи, експерименти, симулација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "референцирање, плагијаризам",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "академско пишување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "отворена наука",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Jupyter Notebooks",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "контејнери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "практична настава: LaTeX, академско пишување во LaTeX/Overleaf, изведба на експерименти, симулатори, референцирање, plagiarism-детекциски системи, пишување трудови и peer review, отворени датасети и репозиториуми",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Составен извор од 3 отворени ресурси, целосно покриваат ја програмата.",
+      "additional_sources": [
+        {
+          "title": "Overleaf Learn",
+          "author": "Overleaf",
+          "publisher": "официјална документација",
+          "license": "Бесплатна официјална документација, без најава",
+          "url": "https://www.overleaf.com/learn",
+          "note": "Целосен LaTeX curriculum за практичната настава."
+        },
+        {
+          "title": "Social Science Research: Principles, Methods, and Practices",
+          "author": "Anol Bhattacherjee",
+          "publisher": "University of South Florida (DigitalCommons)",
+          "license": "CC BY-NC-SA 3.0",
+          "url": "https://digitalcommons.usf.edu/oa_textbooks/3/",
+          "note": "За чекори во истражувањето, дизајн, референцирање, етика."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3W128",
+      "course_name_mk": "Мобилни информациски системи",
+      "course_name_en": "Mobile information systems",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "pending_source",
+      "source": null,
+      "lessons": [
+        {
+          "topic_title": "Развој на мобилни апликации на повеќе платформи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интеграција на мобилни апликации во информациски системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ubiquitous уреди и сервиси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "технологии за комуникација на мобилни апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "технологии за краткодомашна комуникација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интеграција со бази на податоци",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "интеграција со cloud решенија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "обработка на податоци во мобилни апликации",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Претходниот извор имаше техничка грешка (два URL-а залепени во едно поле: Flutter docs + Ionic docs) и двете страници се премногу тенки nav-hub страници без вистинска содржина. Потребен нов извор или конкретни content_urls до подстраници со реална содржина."
+    },
+    {
+      "course_code": "F23L3W129",
+      "course_name_mk": "Мобилни платформи и програмирање",
+      "course_name_en": "Mobile platforms and programming",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Android Developers Documentation",
+        "author": "Google",
+        "publisher": "developer.android.com",
+        "license": "Apache 2.0 (потврдено на developer.android.com/license)",
+        "url": "https://developer.android.com/",
+        "note": "Официјална, континуирано ажурирана документација која целосно ги покрива темите: архитектура на апликации, управување со ресурси, UI концепти (Material Design), компатибилност, тестирање, објавување на Play Store. Дополнително: developer.android.com/courses за структуриран курс."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед и трендови во развојот на Android апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектура на мобилни апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "конфигурација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување со ресурси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "UI концепти за мобилни уреди",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развојни процеси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "планирање на кориснички доживувања",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "развој на компатибилни апликации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "тестирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "објавување на marketplace",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "мобилни веб технологии",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": null
+    },
+    {
+      "course_code": "F23L3W152",
+      "course_name_mk": "Програмирање на видео игри",
+      "course_name_en": "Video Games Programming",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Game Programming Patterns",
+        "author": "Robert Nystrom",
+        "publisher": "gameprogrammingpatterns.com (авторско издание)",
+        "license": "CC BY-NC-ND 4.0 (текст), MIT (код примери) - потврдено",
+        "url": "https://gameprogrammingpatterns.com/contents.html",
+        "note": "Покрива: архитектура на игри, game loop, актор/компонента композиција, кеширање (делумно преку Flyweight/Object Pool), настани (Event Queue). НЕ покрива: влезни уреди, UI дизајн/локализација, аудио, 3D графика (материјали, координати, осветлување), физика/колизии, AI алгоритми за однесување - овие бараат дополнителен извор (пр. официјална документација на Unity/Godot, отворена). | URL сменет од маркетинг landing страница до вистинската /contents.html страница со целосен ТОЦ (20 поглавја)."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед и класификации на игри",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "архитектура на игри и иницијализација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дефиниција и композиција на актери",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "главна game loop и управување со нишки",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "кеширање ресурси",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "работа со влезни уреди",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "UI дизајн и локализација",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "управување настани и аудио",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "графички основи (материјали, координатни системи, осветлување)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "3D сцени и текстурирање",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "физика и програмирање на колизии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вештачка интелигенција за однесување на виртуелни актери",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Архитектурниот дел добро покриен; графика/физика/AI/UI делот останува непокриен со отворен извор."
+    },
+    {
+      "course_code": "F23L3W156",
+      "course_name_mk": "Системи за поддршка при одлучувањето",
+      "course_name_en": "Decision Support Systems",
+      "semester_group": "semester_7",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Artificial Intelligence: Foundations of Computational Agents, 3rd ed.",
+        "author": "David Poole, Alan Mackworth",
+        "publisher": "Cambridge University Press (авторско хостирано HTML издание)",
+        "license": "CC BY-NC-ND 4.0",
+        "url": "https://artint.info/3e/html/ArtInt3e.html",
+        "note": "Главен извор за: дрва на одлучување (7.3.1), невронски мрежи (Ch.8), расудување со неизвесност/Бајес (Ch.9), онтологии/semantic web (Ch.16), ризик и корисност (Ch.12)."
+      },
+      "lessons": [
+        {
+          "topic_title": "Експертски системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "дрва на одлучување",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Бајесови класификатори",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "пребарување документи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "препорачувачки системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "невронски мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "онтологии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "семантички веб",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "ризик и корисност",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "прогнозирање на временски серии",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "fuzzy логика",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "практична настава: Python програмирање, имплементација дрва на одлучување, развој класификатори, техники за пребарување документи, дизајн на препорачувачки системи",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Composed/мешан извор од 5 отворени книги. НЕ е покриено: класични експертски системи (rule-based) и fuzzy логика - не најден соодветен отворен учебник.",
+      "additional_sources": [
+        {
+          "title": "An Introduction to Statistical Learning (Python/R)",
+          "author": "James, Witten, Hastie, Tibshirani",
+          "publisher": "statlearning.com / hastie.su.domains (авторско издание)",
+          "license": "Бесплатно директно од авторите, без плаќање/логин",
+          "url": "https://www.statlearning.com/",
+          "note": "За практичниот Python-базиран дел: дрва на одлучување, класификатори."
+        },
+        {
+          "title": "Introduction to Information Retrieval",
+          "author": "Manning, Raghavan, Schütze",
+          "publisher": "Stanford NLP Group (авторско издание)",
+          "license": "Бесплатно на nlp.stanford.edu - авторски хостирано",
+          "url": "https://nlp.stanford.edu/IR-book/",
+          "note": "За пребарување документи."
+        },
+        {
+          "title": "Recommender Systems: The Textbook",
+          "author": "Charu C. Aggarwal",
+          "publisher": "авторска веб-страница",
+          "license": "Бесплатно директно од авторот",
+          "url": "https://www.charuaggarwal.net/Recommender-Systems.pdf",
+          "note": "За препорачувачки системи."
+        },
+        {
+          "title": "Forecasting: Principles and Practice, 3rd ed.",
+          "author": "Hyndman, Athanasopoulos",
+          "publisher": "OTexts (отворен учебник)",
+          "license": "Бесплатно на otexts.com/fpp3 (треба рачна потврда на точна лиценца)",
+          "url": "https://otexts.com/fpp3/",
+          "note": "За прогнозирање на временски серии."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3S141",
+      "course_name_mk": "Неструктурирани бази на податоци",
+      "course_name_en": "Unstructured databases",
+      "semester_group": "semester_8",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "NoSQL - Introductory Infodeck / Key Points from NoSQL Distilled",
+        "author": "Martin Fowler (истиот автор како бараната литература)",
+        "publisher": "martinfowler.com",
+        "license": "Бесплатно, авторски објавено на сопствен сајт",
+        "url": "https://martinfowler.com/articles/nosql-intro-original.pdf",
+        "note": "Кратки, но авторитативни бесплатни статии од истиот автор на бараниот учебник 'NoSQL Distilled' - покриваат ги основите на 4-те NoSQL архитектури и polyglot persistence концептот. | URL сменет од краткa веб статија до подетален PDF ('infodeck') од истите автори - подобра содржина за 5-те лекции."
+      },
+      "lessons": [
+        {
+          "topic_title": "Вовед во полуструктурирани податоци, ObjectExchangeModel (OEM)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "вовед во XML, структура на XML документи, XPath и XQuery",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "основи на NoSQL (структурирање, чување, манипулација со податоци)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Map-Reduce методологија и агрегациски пристапи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "четири главни NoSQL архитектури: документно-базирани, key-value, column-family и graph-базирани системи",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Составен извор - НЕ е најдена целосна бесплатна замена за учебниците за NoSQL/XML (сите се комерцијални), но составениот бесплатен пакет покрива Map-Reduce, XML/XPath/XQuery основи и преглед на 4-те NoSQL архитектури.",
+      "additional_sources": [
+        {
+          "title": "XPath/XQuery официјални W3C спецификации + W3Schools туторијали",
+          "author": "W3C / W3Schools (Refsnes Data)",
+          "publisher": "w3.org / w3schools.com",
+          "license": "W3C спецификациите се официјални јавни стандарди; W3Schools е бесплатен пристапен туторијал (не CC, но легално и слободно достапен)",
+          "url": "https://www.w3.org/XML/Query/",
+          "note": "За XML структура, XPath, XQuery."
+        },
+        {
+          "title": "Mining of Massive Datasets, 3rd ed.",
+          "author": "Leskovec, Rajaraman, Ullman",
+          "publisher": "Stanford (mmds.org)",
+          "license": "Бесплатно, авторски објавено",
+          "url": "http://www.mmds.org/",
+          "note": "Поглавје 2 (MapReduce and the New Software Stack) - директно покрива Map-Reduce методологија."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3S106",
+      "course_name_mk": "Откривање знаење со длабоко учење",
+      "course_name_en": "Deep learning for knowledge discovery",
+      "semester_group": "semester_8",
+      "ects": 6,
+      "status": "confirmed",
+      "source": {
+        "title": "Deep Learning",
+        "author": "Ian Goodfellow, Yoshua Bengio, Aaron Courville",
+        "publisher": "MIT Press / deeplearningbook.org",
+        "license": "Официјално бесплатна online верзија ('will remain available online for free')",
+        "url": "https://www.deeplearningbook.org/",
+        "note": "ТОЧНО бараната литература, целосно бесплатна. Покрива supervised длабоко учење, генеративни модели (Ch.20 - GAN основи)."
+      },
+      "lessons": [
+        {
+          "topic_title": "Основни методи на длабоко учење",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "анализа на graph-структурирани податоци (статички и динамички својства)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примени на graph neural networks",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "репрезентација на јазли и врски во мрежи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "извлекување знаење од социјални мрежи (link prediction, node classification)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "GNN за препорачувачки системи",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "supervised длабоко учење и GAN",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "примени на GAN во компјутерска визија и NLP",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "техники на мултимодална фузија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "длабоки невронски архитектури за мултимодална фузија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "студии на случај со reinforcement learning, GNN и GAN",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Одличен резултат - и 3те бараани книги (Deep Learning, Networks Crowds Markets, Mining of Massive Datasets) се легитимно и целосно бесплатни, плус дополнителна книга специфично за GNN (Hamilton).",
+      "additional_sources": [
+        {
+          "title": "Graph Representation Learning",
+          "author": "William L. Hamilton",
+          "publisher": "McGill University (авторски хостирано)",
+          "license": "Бесплатно, авторски објавено",
+          "url": "https://www.cs.mcgill.ca/~wlh/grl_book/files/GRL_Book.pdf",
+          "note": "Точно ги покрива: graph neural networks, репрезентација на јазли/врски, link prediction, node classification, GNN за препорачувачки системи - целата GNN тематика."
+        },
+        {
+          "title": "Networks, Crowds, and Markets",
+          "author": "David Easley, Jon Kleinberg",
+          "publisher": "Cornell University (авторски хостирано)",
+          "license": "Бесплатно, авторски објавено на сопствена страница",
+          "url": "https://www.cs.cornell.edu/home/kleinber/networks-book/networks-book.pdf",
+          "note": "ТОЧНО бараната литература, целосно бесплатна. За анализа на социјални мрежи, извлекување знаење."
+        },
+        {
+          "title": "Mining of Massive Datasets, 3rd ed.",
+          "author": "Leskovec, Rajaraman, Ullman",
+          "publisher": "Stanford (mmds.org)",
+          "license": "Бесплатно, авторски објавено",
+          "url": "http://www.mmds.org/",
+          "note": "ТОЧНО бараната литература. За mining на графови и социјални мрежи."
+        }
+      ]
+    },
+    {
+      "course_code": "F23L3S028",
+      "course_name_mk": "Претприемништво",
+      "course_name_en": "Entrepreneurship",
+      "semester_group": "semester_8",
+      "ects": 6,
+      "status": "confirmed_partial",
+      "source": {
+        "title": "Entrepreneurship",
+        "author": "OpenStax (William Petty, Michael Laverty, Colin Litter et al.)",
+        "publisher": "OpenStax / Rice University",
+        "license": "CC BY-NC-SA 4.0 (потврдено)",
+        "url": "https://openstax.org/books/entrepreneurship/pages/preface",
+        "note": "Отворен универзитетски учебник кој покрива: создавање вредност, генерирање идеи, feasibility анализа, Business Model Canvas, финансирање, финансиско управување, стратегии за раст/скалирање."
+      },
+      "lessons": [
+        {
+          "topic_title": "Општи информации за структурата на предметот",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "создавање вредност, проблем-решение рамки, типови иновации",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Lean процес",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "Business Canvas модели",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "евалуација на minimum viable product",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "презентирање на startup pitch",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "избор на метрики (финансиски, кориснички, продажни, пазарни)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "финансиско управување (структура на трошоци, инвестициски стратегии)",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "организациска структура, скалирање компании, регулаторни рамки за МСП во Македонија",
+          "documentation": null,
+          "quiz": null
+        },
+        {
+          "topic_title": "јавни презентации на проекти",
+          "documentation": null,
+          "quiz": null
+        }
+      ],
+      "note": "Bараните книги (Zero to One, Lean Startup, Startup Owner's Manual, NESTA toolkit) НЕ се легално бесплатни - не се најдени легитимни бесплатни копии. Составениот бесплатен пакет (OpenStax + Strategyzer canvas) добро ги покрива темелните концепти, но Lean-специфичната методологија (customer development, MVP pitch структура) и регулаторните рамки за МСП во Македонија остануваат непокриени - потребен е дополнителен извор или материјал од предметот.",
+      "additional_sources": [
+        {
+          "title": "The Business Model Canvas (официјален темплејт)",
+          "author": "Alexander Osterwalder / Strategyzer",
+          "publisher": "strategyzer.com",
+          "license": "Бесплатно официјално достапен PDF",
+          "url": "https://assets.strategyzer.com/assets/resources/the-business-model-canvas.pdf",
+          "note": "За практичната работа со Business Canvas моделот."
+        }
+      ]
+    }
+  ]
+}
