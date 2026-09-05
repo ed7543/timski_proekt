@@ -142,11 +142,29 @@ export function BookIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ChartIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <path d="M4 20V10" />
+      <path d="M12 20V4" />
+      <path d="M20 20v-6" />
+    </svg>
+  );
+}
+
 export function PlayIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
       <circle cx="12" cy="12" r="10" />
       <path d="M10 8l6 4-6 4V8z" />
+    </svg>
+  );
+}
+
+export function BackArrowIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M19 12H5M12 19l-7-7 7-7" />
     </svg>
   );
 }

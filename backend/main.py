@@ -9,7 +9,17 @@ from slowapi.middleware import SlowAPIMiddleware
 
 
 from backend.middleware.rate_limit import limiter
-from backend.routes import health, chatRoute, auth, conversationRoute, courseRoute, adminRoute, billingRoute, uploadRoute
+from backend.routes import (
+    health,
+    chatRoute,
+    auth,
+    conversationRoute,
+    courseRoute,
+    quizProgressRoute,
+    adminRoute,
+    billingRoute,
+    uploadRoute,
+)
 from config import ALLOWED_ORIGINS
 
 app = FastAPI(title="LearnWise AI Tutor")
@@ -34,6 +44,7 @@ app.include_router(chatRoute.router)
 app.include_router(auth.router)
 app.include_router(conversationRoute.router)
 app.include_router(courseRoute.router)
+app.include_router(quizProgressRoute.router)
 app.include_router(adminRoute.router)
 app.include_router(billingRoute.router)
 app.include_router(uploadRoute.router)

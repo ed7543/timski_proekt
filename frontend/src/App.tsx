@@ -10,7 +10,7 @@ import { ChatPage } from './pages/ChatPage';
 import { CoursesPage } from './pages/CoursesPage';
 import { MarketplacePage } from './pages/MarketplacePage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
-import { ProgressStub } from './pages/ProgressStub';
+import { ProgressPage } from './pages/ProgressPage';
 import { AdminPage } from './pages/AdminPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { SubscribePage } from './pages/SubscribePage';
@@ -48,7 +48,7 @@ function App() {
             <Route path="/marketplace/:courseId" element={<CourseDetailPage />} />
             <Route path="/billing/success" element={<BillingSuccessPage />} />
             <Route path="/billing/cancel" element={<BillingCancelPage />} />
-            <Route path="/progress" element={<ProgressStub />} />
+            <Route path="/progress" element={<ProgressPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/my-courses" element={<MyCoursesPage />} />
             <Route path="/subscribe" element={<SubscribePage />} />

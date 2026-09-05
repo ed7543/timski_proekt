@@ -6,6 +6,8 @@ import type {
   RecordingOut,
   CourseSubmitRequest,
   AdminCourseOut,
+  LessonOut,
+  LessonDetailOut,
 } from '../types/course';
 
 export function listCourses(params?: {
@@ -41,6 +43,20 @@ export function getCourseMaterials(id: number): Promise<CourseMaterialOut[]> {
 export function getCourseRecordings(id: number, category?: string): Promise<RecordingOut[]> {
   const qs = category ? `?category=${encodeURIComponent(category)}` : '';
   return apiFetch<RecordingOut[]>(`/api/courses/${id}/recordings${qs}`);
+}
+
+export function getCourseLessons(id: number): Promise<LessonOut[]> {
+  return apiFetch<LessonOut[]>(`/api/courses/${id}/lessons`);
+}
+
+export function getLesson(courseId: number, lessonId: number): Promise<LessonDetailOut> {
+  return apiFetch<LessonDetailOut>(`/api/courses/${courseId}/lessons/${lessonId}`);
+}
+
+export function generateLessonQuiz(courseId: number, lessonId: number): Promise<LessonDetailOut> {
+  return apiFetch<LessonDetailOut>(`/api/courses/${courseId}/lessons/${lessonId}/quiz`, {
+    method: 'POST',
+  });
 }
 
 /** Any premium (paid-subscription) user, of any role: propose a new course

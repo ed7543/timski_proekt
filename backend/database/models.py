@@ -39,6 +39,9 @@ class User(Base):
     conversations: Mapped[list["Conversation"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class VerificationToken(Base):
@@ -148,6 +151,12 @@ class Course(Base):
     recordings: Mapped[list["Recording"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
+    lessons: Mapped[list["Lesson"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan", order_by="Lesson.order_index"
+    )
+    sources: Mapped[list["CourseSource"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan"
+    )
     purchases: Mapped[list["CoursePurchase"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
@@ -216,6 +225,78 @@ class Recording(Base):
     )
 
     course: Mapped["Course"] = relationship(back_populates="recordings")
+
+
+class QuizAttempt(Base):
+    __tablename__ = "quiz_attempts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    topic: Mapped[str] = mapped_column(String(255), nullable=False)
+    subject: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    total_questions: Mapped[int] = mapped_column(Integer, nullable=False)
+    answered_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    correct_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+
+    user: Mapped["User"] = relationship(back_populates="quiz_attempts")
+
+
+class Lesson(Base):
+    """A curriculum topic within a course, sourced from courses_db.json / the
+    "LearnWise - база извори" spreadsheet (a curated, license-checked open
+    textbook per course) - NOT the same thing as Recording, which is a scraped
+    lecture-video link. Holds the Gemini-generated documentation + quiz for the
+    topic (backend/services/ingestion/gemini_generator.py). Regeneration
+    overwrites documentation/quiz in place - no version history is kept.
+
+    Deliberately FKs into the existing `courses` table (all 67 FINKI courses
+    already exist there, ingested from finki-hub.com) rather than introducing a
+    second, parallel "course" concept."""
+
+    __tablename__ = "lessons"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    topic_title: Mapped[str] = mapped_column(Text, nullable=False)
+    documentation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    quiz: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    documentation_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    quiz_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
+    )
+
+    course: Mapped["Course"] = relationship(back_populates="lessons")
+
+
+class CourseSource(Base):
+    """A source backing a course's Gemini-generated lesson content - either the
+    single primary source (is_primary=True, mirrors courses_db.json's "source")
+    or one of the supplementary sources listed under "additional_sources" for
+    that course (is_primary=False). Kept separate from Lesson because a source
+    is shared context for the whole course, not tied to one topic."""
+
+    __tablename__ = "course_sources"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    author: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    publisher: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    license: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+    course: Mapped["Course"] = relationship(back_populates="sources")
 
 
 class CoursePurchase(Base):
