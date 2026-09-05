@@ -1,5 +1,12 @@
 import { apiFetch } from './client';
-import type { CourseOut, CourseDetailOut, CourseMaterialOut, RecordingOut } from '../types/course';
+import type {
+  CourseOut,
+  CourseDetailOut,
+  CourseMaterialOut,
+  RecordingOut,
+  LessonOut,
+  LessonDetailOut,
+} from '../types/course';
 
 export function listCourses(params?: { semester?: string; search?: string }): Promise<CourseOut[]> {
   const qs = new URLSearchParams();
@@ -20,4 +27,18 @@ export function getCourseMaterials(id: number): Promise<CourseMaterialOut[]> {
 export function getCourseRecordings(id: number, category?: string): Promise<RecordingOut[]> {
   const qs = category ? `?category=${encodeURIComponent(category)}` : '';
   return apiFetch<RecordingOut[]>(`/api/courses/${id}/recordings${qs}`);
+}
+
+export function getCourseLessons(id: number): Promise<LessonOut[]> {
+  return apiFetch<LessonOut[]>(`/api/courses/${id}/lessons`);
+}
+
+export function getLesson(courseId: number, lessonId: number): Promise<LessonDetailOut> {
+  return apiFetch<LessonDetailOut>(`/api/courses/${courseId}/lessons/${lessonId}`);
+}
+
+export function generateLessonQuiz(courseId: number, lessonId: number): Promise<LessonDetailOut> {
+  return apiFetch<LessonDetailOut>(`/api/courses/${courseId}/lessons/${lessonId}/quiz`, {
+    method: 'POST',
+  });
 }

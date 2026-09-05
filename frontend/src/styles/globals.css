@@ -1016,6 +1016,11 @@ select {
   padding: 32px;
   box-shadow: 0 4px 0 var(--ink);
 }
+.modal.quiz-modal {
+  /* Same shell/typography as every other modal, just a slightly lighter shade
+     so the quiz reads as its own surface against the page behind it. */
+  background: var(--card);
+}
 .modal h2 {
   font-family: 'Instrument Serif', serif;
   font-style: italic;
@@ -1445,6 +1450,127 @@ select {
   font-weight: 500;
   color: var(--muted);
   margin-bottom: 8px;
+}
+.src-clickable {
+  width: 100%;
+  text-align: left;
+  font-size: inherit;
+}
+.lessons-ai-note {
+  margin-top: 6px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.src-lesson .src-row {
+  align-items: center;
+}
+.try-quiz-btn {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  transition: background 0.15s, color 0.15s;
+}
+.try-quiz-btn:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+.try-quiz-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: var(--border);
+}
+.src-passed {
+  background: rgba(31, 107, 58, 0.1);
+  border-color: rgba(31, 107, 58, 0.4);
+}
+.src-passed:hover {
+  border-color: rgba(31, 107, 58, 0.6);
+}
+.lesson-detail {
+  margin-top: 24px;
+}
+.lesson-back {
+  margin-bottom: 20px;
+}
+.lesson-detail-title {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.lesson-doc {
+  font-size: 14px;
+}
+.lesson-doc h1,
+.lesson-doc h2,
+.lesson-doc h3,
+.lesson-doc h4 {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.lesson-doc h1 {
+  font-size: 24px;
+  margin: 30px 0 12px;
+}
+.lesson-doc h2 {
+  font-size: 21px;
+  margin: 28px 0 10px;
+}
+.lesson-doc h3 {
+  font-size: 18px;
+  margin: 24px 0 8px;
+}
+.lesson-doc h4 {
+  font-size: 16px;
+  margin: 20px 0 8px;
+}
+.lesson-doc > h1:first-child,
+.lesson-doc > h2:first-child,
+.lesson-doc > h3:first-child,
+.lesson-doc > h4:first-child {
+  margin-top: 0;
+}
+.lesson-doc hr {
+  margin: 28px 0;
+  border: none;
+  height: 1px;
+  background: var(--border);
+}
+.lesson-quiz {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.lesson-quiz .quiz-score {
+  margin-top: 4px;
+}
+.lesson-quiz-actions {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;
+}
+.quiz-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
 @media (max-width: 1024px) {

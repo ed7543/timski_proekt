@@ -29,3 +29,28 @@ export interface RecordingOut {
   category: string;
   video_url: string;
 }
+
+export interface LessonOut {
+  id: number;
+  course_id: number;
+  order_index: number;
+  topic_title: string;
+  has_documentation: boolean;
+  has_quiz: boolean;
+}
+
+export interface QuizQuestionOut {
+  question: string;
+  options: string[];
+  correct_option_index: number;
+  explanation: string;
+}
+
+export interface LessonQuizOut {
+  questions: QuizQuestionOut[];
+}
+
+export interface LessonDetailOut extends LessonOut {
+  documentation: string | null;
+  quiz: LessonQuizOut | null;
+}

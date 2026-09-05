@@ -50,3 +50,23 @@ class RecordingOut(BaseModel):
     source_page_url: str
     created_at: datetime
     updated_at: datetime
+
+
+class LessonOut(BaseModel):
+    """Lightweight lesson listing (no documentation/quiz body) - used for the
+    course-page lesson list, same spirit as CourseMaterialOut/RecordingOut."""
+
+    id: int
+    course_id: int
+    order_index: int
+    topic_title: str
+    has_documentation: bool
+    has_quiz: bool
+
+
+class LessonDetailOut(LessonOut):
+    """Full lesson content - fetched only when a single lesson is opened, or
+    right after quiz generation, not for the list view."""
+
+    documentation: Optional[str] = None
+    quiz: Optional[dict] = None
