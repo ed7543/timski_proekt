@@ -5,6 +5,7 @@ against your real database for the User rows it touches - see README.md
 "Run the tests"."""
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.database.session import SessionLocal
@@ -12,6 +13,7 @@ from backend.main import app
 from backend.tests.conftest import auth_headers, cleanup_test_data, register_and_login, unique_email
 
 client = TestClient(app)
+pytestmark = pytest.mark.bulk_register
 
 
 class _FakeBucket:

@@ -7,6 +7,7 @@ README.md "Run the tests"."""
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
 import stripe
 from fastapi.testclient import TestClient
 
@@ -16,6 +17,7 @@ from backend.main import app
 from backend.tests.conftest import auth_headers, cleanup_test_data, register_and_login, unique_email
 
 client = TestClient(app)
+pytestmark = pytest.mark.bulk_register
 
 
 def _configure_stripe(monkeypatch, secret="sk_test_fake", price_id="price_fake", webhook_secret="whsec_fake"):

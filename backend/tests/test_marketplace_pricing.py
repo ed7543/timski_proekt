@@ -2,6 +2,7 @@
 access rules (locked metadata vs. locked materials/recordings, and who
 bypasses the lock: submitter, admin, or a CoursePurchase owner). Runs
 against your real database - see README.md "Run the tests"."""
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.database.models import Course, CoursePurchase, User
@@ -10,6 +11,7 @@ from backend.main import app
 from backend.tests.conftest import auth_headers, cleanup_test_data, register_and_login, unique_email
 
 client = TestClient(app)
+pytestmark = pytest.mark.bulk_register
 
 
 def _submit_and_approve(admin_token, sub_token, name, price=0):

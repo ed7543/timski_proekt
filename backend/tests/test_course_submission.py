@@ -2,6 +2,7 @@
 who can submit, who can see a pending/rejected course before an admin acts
 on it, GET /api/courses/mine, and GET /api/auth/me's has_submitted_courses
 flag. Runs against your real database - see README.md "Run the tests"."""
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.database.models import Course, User
@@ -10,6 +11,7 @@ from backend.main import app
 from backend.tests.conftest import auth_headers, cleanup_test_data, register_and_login, unique_email
 
 client = TestClient(app)
+pytestmark = pytest.mark.bulk_register
 
 
 def _submit(token, name="Тест курс", price=0, materials=None):
