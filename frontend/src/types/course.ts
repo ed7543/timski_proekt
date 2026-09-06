@@ -25,6 +25,24 @@ export interface CourseMaterialOut {
   description: string | null;
 }
 
+export interface CourseNoteOut {
+  id: number;
+  course_id: number;
+  title: string;
+  url: string;
+  description: string | null;
+  created_at: string;
+  uploaded_by_id: number;
+  /** null if the uploading account no longer exists. */
+  uploaded_by_name: string | null;
+}
+
+export interface CourseNoteCreate {
+  title: string;
+  url: string;
+  description?: string | null;
+}
+
 export interface RecordingOut {
   id: number;
   topic: string;

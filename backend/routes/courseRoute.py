@@ -4,16 +4,18 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from google.genai import errors as genai_errors
 from sqlalchemy import func, or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
-from backend.database.models import Course, CourseMaterial, CoursePurchase, Lesson, Recording, User
+from backend.database.models import Course, CourseMaterial, CourseNote, CoursePurchase, Lesson, Recording, User
 from backend.database.session import get_db
 from backend.middleware.auth import get_current_paying_user, get_current_user, get_current_user_optional
 from backend.middleware.rate_limit import limiter
+from backend.models.courseNoteRequest import CourseNoteCreate
 from backend.models.courseResponse import (
     AdminCourseOut,
     CourseDetailOut,
     CourseMaterialOut,
+    CourseNoteOut,
     CourseOut,
     LessonDetailOut,
     LessonOut,
@@ -92,6 +94,17 @@ def _get_course_or_404(db: Session, course_id: int) -> Course:
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     return course
+
+
+def _get_note_or_404(db: Session, course_id: int, note_id: int) -> CourseNote:
+    note = (
+        db.query(CourseNote)
+        .filter(CourseNote.id == note_id, CourseNote.course_id == course_id)
+        .first()
+    )
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return note
 
 
 def _get_lesson_or_404(db: Session, course_id: int, lesson_id: int) -> Lesson:
@@ -361,6 +374,76 @@ async def list_course_recordings(
         q = q.filter(Recording.category == category)
     recordings = q.order_by(Recording.year, Recording.category, Recording.topic).all()
     return [RecordingOut.model_validate(r) for r in recordings]
+
+
+@router.get("/{course_id}/notes", response_model=list[CourseNoteOut])
+async def list_course_notes(
+    course_id: int,
+    db: Session = Depends(get_db),
+    viewer: Optional[User] = Depends(get_current_user_optional),
+):
+    """Community-contributed study notes - unlike materials/recordings above,
+    these are never gated by _has_course_access: even a priced course's
+    notes stay free to view, since they're contributed by students
+    themselves, not part of what the course's submitter is selling. Still
+    hidden for a pending/rejected course the viewer isn't allowed to see,
+    same as the course itself (_get_visible_course_or_404)."""
+    course = _get_visible_course_or_404(db, course_id, viewer)
+    notes = (
+        db.query(CourseNote)
+        .options(joinedload(CourseNote.uploaded_by_user))  # avoids one lazy-load per note for uploaded_by_name
+        .filter(CourseNote.course_id == course.id)
+        .order_by(CourseNote.created_at.desc())
+        .all()
+    )
+    return [CourseNoteOut.model_validate(n) for n in notes]
+
+
+@router.post("/{course_id}/notes", response_model=CourseNoteOut, status_code=201)
+async def add_course_note(
+    course_id: int,
+    payload: CourseNoteCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Any logged-in user can attach a study note - a file uploaded via
+    POST /api/courses/upload-material or a pasted external link - to any
+    course they can see. Deliberately NOT gated by get_current_paying_user
+    (unlike submit_course): contributing a note is a free community action,
+    not the premium "submit a whole course" workflow."""
+    course = _get_visible_course_or_404(db, course_id, current_user)
+    note = CourseNote(
+        course_id=course.id,
+        uploaded_by_id=current_user.id,
+        title=payload.title,
+        url=payload.url,
+        description=payload.description,
+    )
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+    return CourseNoteOut.model_validate(note)
+
+
+@router.delete("/{course_id}/notes/{note_id}", status_code=204)
+async def delete_course_note(
+    course_id: int,
+    note_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """The note's own uploader or an admin can remove it - same permission
+    shape as delete_course above. No other user can touch someone else's
+    note. Checks course visibility first (_get_visible_course_or_404), same
+    as list_course_notes/add_course_note - if a course becomes invisible to
+    this viewer (e.g. rejected after the note was added), the note becomes
+    untouchable through this endpoint too, not just unlisted."""
+    _get_visible_course_or_404(db, course_id, current_user)
+    note = _get_note_or_404(db, course_id, note_id)
+    if note.uploaded_by_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only the note's uploader or an admin can delete it")
+    db.delete(note)
+    db.commit()
 
 
 @router.get("/{course_id}/lessons", response_model=list[LessonOut])

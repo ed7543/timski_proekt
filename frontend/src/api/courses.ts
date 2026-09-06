@@ -3,6 +3,8 @@ import type {
   CourseOut,
   CourseDetailOut,
   CourseMaterialOut,
+  CourseNoteOut,
+  CourseNoteCreate,
   RecordingOut,
   CourseSubmitRequest,
   AdminCourseOut,
@@ -79,4 +81,24 @@ export function submitCourse(payload: CourseSubmitRequest): Promise<CourseDetail
  * or an admin - the backend 403s anyone else. */
 export function deleteCourse(courseId: number): Promise<void> {
   return apiFetch<void>(`/api/courses/${courseId}`, { method: 'DELETE' });
+}
+
+/** Community study notes - unlike materials/recordings, always public
+ * regardless of a priced course's lock (see routes/courseRoute.py). */
+export function getCourseNotes(courseId: number): Promise<CourseNoteOut[]> {
+  return apiFetch<CourseNoteOut[]>(`/api/courses/${courseId}/notes`);
+}
+
+/** Any logged-in user, no premium subscription required - the free
+ * alternative to submitCourse(). */
+export function addCourseNote(courseId: number, payload: CourseNoteCreate): Promise<CourseNoteOut> {
+  return apiFetch<CourseNoteOut>(`/api/courses/${courseId}/notes`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+/** The note's own uploader or an admin - the backend 403s anyone else. */
+export function deleteCourseNote(courseId: number, noteId: number): Promise<void> {
+  return apiFetch<void>(`/api/courses/${courseId}/notes/${noteId}`, { method: 'DELETE' });
 }

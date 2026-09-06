@@ -47,6 +47,33 @@ class CourseMaterialOut(BaseModel):
     updated_at: datetime
 
 
+class CourseNoteOut(BaseModel):
+    """A community-contributed study note - see database/models.py::CourseNote."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    course_id: int
+    title: str
+    url: str
+    description: Optional[str] = None
+    created_at: datetime
+    uploaded_by_id: int
+    # None if the uploading account no longer exists - see
+    # CourseNote.uploaded_by_name (a computed property, not a real column).
+    uploaded_by_name: Optional[str] = None
+
+
+class AdminCourseNoteOut(CourseNoteOut):
+    """CourseNoteOut plus which course it's on - notes have no
+    pending/approval workflow like Course submissions do, so this
+    cross-course listing (routes/adminRoute.py::list_all_notes_for_admin) is
+    the only way an admin discovers abuse (spam/phishing links etc.) without
+    querying the database directly."""
+
+    course_name: str
+
+
 class AdminCourseOut(BaseModel):
     """Course view used by the admin approval queue - includes the
     moderation fields that the public CourseOut/CourseDetailOut deliberately
