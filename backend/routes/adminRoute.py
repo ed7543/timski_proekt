@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
-from backend.database.models import Course, User
+from backend.database.models import Course, CourseNote, User
 from backend.database.session import get_db
 from backend.middleware.auth import get_current_admin
-from backend.models.courseResponse import AdminCourseOut
+from backend.models.courseResponse import AdminCourseNoteOut, AdminCourseOut
 from backend.models.courseSubmitRequest import CourseRejectRequest
 from backend.utils.time import utcnow
 
@@ -59,6 +59,29 @@ async def list_courses_for_admin(
         q = q.filter(Course.status == status)
     courses = q.order_by(Course.created_at.desc()).all()
     return [AdminCourseOut.model_validate(c) for c in courses]
+
+
+@router.get("/notes", response_model=list[AdminCourseNoteOut])
+async def list_all_notes_for_admin(
+    limit: int = Query(200, le=1000, description="Max notes to return, most recent first"),
+    db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin),
+):
+    """Cross-course visibility into every community-contributed note.
+    Notes have no pending/approval workflow like Course submissions do (any
+    logged-in user's note goes live immediately - see courseRoute.py's
+    add_course_note) - this is the only way an admin discovers abuse
+    (spam, phishing links, etc.) without querying the database directly.
+    Read-only: deletion still goes through the existing, already
+    admin-or-uploader-gated DELETE /api/courses/{course_id}/notes/{note_id}."""
+    notes = (
+        db.query(CourseNote)
+        .options(joinedload(CourseNote.course), joinedload(CourseNote.uploaded_by_user))
+        .order_by(CourseNote.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return [AdminCourseNoteOut.model_validate(n) for n in notes]
 
 
 @router.post("/courses/{course_id}/approve", response_model=AdminCourseOut)
