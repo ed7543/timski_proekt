@@ -81,6 +81,18 @@ export interface LessonDetailOut extends LessonOut {
   quiz_hard: LessonQuizOut | null;
 }
 
+/** Marketplace equivalent of LessonDetailOut, for one material's AI study
+ * guide - same Medium/Hard quiz split. */
+export interface MaterialStudyGuideOut {
+  material_id: number;
+  has_documentation: boolean;
+  has_quiz: boolean;
+  has_quiz_hard: boolean;
+  documentation: string | null;
+  quiz: LessonQuizOut | null;
+  quiz_hard: LessonQuizOut | null;
+}
+
 export interface MaterialLinkIn {
   title: string;
   url: string;

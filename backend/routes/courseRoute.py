@@ -19,9 +19,11 @@ from backend.models.courseResponse import (
     CourseOut,
     LessonDetailOut,
     LessonOut,
+    MaterialStudyGuideOut,
     RecordingOut,
 )
 from backend.models.courseSubmitRequest import CourseSubmitRequest
+from backend.services import material_study_guide
 from backend.services.ingestion import gemini_generator
 from backend.utils.slugify import slugify
 from backend.utils.time import utcnow
@@ -130,6 +132,29 @@ def _lesson_detail_out(lesson: Lesson) -> LessonDetailOut:
         documentation=lesson.documentation,
         quiz=lesson.quiz,
         quiz_hard=lesson.quiz_hard,
+    )
+
+
+def _get_material_or_404(db: Session, course_id: int, material_id: int) -> CourseMaterial:
+    material = (
+        db.query(CourseMaterial)
+        .filter(CourseMaterial.id == material_id, CourseMaterial.course_id == course_id)
+        .first()
+    )
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
+    return material
+
+
+def _material_study_guide_out(material: CourseMaterial) -> MaterialStudyGuideOut:
+    return MaterialStudyGuideOut(
+        material_id=material.id,
+        has_documentation=bool(material.documentation),
+        has_quiz=bool(material.quiz),
+        has_quiz_hard=bool(material.quiz_hard),
+        documentation=material.documentation,
+        quiz=material.quiz,
+        quiz_hard=material.quiz_hard,
     )
 
 
@@ -539,3 +564,114 @@ async def generate_lesson_quiz(
     db.commit()
     db.refresh(lesson)
     return _lesson_detail_out(lesson)
+
+
+@router.get("/{course_id}/materials/{material_id}/study-guide", response_model=MaterialStudyGuideOut)
+async def get_material_study_guide(
+    course_id: int,
+    material_id: int,
+    db: Session = Depends(get_db),
+    viewer: Optional[User] = Depends(get_current_user_optional),
+):
+    """Marketplace equivalent of get_course_lesson - same locked/purchase
+    gating as GET .../materials, since the study guide is derived from the
+    material's own content - showing it would leak a priced course's
+    materials just as much as the raw file would."""
+    course = _get_visible_course_or_404(db, course_id, viewer)
+    if not _has_course_access(db, course, viewer):
+        raise HTTPException(status_code=402, detail="This course's materials are locked - purchase required")
+    material = _get_material_or_404(db, course_id, material_id)
+    return _material_study_guide_out(material)
+
+
+@router.post("/{course_id}/materials/{material_id}/study-guide", response_model=MaterialStudyGuideOut)
+@limiter.limit("5/minute")
+async def generate_material_study_guide(
+    request: Request,
+    course_id: int,
+    material_id: int,
+    difficulty: str = Query("medium", description="'medium' or 'hard' - which quiz tier to (re)generate"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generates (once per tier) an AI study guide + quiz for a single
+    Marketplace material, extracting text directly from the material's own
+    URL (see services/material_study_guide.py) rather than a curated
+    textbook source - the Marketplace equivalent of generate_lesson_quiz,
+    reusing the exact same gemini_generator.generate_quiz(difficulty=...)
+    and Medium/Hard column split (quiz / quiz_hard), just on CourseMaterial
+    instead of Lesson.
+
+    Any logged-in user may trigger this (not gated to the submitter/admin/
+    premium) - but each tier is idempotent: if this material already has a
+    cached quiz for the requested difficulty, that tier is returned
+    immediately with no new Gemini call (documentation is generated once,
+    shared by both tiers). Also rate-limited (5/minute per IP, same as the
+    lessons quiz endpoint) as a baseline abuse guard."""
+    if difficulty not in ("medium", "hard"):
+        raise HTTPException(status_code=400, detail="difficulty must be 'medium' or 'hard'")
+    course = _get_visible_course_or_404(db, course_id, current_user)
+    if not _has_course_access(db, course, current_user):
+        raise HTTPException(status_code=402, detail="This course's materials are locked - purchase required")
+    material = _get_material_or_404(db, course_id, material_id)
+
+    existing_quiz = material.quiz_hard if difficulty == "hard" else material.quiz
+    if material.documentation and existing_quiz:
+        return _material_study_guide_out(material)
+
+    if not material_study_guide.is_generatable_category(material.category):
+        raise HTTPException(
+            status_code=400,
+            detail="A study guide can't be generated for video materials - there's no text to work from.",
+        )
+
+    if not material.documentation:
+        try:
+            excerpt = material_study_guide.extract_material_text(material.url)
+        except material_study_guide.UnsupportedMaterialError as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
+        except Exception:
+            raise HTTPException(status_code=502, detail="Couldn't fetch this material's content - please try again.")
+
+        try:
+            documentation = gemini_generator.generate_documentation(
+                course_name_mk=course.name,
+                lesson_title=material.title,
+                source_excerpt=excerpt,
+                source_title=material.title,
+                source_author=course.submitted_by_name or "",
+            )
+        except RuntimeError as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+        except genai_errors.APIError:
+            raise HTTPException(
+                status_code=502,
+                detail="Study guide generation failed (Gemini API error) - please try again.",
+            )
+        material.documentation = documentation
+        material.documentation_generated_at = utcnow()
+
+    try:
+        quiz = gemini_generator.generate_quiz(material.title, material.documentation, difficulty=difficulty)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    except genai_errors.APIError:
+        raise HTTPException(
+            status_code=502,
+            detail="Quiz generation failed (Gemini API error) - please try again.",
+        )
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=502,
+            detail="Quiz generation returned an unexpected response - please try again.",
+        )
+
+    if difficulty == "hard":
+        material.quiz_hard = quiz
+        material.quiz_hard_generated_at = utcnow()
+    else:
+        material.quiz = quiz
+        material.quiz_generated_at = utcnow()
+    db.commit()
+    db.refresh(material)
+    return _material_study_guide_out(material)

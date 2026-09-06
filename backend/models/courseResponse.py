@@ -135,3 +135,19 @@ class LessonDetailOut(LessonOut):
     documentation: Optional[str] = None
     quiz: Optional[dict] = None
     quiz_hard: Optional[dict] = None
+
+
+class MaterialStudyGuideOut(BaseModel):
+    """Marketplace equivalent of LessonDetailOut, for one material's AI study
+    guide - same Medium/Hard quiz split (see CourseMaterial.quiz/quiz_hard).
+    Always fetched for a single material at a time (no separate lightweight
+    listing shape - the toggle in MaterialStudyGuide.tsx already avoids
+    fetching this until a student actually opens it)."""
+
+    material_id: int
+    has_documentation: bool
+    has_quiz: bool
+    has_quiz_hard: bool = False
+    documentation: Optional[str] = None
+    quiz: Optional[dict] = None
+    quiz_hard: Optional[dict] = None

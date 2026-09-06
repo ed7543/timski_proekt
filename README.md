@@ -12,6 +12,7 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **Source sidebar** — see exactly where the AI got its info
 -  **Subject mode** — focus on Python, FastAPI, React, etc.
 -  **Accounts & chat history** — register/login, and every conversation is saved, searchable, renameable, exportable
+-  **Group chat** — invite up to 2 others (3 total) to a conversation via a shareable link; everyone's messages are labeled and the AI's replies stay in sync for all members
 -  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
 -  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
 -  **AI-generated lesson content** — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
@@ -65,7 +66,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ```bash
 alembic upgrade head
 ```
-This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `course_notes`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `conversation_members`, `conversation_invites`, `cached_searches`, `courses`, `course_materials`, `course_notes`, `recordings`, `course_purchases`, `quiz_attempts`, `lessons`, `course_sources`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
 
 ### 3b. Create an admin account
 There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it with the `make_admin` script:
@@ -159,7 +160,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 │   └── src/
 │       ├── api/                 # apiFetch client, auth/conversations/chatTools calls
 │       ├── context/             # AuthContext (user/token/status)
-│       ├── hooks/                # useChatStream (SSE), useConversations
+│       ├── hooks/                # useChatStream (SSE), useConversations, useConversationPolling (group chat)
 │       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/etc.
 │       ├── components/          # layout/sidebar/chat/sources/modals/courses
 │       │                        #   (courses/LessonDetail.tsx - lesson documentation + quiz UI)
@@ -175,8 +176,9 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── database/                # Data storage layer
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
-    │                            #   CachedSearch, Course, CourseMaterial, CourseNote, Recording,
-    │                            #   CoursePurchase, Lesson, CourseSource, QuizAttempt
+    │                            #   ConversationMember, ConversationInvite, CachedSearch, Course,
+    │                            #   CourseMaterial, CourseNote, Recording, CoursePurchase, Lesson,
+    │                            #   CourseSource, QuizAttempt
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -191,7 +193,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── summaryRequest.py    # Summary generation request
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
-    │   ├── conversationRequest.py # Conversation create/update/list/detail schemas
+    │   ├── conversationRequest.py # Conversation create/update/list/detail + member/invite schemas
     │   ├── courseResponse.py    # Course/CourseMaterial/CourseNote/Recording/Lesson/AdminCourseOut response schemas
     │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
     │   ├── courseNoteRequest.py  # Community study-note create schema
@@ -214,6 +216,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── services/                # Business logic layer
     │   ├── search_cache.py      # Cache lookup/write in front of Tavily (exact + pg_trgm fuzzy match)
     │   ├── chat_service.py      # Conversation resolve/save helpers used by chatRoute.py
+    │   ├── chat_state.py        # In-memory, self-expiring "is a reply generating for this conversation" flag (group chat)
     │   ├── course_context.py    # Formats a Course into a context block for the AI prompt
     │   └── ingestion/           # Standalone scrapers/loaders - never triggered by live API traffic
     │       ├── finki_hub_client.py  # Polite httpx wrapper (UA, rate limit, robots.txt check)
@@ -233,6 +236,9 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │       ├── lesson_upsert.py     # Manual find-then-update-or-insert for Lesson/CourseSource
     │       └── seed_lessons.py      # Orchestrates the whole pipeline per course, writes a run report
     │
+    ├── scripts/                 # One-off admin CLI scripts, not imported by the running app
+    │   └── make_admin.py         # `python -m backend.scripts.make_admin <email> [--demote]` - promote/demote a user to admin
+    │
     ├── static/                  # Legacy static files, no longer served by main.py (kept for reference)
     │   ├── index.html           # Alternative/older UI
     │   └── learnwise-2.html     # Original vanilla-JS chat UI - superseded by frontend/
@@ -249,10 +255,12 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_search_cache.py   # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
         ├── test_course_context.py # format_course_context() + _get_course_context() coverage
         ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
-        ├── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
+        ├── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save), group-chat prompt-rebuild-from-DB, member can chat
+        ├── test_conversation_members.py # Invites (accept/revoke/expire/cap), member leave/kick, owner-only actions
         ├── test_course_submission.py  # Submission gating, pending/rejected visibility, /mine, has_submitted_courses
         ├── test_course_notes.py       # Community notes: no premium gate, never locked, pending-course visibility, delete permissions
         ├── test_admin_approval.py     # Admin approve/reject state machine + permission gating
+        ├── test_make_admin_script.py  # make_admin.py's promote/demote role-switching logic
         ├── test_marketplace_pricing.py # source/price_filter listing, priced-course locking rules
         ├── test_course_deletion.py    # Owner/admin delete permissions, official-catalog guard
         ├── test_billing.py            # Stripe checkout/cancel/webhook (Stripe SDK mocked, no real keys needed)
@@ -332,7 +340,7 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 - **Auth guard**: `backend/middleware/auth.py`'s `get_current_user` dependency decodes the JWT and loads the `User` row. It's applied to `/api/chat`, `/api/quiz`, `/api/summary`, `/api/explore`, `/api/ask-more`, and every `/api/conversations/*` route — consistently now across all of them.
 - **Rate limiting**: `/api/auth/register`, `/api/auth/login`, and `/api/auth/forgot-password` are limited to 5 requests/minute per IP (`slowapi`, in-memory store — fine for a single-process deployment; swap in a Redis storage backend if this ever runs with multiple workers).
 - **Email verification / password reset**: `backend/utils/email.py::send_email()` sends via the Resend API if `RESEND_API_KEY` is set; otherwise it falls back to **printing the link to the server console** (`[DEV] ... link: ...`). Fine for local dev/demo without a Resend account configured.
-- **Chat history**: every chat lives in a `Conversation` (id, user, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, timestamp). Deleting a conversation cascades and deletes its messages. Conversations are strictly per-user — `conversationRoute.py`'s `_get_owned_conversation` helper returns a 404 (not a 403) if you try to access someone else's conversation, so you can't even tell whether a given conversation ID belongs to someone else.
+- **Chat history**: every chat lives in a `Conversation` (id, owner, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, author, timestamp). Deleting a conversation cascades and deletes its messages. A conversation is visible only to its owner and any invited members (see "Group chat" below) — `conversationRoute.py`'s `_get_member_conversation` helper returns a 404 (not a 403) if you try to access a conversation you don't own or belong to, so you can't even tell whether a given conversation ID belongs to someone else.
 - **Streaming + persistence**: `/api/chat` streams the AI's reply via SSE. Because the database session tied to the HTTP request closes as soon as the streaming response starts, the code opens a **second, fresh database session** partway through the stream just to save the assistant's final reply once it's fully generated.
 - **Graceful failure mid-stream**: if Groq errors out partway through a response (rate limit, timeout, etc.), the backend catches it, sends the client a proper `event: error` SSE frame with a readable message (e.g. "You're sending messages too fast"), and still saves whatever partial answer had already been generated instead of losing it. The frontend shows the error alongside the partial answer rather than replacing it. Covered by `backend/tests/test_chat_route.py` — verified the tests actually catch a regression here, not just pass regardless, by temporarily reverting the fix and confirming they failed.
 - **Stop generating**: the composer's send button turns into a stop button while a response is streaming (`useChatStream`'s `abort()`, backed by a real `AbortController`). Clicking it always stops the client from receiving/showing more text. **Known limitation**: unlike the server-error case above, a client-initiated disconnect doesn't reliably trigger the same save-partial-reply path — Starlette/anyio can raise `RuntimeError: aclose(): asynchronous generator is already running` when cleaning up the stream generator on a client disconnect, which is a deeper async cleanup issue than this fix addresses. So stopping generation is instant and reliable; the partial answer being saved to that conversation's history on a *user-initiated* stop is not guaranteed (it is guaranteed on a *server-side* error).
@@ -402,6 +410,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Frontend | Complete — React + TypeScript SPA (`frontend/`), replaces the old static HTML |
 | User Authentication | Complete (register, login, logout, JWT, email verify, password reset — see caveats above) |
 | Chat History | Complete (conversations saved to DB, list/search/rename/delete/export, sidebar wired up) |
+| Group chat | Complete — up to 3 members per conversation, shareable invite links, polling-based sync (see "Group chat" under API Endpoints) |
 | Quiz Generator | Complete (auth required, optional `course_id` context) |
 | Summary Service | Complete (auth required, optional `course_id` context) |
 | Explore Feature | Complete (auth required, cache-backed, optional `course_id` context) |
@@ -418,6 +427,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Billing (Stripe) | Complete, test-mode only — submission subscription + per-course one-time purchase |
 | Progress frontend page | Complete — real UI, quiz attempts tracked and low-scoring subjects recommended for revisiting |
 | Lesson content (AI-generated docs + quizzes) | Complete — pipeline + UI built; needs a `GEMINI_API_KEY` to actually generate anything (see "Lesson Content" above) |
+| Community study notes | Complete — any logged-in user can attach a note to any course, no subscription needed, never locked even on a priced course |
 
 ### Notes for the team
 
@@ -426,6 +436,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 - **Auth is now required everywhere that touches the tutor or your data**: `/api/chat`, `/api/quiz`, `/api/summary`, `/api/explore`, `/api/ask-more`, and all `/api/conversations/*` endpoints all require a valid `Authorization: Bearer <token>` header.
 - **Search provider**: this app uses **Tavily**, not Brave (an earlier version of this README said Brave — that was a documentation-only typo, the code has always called Tavily).
 - **CORS**: `ALLOWED_ORIGINS` in `.env` controls which frontend origins may call the API (defaults to the Vite dev server + FastAPI's own port) — update it once the React app has a real deployed URL.
+- **`FRONTEND_URL` controls what invite links (and Stripe redirect links) look like**: group-chat invite URLs are built server-side as `f"{FRONTEND_URL}/chat/join/{token}"` (`conversationRoute.py`'s `create_invite`). Locally this defaults to `http://localhost:5173`, so a link looks like `http://localhost:5173/chat/join/2oW1mpU4uDtLlX1BJjZL5AuCyLq3mEl4ThQuCeOCnZI`. **Before deploying, set `FRONTEND_URL` in the backend's `.env` to the real deployed frontend origin** (e.g. `https://learnwise.example.com`), same as you'd do for `ALLOWED_ORIGINS` above — otherwise every invite link generated in production will point at `localhost` and be unusable for anyone but the person who created it. The token itself (`secrets.token_urlsafe`) is already opaque and long enough to be safely shared over chat/email/etc.
 
 ## API Endpoints
 
@@ -439,12 +450,23 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 - `POST /reset-password` - `{token, new_password}`
 
 ### Conversations (`/api/conversations`) - all require auth
+Up to 3 people can share one conversation (see "Group chat" below) - every endpoint here accepts the owner or an invited member unless noted, and 404s (not 403) for anyone else so conversation IDs aren't enumerable.
 - `POST /` - create a conversation - `{title?, subject?}`
-- `GET /?search=...` - list the current user's conversations, optionally filtered by title
-- `GET /{id}` - get a conversation with its full message history
-- `PATCH /{id}` - rename - `{title}`
-- `DELETE /{id}`
+- `GET /?search=...` - list conversations you own or are a member of, optionally filtered by title
+- `GET /{id}` - get a conversation with its full message history, member list, `is_owner`, `generating` (whether a reply is currently streaming for anyone in it), and `max_members` (the server-side cap, currently 3 — the frontend reads this instead of hardcoding it)
+- `GET /{id}/status` - a cheap `{message_count, generating}` poll target, used by `useConversationPolling` instead of re-fetching the full conversation every tick (see "Group chat" below)
+- `PATCH /{id}` - rename - `{title}` - any member
+- `DELETE /{id}` - **owner only** - a member who wants out uses `DELETE /{id}/members/{their own user_id}` (leave) instead
 - `GET /{id}/export?format=markdown|json` - download the conversation
+- `POST /{id}/invites` - **owner only** - creates a shareable join link, returns `{token, url, expires_at}` (7-day default lifetime); multi-use until the conversation hits 3 members
+- `DELETE /{id}/invites/{invite_id}` - **owner only** - revoke a link without removing anyone already invited through it
+- `POST /conversations/invites/{token}/accept` - any logged-in user - joins the conversation, `410` if expired/revoked, `409` if already at 3 members, a no-op if already a member
+- `GET /{id}/members` - list everyone (owner + members)
+- `DELETE /{id}/members/{user_id}` - your own `user_id` to leave, or (owner only) someone else's to remove them; the owner can't be removed by anyone, including themselves - they delete the conversation instead
+
+**Group chat, end to end**: the owner opens the Invite modal, which calls `POST /{id}/invites` and shows back a copyable `http://<FRONTEND_URL>/chat/join/{token}` link (see the `FRONTEND_URL` note above for what this looks like once deployed). Whoever opens that link either logs in/registers first (the app remembers the pending invite and resumes the join automatically right after auth — see `JoinConversationPage` and `LoginPage`/`RegisterPage`'s `location.state.from` handling) or, if already logged in, joins immediately via `POST /conversations/invites/{token}/accept`. From then on everyone in the conversation sees the same message history and the same AI replies.
+
+Real-time sync is deliberately polling-based, not push/WebSocket - see `frontend/src/hooks/useConversationPolling.ts`. At up to 3 people, short-interval polling (every 2.5s, or every 1s while a reply is generating; paused while your own tab is streaming or the tab isn't focused) is simple and sufficient — it hits the cheap `GET /{id}/status` endpoint each tick and only fetches the full `GET /{id}` conversation when the message count actually changed, so an idle conversation with a long history isn't re-transferred every tick just to discover nothing happened. The backend still rebuilds each prompt from the database (not the calling tab's local message array) so two members typing near-simultaneously can't produce a reply built from a stale transcript. `ChatMessage.author_user_id` (null for assistant messages and for messages sent before this feature existed) is what lets the UI show "Alice: ..." instead of "You" for another member's messages. The `generating` flag (`services/chat_state.py`) is a plain in-memory, self-expiring dict keyed by conversation id — advisory only, and correct only within a single backend process (consistent with the rate limiter's existing single-process assumption; see "Auth & Chat History" above).
 
 ### Chat & study tools (`/api/chat`, `/api/quiz`, `/api/summary`, `/api/explore`, `/api/ask-more`) - all require auth
 All five accept an optional `course_id?: number` — if given and it matches a row in `courses`, that course's metadata + lecture topics are folded into the prompt context (see "Course Data" above for what this context actually contains).

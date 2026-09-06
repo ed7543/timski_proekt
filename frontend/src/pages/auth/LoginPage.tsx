@@ -71,7 +71,7 @@ export function LoginPage() {
       </form>
       <div className="auth-links">
         <Link to="/forgot-password">Forgot password?</Link>
-        <Link to="/register">Create account</Link>
+        <Link to="/register" state={{ from }}>Create account</Link>
       </div>
     </AuthLayout>
   );

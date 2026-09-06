@@ -4,6 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { CourseNavSidebar } from '../components/courses/CourseNavSidebar';
 import { CourseNotes } from '../components/courses/CourseNotes';
 import { LessonDetail } from '../components/courses/LessonDetail';
+import { MaterialStudyGuide } from '../components/courses/MaterialStudyGuide';
 import { getCourse, getCourseLessons, getCourseMaterials, getCourseRecordings } from '../api/courses';
 import { createCourseCheckoutSession } from '../api/billing';
 import type { CourseDetailOut, CourseMaterialOut, LessonOut, RecordingOut } from '../types/course';
@@ -385,21 +386,24 @@ export function CourseDetailPage() {
                               <ol className="src-list">
                                 {items.map((m) => (
                                   <li key={m.id}>
-                                    <a className="src" href={m.url} target="_blank" rel="noreferrer">
+                                    <div className="src">
                                       <div className="src-row">
-                                        <span className="src-num">
-                                          <FileIcon />
-                                        </span>
-                                        <div className="src-body">
-                                          <div className="src-title">{m.title}</div>
-                                          <div className="src-meta">
-                                            <span>{siteFromUrl(m.url)}</span>
+                                        <a className="src-link" href={m.url} target="_blank" rel="noreferrer">
+                                          <span className="src-num">
+                                            <FileIcon />
+                                          </span>
+                                          <div className="src-body">
+                                            <div className="src-title">{m.title}</div>
+                                            <div className="src-meta">
+                                              <span>{siteFromUrl(m.url)}</span>
+                                            </div>
+                                            {m.description && <div className="src-desc">{m.description}</div>}
                                           </div>
-                                          {m.description && <div className="src-desc">{m.description}</div>}
-                                        </div>
-                                        <ExternalLinkIcon />
+                                          <ExternalLinkIcon />
+                                        </a>
+                                        <MaterialStudyGuide courseId={id} material={m} />
                                       </div>
-                                    </a>
+                                    </div>
                                   </li>
                                 ))}
                               </ol>
