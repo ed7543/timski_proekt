@@ -52,7 +52,7 @@ function stripCourseHeading(documentation: string, lessonTitle: string): string 
   return lines.join('\n').replace(/^\s+/, '');
 }
 
-function LessonQuizModal({
+export function LessonQuizModal({
   lessonTitle,
   questions,
   onClose,

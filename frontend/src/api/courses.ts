@@ -10,6 +10,7 @@ import type {
   AdminCourseOut,
   LessonOut,
   LessonDetailOut,
+  MaterialStudyGuideOut,
 } from '../types/course';
 
 export function listCourses(params?: {
@@ -62,6 +63,21 @@ export function generateLessonQuiz(
 ): Promise<LessonDetailOut> {
   return apiFetch<LessonDetailOut>(
     `/api/courses/${courseId}/lessons/${lessonId}/quiz?difficulty=${difficulty}`,
+    { method: 'POST' },
+  );
+}
+
+export function getMaterialStudyGuide(courseId: number, materialId: number): Promise<MaterialStudyGuideOut> {
+  return apiFetch<MaterialStudyGuideOut>(`/api/courses/${courseId}/materials/${materialId}/study-guide`);
+}
+
+export function generateMaterialStudyGuide(
+  courseId: number,
+  materialId: number,
+  difficulty: 'medium' | 'hard' = 'medium',
+): Promise<MaterialStudyGuideOut> {
+  return apiFetch<MaterialStudyGuideOut>(
+    `/api/courses/${courseId}/materials/${materialId}/study-guide?difficulty=${difficulty}`,
     { method: 'POST' },
   );
 }
