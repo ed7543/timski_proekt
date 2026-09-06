@@ -158,8 +158,6 @@ def run_lessons(args: argparse.Namespace) -> None:
             force_regenerate=args.force_regenerate,
             generate_quiz_flag=not args.skip_quiz,
             local_materials_dir=args.local_materials_dir,
-            generate_without_source=args.generate_without_source,
-            force_general_knowledge=args.force_general_knowledge,
         )
     finally:
         db.close()
@@ -210,24 +208,6 @@ def main() -> None:
         "--local-materials-dir", type=Path, default=None,
         help="For --source lessons: base folder for LOCAL_FILE_ONLY_CODES courses, one subfolder "
              "per course_code (default: 'course_materials' next to --courses-db-path)",
-    )
-    parser.add_argument(
-        "--generate-without-source", action="store_true",
-        help="For --source lessons: explicit opt-in - for courses with NO source in "
-             "courses_db.json (status pending_source/deferred_user_will_provide_materials), "
-             "generate documentation from the model's general knowledge instead of leaving "
-             "topic-only rows. Every such lesson is clearly disclaimed (see gemini_generator.py's "
-             "NO_SOURCE_DISCLAIMER_MK) and tracked separately in the run report - review these "
-             "before trusting them like properly-sourced lessons.",
-    )
-    parser.add_argument(
-        "--force-general-knowledge", action="store_true",
-        help="For --source lessons: explicit override - IGNORE this course's source entirely "
-             "(even a real, confirmed one) and always generate from the model's general "
-             "knowledge. Use for a course where the source technically exists but coverage "
-             "was poor in practice (many lessons ended up empty or very thin) - a human "
-             "judgment call to make per course, not automatic. Combine with --force-regenerate "
-             "to also overwrite lessons that already have some (poor) documentation.",
     )
     args = parser.parse_args()
 
