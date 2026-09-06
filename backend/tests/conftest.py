@@ -18,6 +18,8 @@ from sqlalchemy import or_
 from backend.database.models import (
     ChatMessage,
     Conversation,
+    ConversationInvite,
+    ConversationMember,
     Course,
     CourseMaterial,
     CourseNote,
@@ -131,9 +133,27 @@ def cleanup_test_data(db, emails: list[str]) -> None:
     if course_ids:
         db.query(Course).filter(Course.id.in_(course_ids)).delete(synchronize_session=False)
 
+    # Conversations these users own, plus group-chat rows tied to them either
+    # way: ConversationMember/ConversationInvite must go before their parent
+    # Conversation (bulk .delete() doesn't trigger the ORM-level cascade,
+    # same reasoning as course_ids above). A user can also be a *member* of
+    # someone else's conversation (not owned by any of these emails) - that
+    # membership/invite-authorship is cleaned up by user_id regardless of
+    # conv_ids, and a message they authored there is nulled out rather than
+    # deleted, since that conversation isn't this cleanup's to remove.
     conv_ids = [c.id for c in db.query(Conversation).filter(Conversation.user_id.in_(user_ids)).all()]
     if conv_ids:
+        db.query(ConversationMember).filter(ConversationMember.conversation_id.in_(conv_ids)).delete(synchronize_session=False)
+        db.query(ConversationInvite).filter(ConversationInvite.conversation_id.in_(conv_ids)).delete(synchronize_session=False)
         db.query(ChatMessage).filter(ChatMessage.conversation_id.in_(conv_ids)).delete(synchronize_session=False)
+
+    db.query(ConversationMember).filter(ConversationMember.user_id.in_(user_ids)).delete(synchronize_session=False)
+    db.query(ConversationInvite).filter(ConversationInvite.created_by_id.in_(user_ids)).delete(synchronize_session=False)
+    db.query(ChatMessage).filter(ChatMessage.author_user_id.in_(user_ids)).update(
+        {"author_user_id": None}, synchronize_session=False
+    )
+
+    if conv_ids:
         db.query(Conversation).filter(Conversation.user_id.in_(user_ids)).delete(synchronize_session=False)
 
     db.query(VerificationToken).filter(VerificationToken.user_id.in_(user_ids)).delete(synchronize_session=False)

@@ -10,6 +10,10 @@ export interface DisplayMessage {
   /** Set when a stream ended with an error - shown alongside any partial
    * content already rendered, rather than replacing it (see ChatPage). */
   error?: string;
+  /** Set only for another member's message in a group conversation - undefined
+   * for the viewer's own messages (shown as "You", the existing behavior) and
+   * for every message in a solo conversation. */
+  authorName?: string;
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10);

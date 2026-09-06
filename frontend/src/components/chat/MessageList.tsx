@@ -28,7 +28,9 @@ export function MessageList({ messages, onPickSuggestion }: Props) {
       ) : (
         <div className="conv">
           {messages.map((m, i) => {
-            if (m.role === 'user') return <MessageBubbleUser key={m.id} content={m.content} index={i} />;
+            if (m.role === 'user') {
+              return <MessageBubbleUser key={m.id} content={m.content} index={i} authorName={m.authorName} />;
+            }
             if (m.role === 'error') return <MessageBubbleError key={m.id} content={m.content} />;
             return <MessageBubbleAI key={m.id} content={m.content} streaming={m.streaming} error={m.error} />;
           })}
