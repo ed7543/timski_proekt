@@ -259,6 +259,18 @@ class CourseMaterial(Base):
     category: Mapped[str | None] = mapped_column(String(100), nullable=True)
     url: Mapped[str] = mapped_column(String(1000), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Marketplace-only AI study guide - mirrors Lesson's documentation/quiz/
+    # quiz_hard split exactly (migration 9d4c1a2f7e6b), generated on demand
+    # from the material's own URL (services/material_study_guide.py) rather
+    # than a curated textbook source. `quiz` is the default/"Medium" tier,
+    # `quiz_hard` a second, independent tier - both share
+    # gemini_generator.generate_quiz(difficulty=...), same as Lessons.
+    documentation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    quiz: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    quiz_hard: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    documentation_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    quiz_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    quiz_hard_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False

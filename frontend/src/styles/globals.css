@@ -931,6 +931,7 @@ select {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .src-num {
   height: 20px;
@@ -1667,6 +1668,22 @@ select {
   opacity: 0.35;
   cursor: not-allowed;
   border-color: var(--border);
+}
+.src-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+.study-guide-body {
+  flex-basis: 100%;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-subtle, rgba(0, 0, 0, 0.02));
 }
 .src-passed {
   background: rgba(31, 107, 58, 0.1);
