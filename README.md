@@ -105,6 +105,35 @@ python -m backend.services.ingestion.cli --source all
 ```
 Pulls course/lecture-recording data from the public finki-hub.com sites into the `courses`/`course_materials`/`recordings` tables — see "Course Data" below before running this at full scale.
 
+### 7b. (Optional) Sync FINKI announcements into the Blog feed
+```bash
+source .venv/bin/activate
+python -m backend.scripts.fetch_finki_announcements
+# python -m backend.scripts.fetch_finki_announcements --dry-run   # preview without writing
+```
+Pulls new posts from the official FINKI student-announcement board (oldsite.finki.ukim.mk/mk/student-announcement)
+into the `blog_posts` table shown on the Ресурси/Blog page — the automated counterpart to an admin manually
+pasting a link. Safe to re-run any time: it only ever adds announcements whose URL isn't already imported.
+
+To run it automatically every day on Windows, use `run_finki_announcements.bat` (in the project root) with
+Task Scheduler:
+```
+schtasks /create /tn "FINKI Oglasi Sync" /tr "C:\Users\stoja\Desktop\timski_proekt\run_finki_announcements.bat" /sc daily /st 09:00
+```
+Each run's output is appended to `finki_announcements_log.txt` in the project root, since a scheduled task has
+no visible console — check that file to see what was added on each run.
+
+**On Linux (e.g. the deployment server)**, use `run_finki_announcements.sh` instead of the `.bat` file, and
+`crontab` instead of Task Scheduler:
+```bash
+chmod +x run_finki_announcements.sh
+crontab -e
+# add this line to run daily at 09:00 (adjust the path to where the project lives on that machine):
+0 9 * * * /full/path/to/timski_proekt/run_finki_announcements.sh
+```
+Same idea as the Windows version — it activates the venv, runs the sync, and appends output to
+`finki_announcements_log.txt` next to it.
+
 ### 8. Run the tests
 ```bash
 source .venv/bin/activate
