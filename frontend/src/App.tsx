@@ -7,6 +7,7 @@ import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage';
 import { ChatPage } from './pages/ChatPage';
+import { JoinConversationPage } from './pages/JoinConversationPage';
 import { CoursesPage } from './pages/CoursesPage';
 import { MarketplacePage } from './pages/MarketplacePage';
 import { CourseDetailPage } from './pages/CourseDetailPage';
@@ -37,6 +38,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/chat/join/:token" element={<JoinConversationPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/chat" element={<ChatPage />} />

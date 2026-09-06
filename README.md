@@ -12,6 +12,7 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **Source sidebar** — see exactly where the AI got its info
 -  **Subject mode** — focus on Python, FastAPI, React, etc.
 -  **Accounts & chat history** — register/login, and every conversation is saved, searchable, renameable, exportable
+-  **Group chat** — invite up to 2 others (3 total) to a conversation via a shareable link; everyone's messages are labeled and the AI's replies stay in sync for all members
 -  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
 -  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
 -  **AI-generated lesson content** — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
@@ -64,7 +65,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ```bash
 alembic upgrade head
 ```
-This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `conversation_members`, `conversation_invites`, `cached_searches`, `courses`, `course_materials`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
 
 ### 3b. Create an admin account
 There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it directly in the database:
@@ -128,7 +129,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 │   └── src/
 │       ├── api/                 # apiFetch client, auth/conversations/chatTools calls
 │       ├── context/             # AuthContext (user/token/status)
-│       ├── hooks/                # useChatStream (SSE), useConversations
+│       ├── hooks/                # useChatStream (SSE), useConversations, useConversationPolling (group chat)
 │       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/etc.
 │       ├── components/          # layout/sidebar/chat/sources/modals/courses
 │       │                        #   (courses/LessonDetail.tsx - lesson documentation + quiz UI)
@@ -144,8 +145,9 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── database/                # Data storage layer
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
-    │                            #   CachedSearch, Course, CourseMaterial, Recording, CoursePurchase,
-    │                            #   Lesson, CourseSource, QuizAttempt
+    │                            #   ConversationMember, ConversationInvite, CachedSearch, Course,
+    │                            #   CourseMaterial, Recording, CoursePurchase, Lesson, CourseSource,
+    │                            #   QuizAttempt
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -160,7 +162,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── summaryRequest.py    # Summary generation request
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
-    │   ├── conversationRequest.py # Conversation create/update/list/detail schemas
+    │   ├── conversationRequest.py # Conversation create/update/list/detail + member/invite schemas
     │   ├── courseResponse.py    # Course/CourseMaterial/Recording/Lesson/AdminCourseOut response schemas
     │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
     │   ├── quizProgressRequest.py # Quiz attempt create/update schemas
@@ -217,7 +219,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_search_cache.py   # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
         ├── test_course_context.py # format_course_context() + _get_course_context() coverage
         ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
-        ├── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
+        ├── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save), group-chat prompt-rebuild-from-DB, member can chat
+        ├── test_conversation_members.py # Invites (accept/revoke/expire/cap), member leave/kick, owner-only actions
         ├── test_course_submission.py  # Submission gating, pending/rejected visibility, /mine, has_submitted_courses
         ├── test_admin_approval.py     # Admin approve/reject state machine + permission gating
         ├── test_marketplace_pricing.py # source/price_filter listing, priced-course locking rules
@@ -298,7 +301,7 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 - **Auth guard**: `backend/middleware/auth.py`'s `get_current_user` dependency decodes the JWT and loads the `User` row. It's applied to `/api/chat`, `/api/quiz`, `/api/summary`, `/api/explore`, `/api/ask-more`, and every `/api/conversations/*` route — consistently now across all of them.
 - **Rate limiting**: `/api/auth/register`, `/api/auth/login`, and `/api/auth/forgot-password` are limited to 5 requests/minute per IP (`slowapi`, in-memory store — fine for a single-process deployment; swap in a Redis storage backend if this ever runs with multiple workers).
 - **Email verification / password reset**: `backend/utils/email.py::send_email()` sends via the Resend API if `RESEND_API_KEY` is set; otherwise it falls back to **printing the link to the server console** (`[DEV] ... link: ...`). Fine for local dev/demo without a Resend account configured.
-- **Chat history**: every chat lives in a `Conversation` (id, user, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, timestamp). Deleting a conversation cascades and deletes its messages. Conversations are strictly per-user — `conversationRoute.py`'s `_get_owned_conversation` helper returns a 404 (not a 403) if you try to access someone else's conversation, so you can't even tell whether a given conversation ID belongs to someone else.
+- **Chat history**: every chat lives in a `Conversation` (id, owner, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, author, timestamp). Deleting a conversation cascades and deletes its messages. A conversation is visible only to its owner and any invited members (see "Group chat" below) — `conversationRoute.py`'s `_get_member_conversation` helper returns a 404 (not a 403) if you try to access a conversation you don't own or belong to, so you can't even tell whether a given conversation ID belongs to someone else.
 - **Streaming + persistence**: `/api/chat` streams the AI's reply via SSE. Because the database session tied to the HTTP request closes as soon as the streaming response starts, the code opens a **second, fresh database session** partway through the stream just to save the assistant's final reply once it's fully generated.
 - **Graceful failure mid-stream**: if Groq errors out partway through a response (rate limit, timeout, etc.), the backend catches it, sends the client a proper `event: error` SSE frame with a readable message (e.g. "You're sending messages too fast"), and still saves whatever partial answer had already been generated instead of losing it. The frontend shows the error alongside the partial answer rather than replacing it. Covered by `backend/tests/test_chat_route.py` — verified the tests actually catch a regression here, not just pass regardless, by temporarily reverting the fix and confirming they failed.
 - **Stop generating**: the composer's send button turns into a stop button while a response is streaming (`useChatStream`'s `abort()`, backed by a real `AbortController`). Clicking it always stops the client from receiving/showing more text. **Known limitation**: unlike the server-error case above, a client-initiated disconnect doesn't reliably trigger the same save-partial-reply path — Starlette/anyio can raise `RuntimeError: aclose(): asynchronous generator is already running` when cleaning up the stream generator on a client disconnect, which is a deeper async cleanup issue than this fix addresses. So stopping generation is instant and reliable; the partial answer being saved to that conversation's history on a *user-initiated* stop is not guaranteed (it is guaranteed on a *server-side* error).
@@ -405,12 +408,20 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 - `POST /reset-password` - `{token, new_password}`
 
 ### Conversations (`/api/conversations`) - all require auth
+Up to 3 people can share one conversation (see "Group chat" below) - every endpoint here accepts the owner or an invited member unless noted, and 404s (not 403) for anyone else so conversation IDs aren't enumerable.
 - `POST /` - create a conversation - `{title?, subject?}`
-- `GET /?search=...` - list the current user's conversations, optionally filtered by title
-- `GET /{id}` - get a conversation with its full message history
-- `PATCH /{id}` - rename - `{title}`
-- `DELETE /{id}`
+- `GET /?search=...` - list conversations you own or are a member of, optionally filtered by title
+- `GET /{id}` - get a conversation with its full message history, member list, `is_owner`, and `generating` (whether a reply is currently streaming for anyone in it)
+- `PATCH /{id}` - rename - `{title}` - any member
+- `DELETE /{id}` - **owner only** - a member who wants out uses `DELETE /{id}/members/{their own user_id}` (leave) instead
 - `GET /{id}/export?format=markdown|json` - download the conversation
+- `POST /{id}/invites` - **owner only** - creates a shareable join link, returns `{token, url, expires_at}` (7-day default lifetime); multi-use until the conversation hits 3 members
+- `DELETE /{id}/invites/{invite_id}` - **owner only** - revoke a link without removing anyone already invited through it
+- `POST /conversations/invites/{token}/accept` - any logged-in user - joins the conversation, `410` if expired/revoked, `409` if already at 3 members, a no-op if already a member
+- `GET /{id}/members` - list everyone (owner + members)
+- `DELETE /{id}/members/{user_id}` - your own `user_id` to leave, or (owner only) someone else's to remove them; the owner can't be removed by anyone, including themselves - they delete the conversation instead
+
+**Group chat**: deliberately polling-based, not push/WebSocket - see `frontend/src/hooks/useConversationPolling.ts`. At up to 3 people, short-interval polling (2.5s, paused while your own tab is streaming or the tab isn't focused) is simple and sufficient; the backend still rebuilds each prompt from the database (not the calling tab's local message array) so two members typing near-simultaneously can't produce a reply built from a stale transcript. `ChatMessage.author_user_id` (null for assistant messages and for messages sent before this feature existed) is what lets the UI show "Alice: ..." instead of "You" for another member's messages.
 
 ### Chat & study tools (`/api/chat`, `/api/quiz`, `/api/summary`, `/api/explore`, `/api/ask-more`) - all require auth
 All five accept an optional `course_id?: number` — if given and it matches a row in `courses`, that course's metadata + lecture topics are folded into the prompt context (see "Course Data" above for what this context actually contains).

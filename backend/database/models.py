@@ -73,6 +73,12 @@ class Conversation(Base):
     messages: Mapped[list["ChatMessage"]] = relationship(
         back_populates="conversation", cascade="all, delete-orphan", order_by="ChatMessage.created_at"
     )
+    members: Mapped[list["ConversationMember"]] = relationship(
+        back_populates="conversation", cascade="all, delete-orphan"
+    )
+    invites: Mapped[list["ConversationInvite"]] = relationship(
+        back_populates="conversation", cascade="all, delete-orphan"
+    )
 
 
 class ChatMessage(Base):
@@ -82,9 +88,66 @@ class ChatMessage(Base):
     conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), nullable=False, index=True)
     role: Mapped[str] = mapped_column(String(20), nullable=False)  # "user" | "assistant"
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Who typed this "user"-role message, for a group conversation with more
+    # than one member - null for every "assistant"-role message, and null for
+    # historical "user"-role messages saved before this column existed
+    # (there's no way to backfill who typed something in the past; the
+    # frontend simply omits the sender label when this is null). Every NEW
+    # "user"-role message must set this (see chat_service.py::save_user_message) -
+    # it's nullable at the schema level only for the historical/assistant cases.
+    author_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
 
     conversation: Mapped["Conversation"] = relationship(back_populates="messages")
+    author: Mapped["User | None"] = relationship()
+
+    @property
+    def author_name(self) -> str | None:
+        """None for assistant messages and historical user messages with no
+        author_user_id - same pattern as Course.submitted_by_name."""
+        if self.author is None:
+            return None
+        return self.author.full_name or self.author.email
+
+
+class ConversationMember(Base):
+    """A non-owner participant in a group conversation (up to 2 more, for a
+    3-person cap total including the owner). The owner is deliberately NOT
+    given a row here - membership is checked as
+    `conv.user_id == user.id OR a ConversationMember row exists`
+    (see routes/conversationRoute.py::_get_member_conversation), so there's
+    exactly one source of truth for "is this person the owner"
+    (Conversation.user_id) and no risk of the owner being removed from their
+    own conversation via the member-removal endpoint."""
+
+    __tablename__ = "conversation_members"
+    __table_args__ = (UniqueConstraint("conversation_id", "user_id", name="uq_conversation_members_conv_user"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    joined_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+    conversation: Mapped["Conversation"] = relationship(back_populates="members")
+    user: Mapped["User"] = relationship()
+
+
+class ConversationInvite(Base):
+    """A shareable join link for a conversation. Multi-use until the
+    conversation hits its 3-member cap (owner + 2) or the invite expires/is
+    revoked - simpler than a single-use-per-invitee token for a small group."""
+
+    __tablename__ = "conversation_invites"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), nullable=False, index=True)
+    token: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    conversation: Mapped["Conversation"] = relationship(back_populates="invites")
 
 
 class CachedSearch(Base):

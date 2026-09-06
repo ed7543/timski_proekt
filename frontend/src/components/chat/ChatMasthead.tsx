@@ -1,4 +1,4 @@
-import { BookIcon, GlobeIcon } from '../icons';
+import { BookIcon, GlobeIcon, GuestIcon } from '../icons';
 import type { CourseOut } from '../../types/course';
 
 const SUBJECTS = [
@@ -24,6 +24,9 @@ interface Props {
   courses: CourseOut[];
   courseId: number | null;
   onCourseChange: (courseId: number | null) => void;
+  /** Only shown once a conversation exists (can't invite to one that hasn't been saved yet). */
+  memberCount?: number;
+  onOpenMembers?: () => void;
 }
 
 export function ChatMasthead({
@@ -35,6 +38,8 @@ export function ChatMasthead({
   courses,
   courseId,
   onCourseChange,
+  memberCount,
+  onOpenMembers,
 }: Props) {
   return (
     <header className="masthead">
@@ -44,6 +49,15 @@ export function ChatMasthead({
         <h1 className="conv-title">{title}</h1>
       </div>
       <div className="masthead-r">
+        {onOpenMembers && (
+          <>
+            <button className="toggle-btn" onClick={onOpenMembers} title="Invite others to this chat">
+              <GuestIcon />
+              <span>{memberCount && memberCount > 1 ? `${memberCount} people` : 'Invite'}</span>
+            </button>
+            <span className="masthead-divider" />
+          </>
+        )}
         {courses.length > 0 && (
           <>
             <div
