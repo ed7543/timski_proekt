@@ -17,7 +17,8 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **AI-generated lesson content** — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
 -  **Marketplace** — premium users submit new courses (with materials), an admin approves or rejects them, and approved ones go live for everyone — free or priced
 -  **Billing (Stripe, test-mode)** — a recurring subscription unlocks course submission; a one-time purchase unlocks a single priced course's materials/recordings
--  **File uploads** — course material files (PDFs, slides, videos) upload to Supabase Storage and get a public URL
+-  **File uploads** — course material files (PDFs, slides, videos) upload to Supabase Storage and get a public URL, open to any logged-in user (no subscription required)
+-  **Community study notes** — any logged-in user can attach a study note (file or link) to any course; always free to view, even on a priced course - a separate, non-premium alternative to submitting a whole course
 -  **Quiz progress & recommendations** — every quiz attempt is tracked per user; low-scoring subjects are surfaced back as "worth another look" recommendations
 
 ## Setup
@@ -64,14 +65,15 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ```bash
 alembic upgrade head
 ```
-This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `course_notes`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
 
 ### 3b. Create an admin account
-There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it directly in the database:
-```sql
-UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
+There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it with the `make_admin` script:
+```bash
+python -m backend.scripts.make_admin your@email.com
+# python -m backend.scripts.make_admin your@email.com --demote   # to undo
 ```
-Needed to reach the Admin panel and approve/reject Marketplace course submissions.
+Needed to reach the Admin panel and approve/reject Marketplace course submissions. Everyone should have their own admin account (promoted this way) rather than sharing one login — keeps admin actions attributable to a real person.
 
 ### 4. Run the backend
 ```bash
@@ -144,8 +146,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── database/                # Data storage layer
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
-    │                            #   CachedSearch, Course, CourseMaterial, Recording, CoursePurchase,
-    │                            #   Lesson, CourseSource, QuizAttempt
+    │                            #   CachedSearch, Course, CourseMaterial, CourseNote, Recording,
+    │                            #   CoursePurchase, Lesson, CourseSource, QuizAttempt
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -161,8 +163,9 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
     │   ├── conversationRequest.py # Conversation create/update/list/detail schemas
-    │   ├── courseResponse.py    # Course/CourseMaterial/Recording/Lesson/AdminCourseOut response schemas
+    │   ├── courseResponse.py    # Course/CourseMaterial/CourseNote/Recording/Lesson/AdminCourseOut response schemas
     │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
+    │   ├── courseNoteRequest.py  # Community study-note create schema
     │   ├── quizProgressRequest.py # Quiz attempt create/update schemas
     │   └── quizProgressResponse.py # Quiz attempt + recommendation response schemas
     │
@@ -170,8 +173,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── health.py            # /api/health - Service health check
     │   ├── chatRoute.py         # /api/chat, /api/quiz, /api/summary, /api/explore, /api/ask-more
     │   ├── conversationRoute.py # /api/conversations/* - CRUD + export for chat history
-    │   ├── courseRoute.py       # /api/courses/* - catalog, Marketplace submission, deletion, uploads,
-    │   │                        #   + lessons endpoints
+    │   ├── courseRoute.py       # /api/courses/* - catalog, Marketplace submission, deletion,
+    │   │                        #   + lessons and community-notes endpoints
     │   ├── adminRoute.py        # /api/admin/* - course approval/rejection queue
     │   ├── billingRoute.py      # /api/billing/* - Stripe subscription + one-time course purchase
     │   ├── uploadRoute.py       # /api/courses/upload-material - Supabase Storage file uploads
@@ -219,6 +222,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
         ├── test_chat_route.py     # SSE mid-stream failure handling (event: error frame + partial-reply save)
         ├── test_course_submission.py  # Submission gating, pending/rejected visibility, /mine, has_submitted_courses
+        ├── test_course_notes.py       # Community notes: no premium gate, never locked, pending-course visibility, delete permissions
         ├── test_admin_approval.py     # Admin approve/reject state machine + permission gating
         ├── test_marketplace_pricing.py # source/price_filter listing, priced-course locking rules
         ├── test_course_deletion.py    # Owner/admin delete permissions, official-catalog guard
@@ -228,6 +232,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_gemini_prompts.py     # Lesson-generation prompt construction/regression guards
         ├── test_lesson_matching.py    # Source-excerpt-to-lesson-topic matching/scoring
         ├── test_lesson_quiz_rate_limit.py # POST .../lessons/{id}/quiz rate limiting
+        ├── test_lesson_quiz_difficulty.py # Medium/Hard quiz tiers - independent columns, no premium needed
         ├── test_lesson_upsert.py      # Lesson/CourseSource find-then-update-or-insert logic
         ├── test_quiz_progress_route.py # /api/quiz-progress/* CRUD + recommendations
         └── test_seed_lessons.py       # Lesson-seeding pipeline orchestration/report generation
@@ -427,7 +432,7 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `GET /{id}/recordings?category=` - lecture/exercise recording links - `402` if the course is priced and locked
 - `GET /mine` - **requires auth** - every course the current user has submitted, any status
 - `POST /submit` - **requires a premium subscription** - `{name, materials, price, ...}`, creates a course with status `"pending"`
-- `POST /upload-material` - **requires a premium subscription** - uploads a file, returns `{url, resource_type, original_filename}` (Supabase Storage-backed)
+- `POST /upload-material` - **requires auth, rate-limited to 10/minute per IP** (no subscription needed - uploading a file is free) - `multipart/form-data` with `file` + optional `context` (`material` default or `note`), returns `{url, resource_type, original_filename}` (Supabase Storage-backed). Type is verified from the file's actual bytes (magic numbers), not the client-supplied Content-Type header, which is otherwise trivially spoofable - `415` if unrecognized. Allowed: PDF, images (jpeg/png/webp/gif), video (mp4/webm/mov), Word (.doc/.docx), PowerPoint (.pptx). Size cap depends on `context` - 50 MB for `material` (Supabase free-tier limit), 10 MB for `note` (the fully open, unmoderated community-notes path gets a much smaller budget) - `413` over the cap, `400` for an unrecognized `context` value.
 - `DELETE /{id}` - **requires auth** - the course's own submitter or an admin only; refuses to touch the scraped catalog
 
 ### Admin (`/api/admin`) - all require an admin account
@@ -435,6 +440,7 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `GET /courses?status=pending|approved|rejected|all` - all user-submitted courses by status
 - `POST /courses/{id}/approve`
 - `POST /courses/{id}/reject` - `{reason}` (required, shown back to the submitter)
+- `GET /notes?limit=` - every community-contributed note across every course, newest first (default 200, max 1000) - notes have no pending/approval workflow like course submissions, so this read-only, cross-course view is the only way to discover abuse without querying the database directly; deletion still goes through the existing `DELETE /api/courses/{course_id}/notes/{note_id}`
 
 ### Billing (`/api/billing`)
 - `GET /plans` - public - live Stripe price/name/interval for the submission subscription
@@ -447,6 +453,12 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `GET /` - list a course's lessons (topic title + whether documentation/a quiz already exist) - public, no auth
 - `GET /{lesson_id}` - full lesson content (documentation + quiz, if generated) - public, no auth
 - `POST /{lesson_id}/quiz?difficulty=medium|hard` - **requires auth, rate-limited to 5/minute per IP** - generates (or regenerates) the quiz for a lesson on demand via a real, billed Gemini call. `difficulty` defaults to `medium` (the original `quiz` column); `hard` writes to the separate `quiz_hard` column instead, leaving `medium` untouched. 400s if the lesson has no documentation yet, or if `difficulty` isn't `medium`/`hard`.
+
+### Notes (`/api/courses/{course_id}/notes`)
+Community-contributed study notes - deliberately separate from Materials above: any logged-in user can add one to any course (no premium subscription, unlike `POST /submit`), and unlike Materials/Recordings they're **never locked** even on a priced course - they're contributed by students, not part of what the course's submitter is selling.
+- `GET /` - list a course's notes, newest first - public, no auth, never `402`s
+- `POST /` - **requires auth** - `{title, url, description?}` (`url` can be a pasted link or a `POST /upload-material` result). `title`/`url` are trimmed and rejected if blank; `url` must be `http://`/`https://` - `422` otherwise (blocks a `javascript:`/`data:` URL from sitting in the DB and executing when another viewer clicks it).
+- `DELETE /{note_id}` - **requires auth** - the note's own uploader or an admin only
 
 ### Quiz Progress (`/api/quiz-progress`) - all require auth
 - `GET /` - list the current user's quiz attempts, most recently updated first

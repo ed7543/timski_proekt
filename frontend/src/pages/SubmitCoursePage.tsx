@@ -111,7 +111,7 @@ function MaterialRowInput({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,image/*,video/*"
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mov"
           style={{ display: 'none' }}
           onChange={handleFilePick}
         />

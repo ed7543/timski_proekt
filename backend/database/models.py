@@ -160,6 +160,9 @@ class Course(Base):
     purchases: Mapped[list["CoursePurchase"]] = relationship(
         back_populates="course", cascade="all, delete-orphan"
     )
+    notes: Mapped[list["CourseNote"]] = relationship(
+        back_populates="course", cascade="all, delete-orphan"
+    )
     # Who submitted this course (None for the scraped FINKI catalog).
     # foreign_keys needed since there are two FKs to users.id on this table
     # (submitted_by_id and reviewed_by_id) - otherwise SQLAlchemy can't tell
@@ -323,3 +326,42 @@ class CoursePurchase(Base):
 
     user: Mapped["User"] = relationship()
     course: Mapped["Course"] = relationship(back_populates="purchases")
+
+
+class CourseNote(Base):
+    """A community-contributed study note (an uploaded file or a pasted
+    external link) for a course - open to any logged-in user, unlike
+    CourseMaterial (which only the course's own submitter controls at
+    submission time). Always free to view regardless of Course.price_cents -
+    see routes/courseRoute.py::list_course_notes, which deliberately never
+    calls _has_course_access. Deletable by its own uploader or an admin."""
+
+    __tablename__ = "course_notes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id"), nullable=False, index=True)
+    uploaded_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    url: Mapped[str] = mapped_column(String(1000), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+    course: Mapped["Course"] = relationship(back_populates="notes")
+    uploaded_by_user: Mapped["User"] = relationship()
+
+    @property
+    def course_name(self) -> str:
+        """Used by AdminCourseNoteOut (routes/adminRoute.py) so an admin
+        browsing notes across every course doesn't have to cross-reference
+        course_id manually."""
+        return self.course.name
+
+    @property
+    def uploaded_by_name(self) -> str | None:
+        """Display name for whoever uploaded this note, or None if that
+        account has since been deleted - same pattern as
+        Course.submitted_by_name."""
+        user = self.uploaded_by_user
+        if user is None:
+            return None
+        return user.full_name or user.email

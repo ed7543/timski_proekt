@@ -1,6 +1,7 @@
 """Shared test helpers for the Marketplace/billing/admin test suite
 (test_course_submission.py, test_admin_approval.py, test_marketplace_pricing.py,
-test_course_deletion.py, test_billing.py, test_upload_material.py).
+test_course_deletion.py, test_billing.py, test_upload_material.py,
+test_course_notes.py).
 
 These tests run against your REAL database, exactly like the existing
 test_chat_route.py/test_search_cache.py suite (see README.md "Run the
@@ -19,6 +20,7 @@ from backend.database.models import (
     Conversation,
     Course,
     CourseMaterial,
+    CourseNote,
     CoursePurchase,
     Recording,
     User,
@@ -108,6 +110,16 @@ def cleanup_test_data(db, emails: list[str]) -> None:
         .all()
     )
     course_ids = [c.id for c in courses]
+
+    # CourseNote can reference a course these users don't own at all (e.g. a
+    # student notes on the official FINKI catalog, or on someone else's
+    # Marketplace course), so it's cleaned up by uploader as well as by
+    # course_ids - not just by course_ids like CoursePurchase/CourseMaterial/
+    # Recording below, which only ever attach to a course these users
+    # submitted or reviewed.
+    db.query(CourseNote).filter(
+        or_(CourseNote.course_id.in_(course_ids), CourseNote.uploaded_by_id.in_(user_ids))
+    ).delete(synchronize_session=False)
 
     if course_ids:
         db.query(CoursePurchase).filter(CoursePurchase.course_id.in_(course_ids)).delete(synchronize_session=False)
