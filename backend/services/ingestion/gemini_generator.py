@@ -178,22 +178,49 @@ QUIZ_JSON_SCHEMA = {
 }
 
 
-def build_quiz_prompt(lesson_title: str, documentation_text: str) -> str:
+# Per-difficulty instructions, appended to the shared quiz prompt below.
+# "medium" preserves the original wording verbatim (existing quizzes were
+# all generated with this tier - keep it unchanged so regenerating a Medium
+# quiz later produces the same style of output as what is already stored).
+_QUIZ_DIFFICULTY_INSTRUCTIONS = {
+    "medium": (
+        "- Прашањата смеат да проверуваат само содржина што буквално се\n"
+        "  наоѓа во документацијата подолу - НЕ надворешно знаење.\n"
+        "- Понудените погрешни одговори треба да бидат веродостојни\n"
+        "  (плаузибилни), не очигледно апсурдни."
+    ),
+    "hard": (
+        "- Прашањата треба да бараат примена/анализа на концептите (не само\n"
+        "  препознавање факт), на пр. споредба на два поима од документацијата,\n"
+        "  препознавање на концепт во нов пример/сценарио, или поврзување на\n"
+        "  повеќе делови од текстот - но одговорот сепак мора да може да се\n"
+        "  изведе строго од документацијата подолу, не од надворешно знаење.\n"
+        "- Погрешните опции треба да бидат суптилно погрешни (на пр. близок,\n"
+        "  но не идентичен поим од истата документација), не очигледно апсурдни."
+    ),
+}
+
+
+def build_quiz_prompt(lesson_title: str, documentation_text: str, difficulty: str = "medium") -> str:
     """
     Го гради промптот за генерирање квиз, базиран на ВЕЌЕ генерираната
     документација (не директно на изворниот текст) - за да остане
     квизот усогласен со она што студентот го читал.
+
+    `difficulty` е "medium" (стандардно, исто како и досега) или "hard"
+    (потешки, аналитички прашања - see _QUIZ_DIFFICULTY_INSTRUCTIONS).
     """
+    if difficulty not in _QUIZ_DIFFICULTY_INSTRUCTIONS:
+        raise ValueError(f"Unknown quiz difficulty: {difficulty!r}")
+    difficulty_rules = _QUIZ_DIFFICULTY_INSTRUCTIONS[difficulty]
+
     return dedent(f"""
         Врз основа на следната учебна документација за темата
         "{lesson_title}", генерирај краток квиз за проверка на разбирање.
 
         ПРАВИЛА:
         - Помеѓу 4 и 6 прашања со по 4 понудени одговори (само еден точен).
-        - Прашањата смеат да проверуваат само содржина што буквално се
-          наоѓа во документацијата подолу - НЕ надворешно знаење.
-        - Понудените погрешни одговори треба да бидат веродостојни
-          (плаузибилни), не очигледно апсурдни.
+        {difficulty_rules}
         - За секое прашање додај кратко објаснување (1-2 реченици) зошто
           точниот одговор е точен, повикувајќи се на документацијата.
         - Прашањата и одговорите се на македонски јазик.
@@ -242,14 +269,17 @@ def generate_documentation(
     return (response.text or "").strip()
 
 
-def generate_quiz(lesson_title: str, documentation_text: str) -> dict:
+def generate_quiz(lesson_title: str, documentation_text: str, difficulty: str = "medium") -> dict:
     """Generates the quiz (step 2 of the pipeline), based on the already-generated
     documentation, constrained to QUIZ_JSON_SCHEMA. Returns the parsed dict
     ({"questions": [...]}.  Raises RuntimeError if GEMINI_API_KEY is unset,
     google.genai.errors.APIError on an API failure, or json.JSONDecodeError if
-    the model somehow returns invalid JSON despite the schema constraint."""
+    the model somehow returns invalid JSON despite the schema constraint.
+
+    `difficulty`: "medium" (default, original behaviour) or "hard" - see
+    build_quiz_prompt/_QUIZ_DIFFICULTY_INSTRUCTIONS."""
     client = _get_client()
-    prompt = build_quiz_prompt(lesson_title=lesson_title, documentation_text=documentation_text)
+    prompt = build_quiz_prompt(lesson_title=lesson_title, documentation_text=documentation_text, difficulty=difficulty)
     try:
         response = client.models.generate_content(
             model=GEMINI_MODEL,

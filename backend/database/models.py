@@ -266,8 +266,13 @@ class Lesson(Base):
     topic_title: Mapped[str] = mapped_column(Text, nullable=False)
     documentation: Mapped[str | None] = mapped_column(Text, nullable=True)
     quiz: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # Second, independent difficulty tier - see migration f7a2c9d14e6b. `quiz`
+    # above is the original/default tier (displayed as "Medium"); this one is
+    # generated separately, on demand, only when a student asks for Hard.
+    quiz_hard: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     documentation_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     quiz_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    quiz_hard_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False

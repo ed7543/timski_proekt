@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getLesson, generateLessonQuiz } from '../../api/courses';
-import type { LessonOut, LessonDetailOut, QuizQuestionOut } from '../../types/course';
+import type { LessonOut, LessonDetailOut, QuizQuestionOut, QuizDifficulty } from '../../types/course';
 import { ApiError } from '../../api/client';
 import { BackArrowIcon } from '../icons';
 import { ModalShell } from '../modals/ModalShell';
@@ -126,6 +126,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
   const [generating, setGenerating] = useState(false);
   const [quizError, setQuizError] = useState<string | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [difficulty, setDifficulty] = useState<QuizDifficulty>('medium');
   const autoOpenHandled = useRef(false);
 
   useEffect(() => {
@@ -135,6 +136,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
     setDetail(null);
     setQuizError(null);
     setShowQuiz(false);
+    setDifficulty('medium');
     autoOpenHandled.current = false;
     getLesson(courseId, lesson.id)
       .then((d) => {
@@ -183,16 +185,21 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
     [detail?.documentation, lesson.topic_title],
   );
 
+  // The quiz currently selected via the Medium/Hard toggle below - each
+  // tier lives in its own column (quiz / quiz_hard) and is generated
+  // independently, so switching tabs never wipes the other one out.
+  const currentQuiz = difficulty === 'hard' ? detail?.quiz_hard : detail?.quiz;
+
   const handleGenerateQuiz = () => {
-    if (detail?.quiz) {
-      // Quiz already exists (just hidden after a previous "Done") - show it again
-      // without wasting another Gemini call.
+    if (currentQuiz) {
+      // Quiz already exists for this tier (just hidden after a previous
+      // "Done") - show it again without wasting another Gemini call.
       setShowQuiz(true);
       return;
     }
     setGenerating(true);
     setQuizError(null);
-    generateLessonQuiz(courseId, lesson.id)
+    generateLessonQuiz(courseId, lesson.id, difficulty)
       .then((d) => {
         setDetail(d);
         setShowQuiz(true);
@@ -206,7 +213,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
   const handleRegenerateQuiz = () => {
     setGenerating(true);
     setQuizError(null);
-    generateLessonQuiz(courseId, lesson.id)
+    generateLessonQuiz(courseId, lesson.id, difficulty)
       .then((d) => {
         setDetail(d);
         setShowQuiz(true);
@@ -241,10 +248,10 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
             <div className="empty">No documentation has been generated for this lesson yet.</div>
           )}
 
-          {showQuiz && detail.quiz && detail.quiz.questions?.length > 0 && (
+          {showQuiz && currentQuiz && currentQuiz.questions?.length > 0 && (
             <LessonQuizModal
-              lessonTitle={lesson.topic_title}
-              questions={detail.quiz.questions}
+              lessonTitle={`${lesson.topic_title} (${difficulty === 'hard' ? 'Hard' : 'Medium'})`}
+              questions={currentQuiz.questions}
               onClose={() => setShowQuiz(false)}
               onFinish={handleQuizFinish}
             />
@@ -254,15 +261,39 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
 
           {!showQuiz && (
             <div className="lesson-quiz-actions">
+              {detail.documentation && (
+                <div className="quiz-difficulty-pill" role="tablist" aria-label="Quiz difficulty">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={difficulty === 'medium'}
+                    className={`quiz-difficulty-seg${difficulty === 'medium' ? ' active' : ''}`}
+                    disabled={generating}
+                    onClick={() => setDifficulty('medium')}
+                  >
+                    Medium{detail.quiz ? ' ✓' : ''}
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={difficulty === 'hard'}
+                    className={`quiz-difficulty-seg${difficulty === 'hard' ? ' active' : ''}`}
+                    disabled={generating}
+                    onClick={() => setDifficulty('hard')}
+                  >
+                    Hard{detail.quiz_hard ? ' ✓' : ''}
+                  </button>
+                </div>
+              )}
               <button
                 type="button"
                 className="modal-close"
                 disabled={!detail.documentation || generating}
                 onClick={handleGenerateQuiz}
               >
-                {generating ? 'Generating…' : detail.quiz ? 'Show Quiz' : 'Generate Quiz'}
+                {generating ? 'Generating…' : currentQuiz ? 'Show Quiz' : 'Generate Quiz'}
               </button>
-              {detail.quiz && (
+              {currentQuiz && (
                 <button
                   type="button"
                   className="modal-close ghost"

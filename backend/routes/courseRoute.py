@@ -113,8 +113,10 @@ def _lesson_detail_out(lesson: Lesson) -> LessonDetailOut:
         topic_title=lesson.topic_title,
         has_documentation=bool(lesson.documentation),
         has_quiz=bool(lesson.quiz),
+        has_quiz_hard=bool(lesson.quiz_hard),
         documentation=lesson.documentation,
         quiz=lesson.quiz,
+        quiz_hard=lesson.quiz_hard,
     )
 
 
@@ -381,6 +383,7 @@ async def list_course_lessons(course_id: int, db: Session = Depends(get_db)):
             topic_title=l.topic_title,
             has_documentation=bool(l.documentation),
             has_quiz=bool(l.quiz),
+            has_quiz_hard=bool(l.quiz_hard),
         )
         for l in lessons
     ]
@@ -401,6 +404,7 @@ async def generate_lesson_quiz(
     request: Request,
     course_id: int,
     lesson_id: int,
+    difficulty: str = Query("medium", description="'medium' or 'hard' - which quiz tier to (re)generate"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -412,7 +416,16 @@ async def generate_lesson_quiz(
     anonymously. Also rate-limited (5/minute per IP, same as the auth
     endpoints) since it's a real cost per call, not just an abuse-prevention
     measure. 400s if the lesson has no documentation yet (nothing to base
-    a quiz on)."""
+    a quiz on).
+
+    `difficulty="medium"` (default) writes to the original `quiz` column -
+    same behaviour as before this parameter existed, so a bulk-generated
+    Medium quiz (from the offline ingestion pipeline) is never touched by
+    this unless a student explicitly regenerates it. `difficulty="hard"`
+    writes to the separate `quiz_hard` column instead, leaving `quiz`
+    untouched - the two tiers are independent, one Gemini call each."""
+    if difficulty not in ("medium", "hard"):
+        raise HTTPException(status_code=400, detail="difficulty must be 'medium' or 'hard'")
     _get_course_or_404(db, course_id)
     lesson = _get_lesson_or_404(db, course_id, lesson_id)
     if not lesson.documentation:
@@ -421,7 +434,7 @@ async def generate_lesson_quiz(
             detail="This lesson doesn't have generated documentation yet - a quiz can't be generated.",
         )
     try:
-        quiz = gemini_generator.generate_quiz(lesson.topic_title, lesson.documentation)
+        quiz = gemini_generator.generate_quiz(lesson.topic_title, lesson.documentation, difficulty=difficulty)
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     except genai_errors.APIError:
@@ -434,8 +447,12 @@ async def generate_lesson_quiz(
             status_code=502,
             detail="Quiz generation returned an unexpected response - please try again.",
         )
-    lesson.quiz = quiz
-    lesson.quiz_generated_at = utcnow()
+    if difficulty == "hard":
+        lesson.quiz_hard = quiz
+        lesson.quiz_hard_generated_at = utcnow()
+    else:
+        lesson.quiz = quiz
+        lesson.quiz_generated_at = utcnow()
     db.commit()
     db.refresh(lesson)
     return _lesson_detail_out(lesson)
