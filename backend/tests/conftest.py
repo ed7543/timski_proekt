@@ -27,18 +27,36 @@ from backend.database.models import (
 from backend.middleware.rate_limit import limiter
 
 
-@pytest.fixture(autouse=True, scope="session")
-def _disable_register_rate_limit():
+_RATE_LIMIT_DISABLED_MODULES = {
+    "backend.tests.test_admin_approval",
+    "backend.tests.test_billing",
+    "backend.tests.test_course_deletion",
+    "backend.tests.test_course_submission",
+    "backend.tests.test_marketplace_pricing",
+    "backend.tests.test_upload_material",
+}
+
+
+@pytest.fixture(autouse=True)
+def _disable_register_rate_limit(request):
     """This suite deliberately registers far more than 5 accounts/minute -
     every test uses its own uniquely-emailed users for isolation (see
     unique_email() below), which is the opposite of what the real 5/minute
     limiter on POST /api/auth/register (middleware/rate_limit.py) expects
     from one caller. Without this, tests fail with 429s that have nothing to
     do with the feature being tested. The rate limiter itself isn't what
-    these tests are about, so it's turned off for the run and restored after."""
-    limiter.enabled = False
-    yield
-    limiter.enabled = True
+    these tests are about, so it's turned off for their duration and
+    restored after.
+
+    Scoped to just the modules that need it (rather than session-wide) so it
+    doesn't mask test_lesson_quiz_rate_limit.py, which specifically tests
+    that the limiter is enforced."""
+    if request.module.__name__ in _RATE_LIMIT_DISABLED_MODULES:
+        limiter.enabled = False
+        yield
+        limiter.enabled = True
+    else:
+        yield
 
 
 def unique_email(prefix: str) -> str:
