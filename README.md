@@ -66,7 +66,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ```bash
 alembic upgrade head
 ```
-This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `conversation_members`, `conversation_invites`, `cached_searches`, `courses`, `course_materials`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `conversation_members`, `conversation_invites`, `cached_searches`, `courses`, `course_materials`, `course_notes`, `recordings`, `course_purchases`, `quiz_attempts`, `lessons`, `course_sources`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
 
 ### 3b. Create an admin account
 There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it with the `make_admin` script:
@@ -148,10 +148,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── session.py           # SQLAlchemy engine, SessionLocal, get_db dependency
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
     │                            #   ConversationMember, ConversationInvite, CachedSearch, Course,
-    │                            #   CourseMaterial, Recording, CoursePurchase, Lesson, CourseSource,
-    │                            #   QuizAttempt
-    │                            #   CachedSearch, Course, CourseMaterial, CourseNote, Recording,
-    │                            #   CoursePurchase, Lesson, CourseSource, QuizAttempt
+    │                            #   CourseMaterial, CourseNote, Recording, CoursePurchase, Lesson,
+    │                            #   CourseSource, QuizAttempt
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -167,7 +165,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
     │   ├── conversationRequest.py # Conversation create/update/list/detail + member/invite schemas
-    │   ├── courseResponse.py    # Course/CourseMaterial/Recording/Lesson/AdminCourseOut response schemas
+    │   ├── courseResponse.py    # Course/CourseMaterial/CourseNote/Recording/Lesson/AdminCourseOut response schemas
     │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
     │   ├── courseNoteRequest.py  # Community study-note create schema
     │   ├── quizProgressRequest.py # Quiz attempt create/update schemas
@@ -189,6 +187,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     ├── services/                # Business logic layer
     │   ├── search_cache.py      # Cache lookup/write in front of Tavily (exact + pg_trgm fuzzy match)
     │   ├── chat_service.py      # Conversation resolve/save helpers used by chatRoute.py
+    │   ├── chat_state.py        # In-memory, self-expiring "is a reply generating for this conversation" flag (group chat)
     │   ├── course_context.py    # Formats a Course into a context block for the AI prompt
     │   └── ingestion/           # Standalone scrapers/loaders - never triggered by live API traffic
     │       ├── finki_hub_client.py  # Polite httpx wrapper (UA, rate limit, robots.txt check)
@@ -207,6 +206,9 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │       ├── gemini_generator.py  # Generates lesson documentation + quiz via Gemini
     │       ├── lesson_upsert.py     # Manual find-then-update-or-insert for Lesson/CourseSource
     │       └── seed_lessons.py      # Orchestrates the whole pipeline per course, writes a run report
+    │
+    ├── scripts/                 # One-off admin CLI scripts, not imported by the running app
+    │   └── make_admin.py         # `python -m backend.scripts.make_admin <email> [--demote]` - promote/demote a user to admin
     │
     ├── static/                  # Legacy static files, no longer served by main.py (kept for reference)
     │   ├── index.html           # Alternative/older UI
@@ -229,6 +231,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_course_submission.py  # Submission gating, pending/rejected visibility, /mine, has_submitted_courses
         ├── test_course_notes.py       # Community notes: no premium gate, never locked, pending-course visibility, delete permissions
         ├── test_admin_approval.py     # Admin approve/reject state machine + permission gating
+        ├── test_make_admin_script.py  # make_admin.py's promote/demote role-switching logic
         ├── test_marketplace_pricing.py # source/price_filter listing, priced-course locking rules
         ├── test_course_deletion.py    # Owner/admin delete permissions, official-catalog guard
         ├── test_billing.py            # Stripe checkout/cancel/webhook (Stripe SDK mocked, no real keys needed)
@@ -378,6 +381,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Frontend | Complete — React + TypeScript SPA (`frontend/`), replaces the old static HTML |
 | User Authentication | Complete (register, login, logout, JWT, email verify, password reset — see caveats above) |
 | Chat History | Complete (conversations saved to DB, list/search/rename/delete/export, sidebar wired up) |
+| Group chat | Complete — up to 3 members per conversation, shareable invite links, polling-based sync (see "Group chat" under API Endpoints) |
 | Quiz Generator | Complete (auth required, optional `course_id` context) |
 | Summary Service | Complete (auth required, optional `course_id` context) |
 | Explore Feature | Complete (auth required, cache-backed, optional `course_id` context) |
@@ -394,6 +398,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Billing (Stripe) | Complete, test-mode only — submission subscription + per-course one-time purchase |
 | Progress frontend page | Complete — real UI, quiz attempts tracked and low-scoring subjects recommended for revisiting |
 | Lesson content (AI-generated docs + quizzes) | Complete — pipeline + UI built; needs a `GEMINI_API_KEY` to actually generate anything (see "Lesson Content" above) |
+| Community study notes | Complete — any logged-in user can attach a note to any course, no subscription needed, never locked even on a priced course |
 
 ### Notes for the team
 
