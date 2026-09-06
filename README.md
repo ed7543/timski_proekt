@@ -67,11 +67,12 @@ alembic upgrade head
 This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `cached_searches`, `courses`, `course_materials`, `recordings`, `course_purchases`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
 
 ### 3b. Create an admin account
-There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it directly in the database:
-```sql
-UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
+There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it with the `make_admin` script:
+```bash
+python -m backend.scripts.make_admin your@email.com
+# python -m backend.scripts.make_admin your@email.com --demote   # to undo
 ```
-Needed to reach the Admin panel and approve/reject Marketplace course submissions.
+Needed to reach the Admin panel and approve/reject Marketplace course submissions. Everyone should have their own admin account (promoted this way) rather than sharing one login — keeps admin actions attributable to a real person.
 
 ### 4. Run the backend
 ```bash
