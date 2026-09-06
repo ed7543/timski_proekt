@@ -4,6 +4,8 @@ same kind of guard test_ai_chat.py already has for chat.py's SYSTEM_PROMPT
 states the constraint explicitly: "Neither prompt is allowed to produce
 citations/references the model invents itself."
 """
+import pytest
+
 from backend.services.ingestion.gemini_generator import build_documentation_prompt, build_quiz_prompt
 
 
@@ -35,3 +37,24 @@ def test_quiz_prompt_forbids_knowledge_outside_the_documentation():
     prompt = build_quiz_prompt(lesson_title="Циклуси", documentation_text="DOC-MARKER")
     assert "НЕ надворешно знаење" in prompt
     assert "DOC-MARKER" in prompt
+
+
+
+def test_quiz_prompt_medium_is_the_unchanged_default():
+    # difficulty defaults to "medium" - every quiz already sitting in the
+    # database (generated before the Hard tier existed) was written with
+    # this exact wording, so the default must keep producing it unchanged.
+    prompt = build_quiz_prompt(lesson_title="Циклуси", documentation_text="DOC-MARKER")
+    assert "DOC-MARKER" in prompt
+    assert "НЕ надворешно знаење" in prompt
+
+
+def test_quiz_prompt_hard_asks_for_application_not_just_recall():
+    prompt = build_quiz_prompt(lesson_title="Циклуси", documentation_text="DOC-MARKER", difficulty="hard")
+    assert "DOC-MARKER" in prompt
+    assert "примена" in prompt.lower()
+
+
+def test_quiz_prompt_rejects_unknown_difficulty():
+    with pytest.raises(ValueError):
+        build_quiz_prompt(lesson_title="Циклуси", documentation_text="DOC-MARKER", difficulty="impossible")
