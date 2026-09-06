@@ -343,6 +343,8 @@ A separate, deeper layer on top of Course Data: instead of just metadata + lectu
 6. `gemini_generator.py` generates the documentation from that excerpt *only* (explicit prompt rule against adding outside knowledge — the same lesson learned the hard way with course materials, see above), then the quiz from the documentation.
 7. `lesson_upsert.py` writes it all to the `lessons`/`course_sources` tables (migration `bc6e93a07557`), resumable by default — a lesson that already has documentation is skipped unless `--force-regenerate` is passed, so a crashed batch just picks up where it left off without re-spending API calls.
 
+**Quiz difficulty (Medium/Hard)**: each lesson can hold two independent, on-demand-generated quizzes — the original `quiz` column (Medium, `POST /{lesson_id}/quiz?difficulty=medium`, the default) and a separate `quiz_hard` column (migration `f7a2c9d14e6b`), generated only when a student explicitly asks for it via the Hard tab in `LessonDetail.tsx`. Regenerating one tier never touches the other. Hard uses the same Gemini pipeline (`gemini_generator.py`'s `build_quiz_prompt(..., difficulty="hard")`) but asks for application/analysis questions instead of fact recall.
+
 **To run it**, you need a `GEMINI_API_KEY` in `.env` (get one free at https://aistudio.google.com/apikey) — `courses_db.json` ships in the repo, so `--courses-db-path` can just point at it:
 ```bash
 python -m backend.services.ingestion.cli --source lessons \
@@ -444,7 +446,7 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 ### Lessons (`/api/courses/{course_id}/lessons`)
 - `GET /` - list a course's lessons (topic title + whether documentation/a quiz already exist) - public, no auth
 - `GET /{lesson_id}` - full lesson content (documentation + quiz, if generated) - public, no auth
-- `POST /{lesson_id}/quiz` - **requires auth, rate-limited to 5/minute per IP** - generates (or regenerates) the quiz for a lesson on demand via a real, billed Gemini call. 400s if the lesson has no documentation yet.
+- `POST /{lesson_id}/quiz?difficulty=medium|hard` - **requires auth, rate-limited to 5/minute per IP** - generates (or regenerates) the quiz for a lesson on demand via a real, billed Gemini call. `difficulty` defaults to `medium` (the original `quiz` column); `hard` writes to the separate `quiz_hard` column instead, leaving `medium` untouched. 400s if the lesson has no documentation yet, or if `difficulty` isn't `medium`/`hard`.
 
 ### Quiz Progress (`/api/quiz-progress`) - all require auth
 - `GET /` - list the current user's quiz attempts, most recently updated first

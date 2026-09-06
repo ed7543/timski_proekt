@@ -53,10 +53,15 @@ export function getLesson(courseId: number, lessonId: number): Promise<LessonDet
   return apiFetch<LessonDetailOut>(`/api/courses/${courseId}/lessons/${lessonId}`);
 }
 
-export function generateLessonQuiz(courseId: number, lessonId: number): Promise<LessonDetailOut> {
-  return apiFetch<LessonDetailOut>(`/api/courses/${courseId}/lessons/${lessonId}/quiz`, {
-    method: 'POST',
-  });
+export function generateLessonQuiz(
+  courseId: number,
+  lessonId: number,
+  difficulty: 'medium' | 'hard' = 'medium',
+): Promise<LessonDetailOut> {
+  return apiFetch<LessonDetailOut>(
+    `/api/courses/${courseId}/lessons/${lessonId}/quiz?difficulty=${difficulty}`,
+    { method: 'POST' },
+  );
 }
 
 /** Any premium (paid-subscription) user, of any role: propose a new course

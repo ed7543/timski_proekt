@@ -1742,8 +1742,48 @@ select {
   margin-top: 28px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   justify-content: flex-start;
+  flex-wrap: wrap;
+}
+/* Segmented pill for the quiz difficulty toggle - deliberately grouped right
+   next to the Generate/Show Quiz button (same row, same height) so the two
+   controls read as one connected action instead of two floating pieces. */
+.quiz-difficulty-pill {
+  display: inline-flex;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #dcd8cf;
+}
+.quiz-difficulty-seg {
+  padding: 0 20px;
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.quiz-difficulty-seg:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+.quiz-difficulty-seg:hover:not(.active) {
+  background: #cfcbc0;
+}
+.quiz-difficulty-seg.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+.lesson-quiz-actions .modal-close {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
 }
 .quiz-footer {
   display: flex;

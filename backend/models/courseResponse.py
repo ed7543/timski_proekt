@@ -98,6 +98,7 @@ class LessonOut(BaseModel):
     topic_title: str
     has_documentation: bool
     has_quiz: bool
+    has_quiz_hard: bool = False
 
 
 class LessonDetailOut(LessonOut):
@@ -106,3 +107,4 @@ class LessonDetailOut(LessonOut):
 
     documentation: Optional[str] = None
     quiz: Optional[dict] = None
+    quiz_hard: Optional[dict] = None

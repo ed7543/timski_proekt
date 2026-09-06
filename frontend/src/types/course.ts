@@ -41,7 +41,10 @@ export interface LessonOut {
   topic_title: string;
   has_documentation: boolean;
   has_quiz: boolean;
+  has_quiz_hard: boolean;
 }
+
+export type QuizDifficulty = 'medium' | 'hard';
 
 export interface QuizQuestionOut {
   question: string;
@@ -57,6 +60,7 @@ export interface LessonQuizOut {
 export interface LessonDetailOut extends LessonOut {
   documentation: string | null;
   quiz: LessonQuizOut | null;
+  quiz_hard: LessonQuizOut | null;
 }
 
 export interface MaterialLinkIn {
