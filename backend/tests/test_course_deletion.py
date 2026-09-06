@@ -3,6 +3,7 @@ official-catalog guard (submitted_by_id is null - never deletable here, by
 anyone), and that the old admin-only DELETE /api/admin/courses/{id} route
 (moved to courseRoute.py this feature) is genuinely gone, not just aliased.
 Runs against your real database - see README.md "Run the tests"."""
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.database.models import Course, CourseMaterial
@@ -11,6 +12,7 @@ from backend.main import app
 from backend.tests.conftest import auth_headers, cleanup_test_data, register_and_login, unique_email
 
 client = TestClient(app)
+pytestmark = pytest.mark.bulk_register
 
 
 def _submit(token, name="Курс за бришење", price=0):

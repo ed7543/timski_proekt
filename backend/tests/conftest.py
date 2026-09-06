@@ -27,18 +27,29 @@ from backend.database.models import (
 from backend.middleware.rate_limit import limiter
 
 
-@pytest.fixture(autouse=True, scope="session")
-def _disable_register_rate_limit():
-    """This suite deliberately registers far more than 5 accounts/minute -
-    every test uses its own uniquely-emailed users for isolation (see
-    unique_email() below), which is the opposite of what the real 5/minute
-    limiter on POST /api/auth/register (middleware/rate_limit.py) expects
-    from one caller. Without this, tests fail with 429s that have nothing to
-    do with the feature being tested. The rate limiter itself isn't what
-    these tests are about, so it's turned off for the run and restored after."""
-    limiter.enabled = False
-    yield
-    limiter.enabled = True
+@pytest.fixture(autouse=True)
+def _disable_register_rate_limit(request):
+    """Tests that register far more than 5 accounts/minute - every test uses
+    its own uniquely-emailed users for isolation (see unique_email() below),
+    which is the opposite of what the real 5/minute limiter on
+    POST /api/auth/register (middleware/rate_limit.py) expects from one
+    caller - mark their module with `pytestmark = pytest.mark.bulk_register`
+    (see test_admin_approval.py etc. for an example). Without that marker,
+    such tests fail with 429s that have nothing to do with the feature being
+    tested. The rate limiter itself isn't what these tests are about, so
+    it's turned off for their duration and restored after.
+
+    Scoped to just marked modules (rather than session-wide) so it doesn't
+    mask test_lesson_quiz_rate_limit.py, which specifically tests that the
+    limiter is enforced. Uses a marker rather than a hardcoded module-name
+    list so a new bulk-registering test file only needs one line added to
+    itself, not a separate edit here."""
+    if request.node.get_closest_marker("bulk_register"):
+        limiter.enabled = False
+        yield
+        limiter.enabled = True
+    else:
+        yield
 
 
 def unique_email(prefix: str) -> str:

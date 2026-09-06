@@ -8,3 +8,4 @@ __pycache__/
 
 # Ingestion pipeline source-text cache (local scratch, not shared/versioned)
 .lesson_source_cache/
+lesson_seed_report_*.md

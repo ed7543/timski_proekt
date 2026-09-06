@@ -213,7 +213,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   └── search.py            # Tavily API - search, query building
     │
     └── tests/                   # Unit & integration tests
-        ├── conftest.py            # Shared helpers (register_and_login, cleanup_test_data) + disables the register rate limit for the run
+        ├── conftest.py            # Shared helpers (register_and_login, cleanup_test_data) + disables the register rate limit for tests marked @pytest.mark.bulk_register
         ├── test_search_cache.py   # Cache normalize/match/hit tests (needs a real Postgres w/ pg_trgm)
         ├── test_course_context.py # format_course_context() + _get_course_context() coverage
         ├── test_ai_chat.py        # Prompt construction, course_context threading, model/prompt regression guards
