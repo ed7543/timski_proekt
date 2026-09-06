@@ -21,6 +21,7 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **File uploads** — course material files (PDFs, slides, videos) upload to Supabase Storage and get a public URL, open to any logged-in user (no subscription required)
 -  **Community study notes** — any logged-in user can attach a study note (file or link) to any course; always free to view, even on a priced course - a separate, non-premium alternative to submitting a whole course
 -  **Quiz progress & recommendations** — every quiz attempt is tracked per user; low-scoring subjects are surfaced back as "worth another look" recommendations
+-  **News & Recommendations (Blog)** — a curated feed of FINKI announcements, job postings, and hand-picked articles; announcements sync automatically from the official FINKI board, and admins can add external articles by pasting a URL
 
 ## Setup
 
@@ -106,6 +107,35 @@ python -m backend.services.ingestion.cli --source all
 ```
 Pulls course/lecture-recording data from the public finki-hub.com sites into the `courses`/`course_materials`/`recordings` tables — see "Course Data" below before running this at full scale.
 
+### 7b. (Optional) Sync FINKI announcements into the Blog feed
+```bash
+source .venv/bin/activate
+python -m backend.scripts.fetch_finki_announcements
+# python -m backend.scripts.fetch_finki_announcements --dry-run   # preview without writing
+```
+Pulls new posts from the official FINKI student-announcement board (oldsite.finki.ukim.mk/mk/student-announcement)
+into the `blog_posts` table shown on the Ресурси/Blog page — the automated counterpart to an admin manually
+pasting a link. Safe to re-run any time: it only ever adds announcements whose URL isn't already imported.
+
+To run it automatically every day on Windows, use `run_finki_announcements.bat` (in the project root) with
+Task Scheduler:
+```
+schtasks /create /tn "FINKI Oglasi Sync" /tr "C:\Users\stoja\Desktop\timski_proekt\run_finki_announcements.bat" /sc daily /st 09:00
+```
+Each run's output is appended to `finki_announcements_log.txt` in the project root, since a scheduled task has
+no visible console — check that file to see what was added on each run.
+
+**On Linux (e.g. the deployment server)**, use `run_finki_announcements.sh` instead of the `.bat` file, and
+`crontab` instead of Task Scheduler:
+```bash
+chmod +x run_finki_announcements.sh
+crontab -e
+# add this line to run daily at 09:00 (adjust the path to where the project lives on that machine):
+0 9 * * * /full/path/to/timski_proekt/run_finki_announcements.sh
+```
+Same idea as the Windows version — it activates the venv, runs the sync, and appends output to
+`finki_announcements_log.txt` next to it.
+
 ### 8. Run the tests
 ```bash
 source .venv/bin/activate
@@ -129,11 +159,11 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 │
 ├── frontend/                    # React + TypeScript SPA (Vite) - see "Frontend" below
 │   └── src/
-│       ├── api/                 # apiFetch client, auth/conversations/chatTools calls
+│       ├── api/                 # apiFetch client, auth/conversations/chatTools/blog calls
 │       ├── context/             # AuthContext (user/token/status)
 │       ├── hooks/                # useChatStream (SSE), useConversations, useConversationPolling (group chat)
-│       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/etc.
-│       ├── components/          # layout/sidebar/chat/sources/modals/courses
+│       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/BlogPage/etc.
+│       ├── components/          # layout/sidebar/chat/sources/modals(AddBlogPostModal)/courses
 │       │                        #   (courses/LessonDetail.tsx - lesson documentation + quiz UI)
 │       └── types/                # TS interfaces mirroring backend/models/*.py
 │
@@ -149,7 +179,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   └── models.py            # ORM tables: User, VerificationToken, Conversation, ChatMessage,
     │                            #   ConversationMember, ConversationInvite, CachedSearch, Course,
     │                            #   CourseMaterial, CourseNote, Recording, CoursePurchase, Lesson,
-    │                            #   CourseSource, QuizAttempt
+    │                            #   CourseSource, QuizAttempt, BlogPost
     │
     ├── middleware/               # Request/response processing
     │   ├── auth.py               # get_current_user dependency (JWT auth guard)
@@ -169,7 +199,9 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
     │   ├── courseNoteRequest.py  # Community study-note create schema
     │   ├── quizProgressRequest.py # Quiz attempt create/update schemas
-    │   └── quizProgressResponse.py # Quiz attempt + recommendation response schemas
+    │   ├── quizProgressResponse.py # Quiz attempt + recommendation response schemas
+    │   ├── blogRequest.py         # Blog post create-from-URL request schema
+    │   └── blogResponse.py       # BlogPost response schema
     │
     ├── routes/                  # API endpoints (controllers)
     │   ├── health.py            # /api/health - Service health check
@@ -181,6 +213,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── billingRoute.py      # /api/billing/* - Stripe subscription + one-time course purchase
     │   ├── uploadRoute.py       # /api/courses/upload-material - Supabase Storage file uploads
     │   ├── quizProgressRoute.py # /api/quiz-progress/* - quiz attempt tracking + recommendations
+    │   ├── blogRoute.py         # /api/blog/* - News & Recommendations feed, admin article submission
     │   └── auth/                # /api/auth/* - Register, Login, Logout, Me, verify, reset
     │       └── __init__.py
     │
@@ -189,6 +222,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── chat_service.py      # Conversation resolve/save helpers used by chatRoute.py
     │   ├── chat_state.py        # In-memory, self-expiring "is a reply generating for this conversation" flag (group chat)
     │   ├── course_context.py    # Formats a Course into a context block for the AI prompt
+    │   ├── blog_fetcher.py      # Scrapes title/excerpt/image from a pasted article URL
+    │   ├── finki_announcements.py # Discovers and imports FINKI student announcements + job posts
     │   └── ingestion/           # Standalone scrapers/loaders - never triggered by live API traffic
     │       ├── finki_hub_client.py  # Polite httpx wrapper (UA, rate limit, robots.txt check)
     │       ├── predmeti_scraper.py  # Course metadata from assets.finki-hub.com/courses.json
@@ -208,7 +243,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │       └── seed_lessons.py      # Orchestrates the whole pipeline per course, writes a run report
     │
     ├── scripts/                 # One-off admin CLI scripts, not imported by the running app
-    │   └── make_admin.py         # `python -m backend.scripts.make_admin <email> [--demote]` - promote/demote a user to admin
+    │   ├── make_admin.py         # `python -m backend.scripts.make_admin <email> [--demote]` - promote/demote a user to admin
+    │   └── fetch_finki_announcements.py # `python -m backend.scripts.fetch_finki_announcements` - sync FINKI announcements + jobs into blog_posts
     │
     ├── static/                  # Legacy static files, no longer served by main.py (kept for reference)
     │   ├── index.html           # Alternative/older UI
@@ -243,7 +279,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_lesson_quiz_difficulty.py # Medium/Hard quiz tiers - independent columns, no premium needed
         ├── test_lesson_upsert.py      # Lesson/CourseSource find-then-update-or-insert logic
         ├── test_quiz_progress_route.py # /api/quiz-progress/* CRUD + recommendations
-        └── test_seed_lessons.py       # Lesson-seeding pipeline orchestration/report generation
+        ├── test_seed_lessons.py       # Lesson-seeding pipeline orchestration/report generation
+        └── test_finki_announcements.py # FINKI announcement sync: category guessing, URL discovery, import, deduplication
 ```
 
 ## Architecture Layers Explained
@@ -388,7 +425,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Database Layer | Complete (PostgreSQL + SQLAlchemy + Alembic) |
 | Search-Result Caching | Complete (`cached_searches` table, exact + pg_trgm fuzzy match) |
 | Middleware | Complete (JWT auth guard on all endpoints, CORS origin allowlist, rate limiting on auth routes) |
-| Tests | Backend: covers search cache, course context, AI prompt construction, SSE error handling, Marketplace/admin/billing/uploads (Stripe and Supabase calls mocked), lesson-content generation, and quiz progress (see "Run the tests" and the tests/ tree above). Frontend: none yet — no test framework configured |
+| Tests | Backend: covers search cache, course context, AI prompt construction, SSE error handling, Marketplace/admin/billing/uploads (Stripe and Supabase calls mocked), lesson-content generation, quiz progress, and FINKI announcement sync (see "Run the tests" and the tests/ tree above). Frontend: none yet — no test framework configured |
 | Course data / study content | Complete for 67 ingested courses (see "Course Data" above) — metadata + lecture topics + materials, no real syllabus text available from any public source |
 | Course-aware chat (frontend) | Complete — course picker in the chat masthead, threads `course_id` through every chat/study-tool call |
 | Quiz from lecture video | Not started — R&D idea only, see Roadmap |
@@ -399,6 +436,7 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Progress frontend page | Complete — real UI, quiz attempts tracked and low-scoring subjects recommended for revisiting |
 | Lesson content (AI-generated docs + quizzes) | Complete — pipeline + UI built; needs a `GEMINI_API_KEY` to actually generate anything (see "Lesson Content" above) |
 | Community study notes | Complete — any logged-in user can attach a note to any course, no subscription needed, never locked even on a priced course |
+| News & Recommendations (Blog) | Complete — FINKI announcement auto-sync, admin article submission by URL, category filtering, job postings feed |
 
 ### Notes for the team
 

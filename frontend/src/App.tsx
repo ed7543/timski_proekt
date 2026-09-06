@@ -14,6 +14,7 @@ import { CourseDetailPage } from './pages/CourseDetailPage';
 import { ProgressPage } from './pages/ProgressPage';
 import { AdminPage } from './pages/AdminPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
+import { BlogPage } from './pages/BlogPage';
 import { SubscribePage } from './pages/SubscribePage';
 import { SubmitCoursePage } from './pages/SubmitCoursePage';
 import { BillingSuccessPage } from './pages/billing/BillingSuccessPage';
@@ -51,6 +52,7 @@ function App() {
             <Route path="/billing/success" element={<BillingSuccessPage />} />
             <Route path="/billing/cancel" element={<BillingCancelPage />} />
             <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/blog" element={<BlogPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/my-courses" element={<MyCoursesPage />} />
             <Route path="/subscribe" element={<SubscribePage />} />

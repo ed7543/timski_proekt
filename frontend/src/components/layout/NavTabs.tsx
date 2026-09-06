@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ChatIcon, BookIcon, ChartIcon, GuestIcon } from '../icons';
+import { ChatIcon, BookIcon, ChartIcon, GuestIcon, GlobeIcon } from '../icons';
 
 export function NavTabs() {
   const { user } = useAuth();
@@ -21,6 +21,9 @@ export function NavTabs() {
       <nav className="nav-tabs nav-tabs-secondary">
         <NavLink to="/marketplace" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>
           <GuestIcon /> Marketplace
+        </NavLink>
+        <NavLink to="/blog" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>
+          <GlobeIcon /> News & Recommendations
         </NavLink>
         {(user?.is_premium || user?.has_submitted_courses) && (
           <NavLink to="/my-courses" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>

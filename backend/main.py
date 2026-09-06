@@ -19,6 +19,7 @@ from backend.routes import (
     adminRoute,
     billingRoute,
     uploadRoute,
+    blogRoute,
 )
 from config import ALLOWED_ORIGINS
 
@@ -48,6 +49,7 @@ app.include_router(quizProgressRoute.router)
 app.include_router(adminRoute.router)
 app.include_router(billingRoute.router)
 app.include_router(uploadRoute.router)
+app.include_router(blogRoute.router)
 
 # Production build: serve the compiled React app for anything that isn't
 # /api/*. Registered after the routers above so it never shadows them.
