@@ -121,9 +121,15 @@ export function BlogPage() {
                     )}
                   </a>
                   <div className="blog-card-body">
-                    <div className="sugg-tag">
-                      {post.category ? `${post.category} · ` : ''}
-                      {post.source_name}
+                    <div className="blog-card-meta">
+                      {post.category && <span className="sugg-tag">{post.category}</span>}
+                      <span
+                        className={`blog-source-badge ${
+                          post.source_name === 'МОН' ? 'blog-source-badge--mon' : 'blog-source-badge--finki'
+                        }`}
+                      >
+                        {post.source_name}
+                      </span>
                     </div>
                     <a href={post.source_url} target="_blank" rel="noreferrer" className="blog-card-title">
                       {post.title}

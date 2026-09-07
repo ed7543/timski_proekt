@@ -1,14 +1,21 @@
-"""Pulls new posts from two official FINKI sources into the Ресурси/Blog
+"""Pulls new posts from four official sources into the Ресурси/Blog
 feed - the automated counterpart to an admin manually pasting a link through
 "+ Додади нова статија" (see routes/blogRoute.py):
 
-1. The student-announcement board (oldsite.finki.ukim.mk/mk/student-
+1. The FINKI student-announcement board (oldsite.finki.ukim.mk/mk/student-
    announcement) - category guessed by keyword (Конкурси / Уписи / Настани /
    Пракси и работа), uncategorized items (mostly menu/navigation links, not
    real announcements) are skipped.
-2. The jobs & internships board (finki.ukim.mk/.../jobs-and-internships/) -
-   every posting there always goes into "Пракси и работа" directly, no
-   guessing needed since we already know what the source is.
+2. The FINKI jobs & internships board (finki.ukim.mk/.../jobs-and-
+   internships/) - every posting there always goes into "Пракси и работа"
+   directly, no guessing needed since we already know what the source is.
+3. The Ministry of Education and Science's own "Конкурси" board
+   (mon.gov.mk/mk-MK/konkursi-i-stipendii/konkursi-mon) - national calls,
+   filtered down to those relevant to students at a public/private faculty
+   or university (see services/mon_konkursi.is_relevant_to_students).
+4. The Ministry's "Стипендии" board (mon.gov.mk/mk-MK/konkursi-i-stipendii/
+   stipendii-mon) - national scholarships, filtered the same way as #3.
+   Both MON sources feed the same "Конкурси" category.
 
 Safe to run repeatedly or on a schedule: it only ever adds posts whose URL
 isn't already in blog_posts, never touches or duplicates existing rows.
@@ -33,6 +40,11 @@ from backend.services.finki_announcements import (
     discover_announcement_urls,
     discover_job_urls,
     guess_category,
+)
+from backend.services.mon_konkursi import (
+    discover_konkursi_urls,
+    discover_stipendii_urls,
+    is_relevant_to_students,
 )
 
 # Politeness delay between fetching each individual page - these hit real
@@ -110,6 +122,32 @@ def sync(db: Session, max_pages: int, dry_run: bool) -> int:
     added += _import_urls(
         db, new_jobs, dry_run,
         category_of=lambda meta: "Пракси и работа",
+    )
+
+    # Refresh again, since the jobs above may have just been committed.
+    known = existing_source_urls(db)
+    konkursi_urls = discover_konkursi_urls(max_pages=max_pages)
+    new_konkursi = [u for u in konkursi_urls if u not in known]
+    print(f"МОН конкурси: најдов {len(konkursi_urls)} огласи, {len(new_konkursi)} се нови.")
+    added += _import_urls(
+        db, new_konkursi, dry_run,
+        # Filter out K-12 postings (textbooks, pupil dormitories, gymnasium
+        # programs) - only postings relevant to public/private faculty or
+        # university students belong in this app's feed. See
+        # mon_konkursi.is_relevant_to_students for the keyword logic.
+        category_of=lambda meta: "Конкурси" if is_relevant_to_students(meta["title"]) else None,
+        source_name="МОН",
+    )
+
+    # Refresh again, since the MON konkursi above may have just been committed.
+    known = existing_source_urls(db)
+    stipendii_urls = discover_stipendii_urls(max_pages=max_pages)
+    new_stipendii = [u for u in stipendii_urls if u not in known]
+    print(f"МОН стипендии: најдов {len(stipendii_urls)} огласи, {len(new_stipendii)} се нови.")
+    added += _import_urls(
+        db, new_stipendii, dry_run,
+        category_of=lambda meta: "Конкурси" if is_relevant_to_students(meta["title"]) else None,
+        source_name="МОН",
     )
 
     return added

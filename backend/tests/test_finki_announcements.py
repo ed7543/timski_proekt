@@ -346,10 +346,12 @@ class TestExistingSourceUrls:
 class TestSync:
     @patch("backend.scripts.fetch_finki_announcements.FETCH_DELAY_SECONDS", 0)
     @patch("backend.scripts.fetch_finki_announcements.fetch_article_metadata")
+    @patch("backend.scripts.fetch_finki_announcements.discover_stipendii_urls")
+    @patch("backend.scripts.fetch_finki_announcements.discover_konkursi_urls")
     @patch("backend.scripts.fetch_finki_announcements.discover_job_urls")
     @patch("backend.scripts.fetch_finki_announcements.discover_announcement_urls")
-    def test_imports_from_both_sources(
-        self, mock_announcements, mock_jobs, mock_fetch_meta
+    def test_imports_from_all_sources(
+        self, mock_announcements, mock_jobs, mock_konkursi, mock_stipendii, mock_fetch_meta
     ):
         mock_announcements.return_value = [
             f"{_TEST_URL_PREFIX}sync-ann-1",
@@ -358,8 +360,17 @@ class TestSync:
         mock_jobs.return_value = [
             f"{_TEST_URL_PREFIX}sync-job-1",
         ]
+        mock_konkursi.return_value = [
+            f"{_TEST_URL_PREFIX}sync-mon-1",
+        ]
+        mock_stipendii.return_value = [
+            f"{_TEST_URL_PREFIX}sync-stip-1",
+        ]
         mock_fetch_meta.return_value = {
-            "title": "Конкурс за стипендии",
+            # Has to satisfy both guess_category (needs "конкурс") and
+            # is_relevant_to_students (needs a higher-ed keyword like
+            # "студентски дом") so all four sources actually import it.
+            "title": "Конкурс за студентски дом",
             "excerpt": "Опис",
             "image_url": None,
         }
@@ -367,25 +378,35 @@ class TestSync:
         try:
             _cleanup_test_blog_posts(db)
             added = sync(db, max_pages=1, dry_run=False)
-            # 2 announcements (both have "конкурс" in mocked title) + 1 job
-            assert added == 3
+            # 2 announcements + 1 job + 1 MON konkurs + 1 MON stipendija
+            assert added == 5
             posts = db.query(BlogPost).filter(
                 BlogPost.source_url.like(f"{_TEST_URL_PREFIX}sync-%")
             ).all()
-            assert len(posts) == 3
+            assert len(posts) == 5
             job_posts = [p for p in posts if "job" in p.source_url]
             assert len(job_posts) == 1
             assert job_posts[0].category == "Пракси и работа"
+            mon_posts = [p for p in posts if "mon" in p.source_url]
+            assert len(mon_posts) == 1
+            assert mon_posts[0].category == "Конкурси"
+            assert mon_posts[0].source_name == "МОН"
+            stip_posts = [p for p in posts if "stip" in p.source_url]
+            assert len(stip_posts) == 1
+            assert stip_posts[0].category == "Конкурси"
+            assert stip_posts[0].source_name == "МОН"
         finally:
             _cleanup_test_blog_posts(db)
             db.close()
 
     @patch("backend.scripts.fetch_finki_announcements.FETCH_DELAY_SECONDS", 0)
     @patch("backend.scripts.fetch_finki_announcements.fetch_article_metadata")
+    @patch("backend.scripts.fetch_finki_announcements.discover_stipendii_urls")
+    @patch("backend.scripts.fetch_finki_announcements.discover_konkursi_urls")
     @patch("backend.scripts.fetch_finki_announcements.discover_job_urls")
     @patch("backend.scripts.fetch_finki_announcements.discover_announcement_urls")
     def test_does_not_duplicate_existing_posts(
-        self, mock_announcements, mock_jobs, mock_fetch_meta
+        self, mock_announcements, mock_jobs, mock_konkursi, mock_stipendii, mock_fetch_meta
     ):
         mock_fetch_meta.return_value = {
             "title": "Конкурс тест",
@@ -398,6 +419,8 @@ class TestSync:
             url = f"{_TEST_URL_PREFIX}sync-dup-1"
             mock_announcements.return_value = [url]
             mock_jobs.return_value = []
+            mock_konkursi.return_value = []
+            mock_stipendii.return_value = []
 
             # First run - should add 1
             added1 = sync(db, max_pages=1, dry_run=False)

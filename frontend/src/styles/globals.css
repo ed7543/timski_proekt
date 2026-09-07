@@ -1887,6 +1887,35 @@ select {
   flex-direction: column;
   gap: 8px;
 }
+.blog-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.blog-source-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  line-height: 1.6;
+}
+.blog-source-badge--finki {
+  background: #e5f0ff;
+  color: #2258a5;
+  border-color: #c7defd;
+}
+.blog-source-badge--mon {
+  background: #fdf0d8;
+  color: #96650f;
+  border-color: #f6dfa8;
+}
 .blog-card-title {
   font-family: 'Instrument Serif', serif;
   font-style: italic;
