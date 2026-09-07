@@ -184,9 +184,6 @@ class QuizAttempt(Base):
     answered_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     correct_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    # The AI-generated questions for this attempt, cached at creation time so a
-    # later view of this attempt doesn't need to call the AI again. Populated by
-    # whatever generated the quiz (chat-based "Quiz me" or the Redo endpoint).
     questions: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(

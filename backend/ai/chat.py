@@ -148,9 +148,7 @@ CONVERSATION:
 
 
 async def generate_quiz_from_topic(topic: str, subject: Optional[str] = None):
-    """Generate a fresh multiple-choice quiz for a bare topic, with no conversation
-    to draw on. Used by the Progress page's "Redo" button, which only has the
-    original attempt's topic/subject to work from."""
+    """Generate a multiple-choice quiz for a bare topic, with no conversation."""
     quiz_prompt = f"""Generate a quiz with 5 multiple-choice questions about this topic.
 
 TOPIC: {topic}

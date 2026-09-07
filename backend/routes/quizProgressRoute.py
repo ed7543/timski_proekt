@@ -77,8 +77,6 @@ async def redo_quiz_attempt(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Generate a fresh AI quiz for the same topic/subject as an existing attempt
-    and record it as a new attempt, so the student can take another crack at it."""
     original = (
         db.query(QuizAttempt)
         .filter(QuizAttempt.id == attempt_id, QuizAttempt.user_id == current_user.id)

@@ -7,9 +7,6 @@ interface Props {
   data: QuizResponse;
   subject: string | null;
   onClose: () => void;
-  /** When the attempt already exists (e.g. the Progress page's "Redo" button
-   * already created it, cached questions included), reuse it instead of
-   * creating a new one on mount. */
   existingAttemptId?: number;
 }
 

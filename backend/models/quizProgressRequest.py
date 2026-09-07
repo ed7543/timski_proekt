@@ -14,8 +14,6 @@ class QuizAttemptCreateRequest(BaseModel):
     topic: str
     subject: Optional[str] = None
     total_questions: int = Field(ge=1)
-    # The generated quiz questions, cached alongside the attempt so it can be
-    # reopened later without asking the AI again.
     questions: Optional[list[QuizQuestionIn]] = None
 
 
