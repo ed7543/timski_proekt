@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -210,6 +212,86 @@ def test_recommendations_excludes_high_scoring_subject(auth_headers):
 
     recs = client.get("/api/quiz-progress/recommendations", headers=auth_headers).json()
     assert all(r["subject"] != "Java" for r in recs)
+
+
+def test_create_attempt_caches_questions(auth_headers):
+    questions = [
+        {"question": "What is a decorator?", "options": ["A) x", "B) y"], "answer": "A", "explanation": "because"},
+    ]
+    resp = client.post(
+        "/api/quiz-progress",
+        headers=auth_headers,
+        json={"topic": "Decorators", "subject": "Python", "total_questions": 1, "questions": questions},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["questions"] == questions
+
+
+def test_create_attempt_without_questions_returns_none(auth_headers):
+    resp = client.post(
+        "/api/quiz-progress",
+        headers=auth_headers,
+        json={"topic": "Decorators", "subject": "Python", "total_questions": 5},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["questions"] is None
+
+
+def test_redo_generates_new_attempt_without_touching_original(auth_headers):
+    create = client.post(
+        "/api/quiz-progress",
+        headers=auth_headers,
+        json={"topic": "Decorators", "subject": "Python", "total_questions": 5},
+    )
+    original = create.json()
+    client.patch(
+        f"/api/quiz-progress/{original['id']}",
+        headers=auth_headers,
+        json={"answered_count": 5, "correct_count": 5},
+    )
+
+    fresh_questions = [
+        {"question": "New question?", "options": ["A) x", "B) y"], "answer": "B", "explanation": "because"},
+    ]
+    with patch(
+        "backend.routes.quizProgressRoute.generate_quiz_from_topic",
+        return_value={"topic": "Decorators", "questions": fresh_questions},
+    ):
+        resp = client.post(f"/api/quiz-progress/{original['id']}/redo", headers=auth_headers)
+
+    assert resp.status_code == 200
+    redone = resp.json()
+    assert redone["id"] != original["id"]
+    assert redone["topic"] == "Decorators"
+    assert redone["subject"] == "Python"
+    assert redone["questions"] == fresh_questions
+    assert redone["total_questions"] == len(fresh_questions)
+    assert redone["answered_count"] == 0
+    assert redone["completed"] is False
+
+    original_unchanged = client.get("/api/quiz-progress", headers=auth_headers).json()
+    original_row = next(a for a in original_unchanged if a["id"] == original["id"])
+    assert original_row["completed"] is True
+
+
+def test_redo_rejects_other_users_attempt(auth_headers, other_auth_headers):
+    create = client.post(
+        "/api/quiz-progress",
+        headers=auth_headers,
+        json={"topic": "Decorators", "subject": "Python", "total_questions": 5},
+    )
+    attempt_id = create.json()["id"]
+
+    with patch("backend.routes.quizProgressRoute.generate_quiz_from_topic") as fake_generate:
+        resp = client.post(f"/api/quiz-progress/{attempt_id}/redo", headers=other_auth_headers)
+
+    assert resp.status_code == 404
+    fake_generate.assert_not_called()
+
+
+def test_redo_404_for_missing_attempt(auth_headers):
+    resp = client.post("/api/quiz-progress/999999/redo", headers=auth_headers)
+    assert resp.status_code == 404
 
 
 def test_recommendations_excludes_incomplete_attempts(auth_headers):

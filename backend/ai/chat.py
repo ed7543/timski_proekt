@@ -95,36 +95,9 @@ async def stream_groq_response(messages: List[Message], context: str, subject: O
                         continue
 
 
-async def generate_quiz(messages: List[Message], subject: Optional[str], course_context: Optional[str] = None):
-    """Generate a multiple-choice quiz based on the conversation."""
+async def _request_quiz_json(quiz_prompt: str) -> dict:
     if not GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not set")
-
-    # Summarise the conversation topic for the quiz prompt
-    conversation = "\n".join(
-        f"{m.role.upper()}: {m.content}" for m in messages[-10:]  # last 10 msgs
-    )
-
-    quiz_prompt = f"""Based on this tutoring conversation, generate a quiz with 5 multiple-choice questions.
-
-CONVERSATION:
-{conversation}
-
-{"The topic is: " + subject if subject else ""}
-{course_context if course_context else ""}
-
-Respond ONLY with a valid JSON object in exactly this format, no markdown, no extra text:
-{{
-  "topic": "short topic title",
-  "questions": [
-    {{
-      "question": "Question text here?",
-      "options": ["A) option", "B) option", "C) option", "D) option"],
-      "answer": "A",
-      "explanation": "Brief explanation of why this is correct."
-    }}
-  ]
-}}"""
 
     async with httpx.AsyncClient(timeout=60) as client:
         resp = await client.post(
@@ -147,7 +120,59 @@ Respond ONLY with a valid JSON object in exactly this format, no markdown, no ex
         raw = data["choices"][0]["message"]["content"]
         # Strip any accidental markdown fences
         raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-        return json.loads(raw)
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=502, detail="Quiz generation returned an unexpected response - please try again.")
+        if not isinstance(parsed, dict):
+            raise HTTPException(status_code=502, detail="Quiz generation returned an unexpected response - please try again.")
+        return parsed
+
+
+_QUIZ_JSON_FORMAT = """Respond ONLY with a valid JSON object in exactly this format, no markdown, no extra text:
+{
+  "topic": "short topic title",
+  "questions": [
+    {
+      "question": "Question text here?",
+      "options": ["A) option", "B) option", "C) option", "D) option"],
+      "answer": "A",
+      "explanation": "Brief explanation of why this is correct."
+    }
+  ]
+}"""
+
+
+async def generate_quiz(messages: List[Message], subject: Optional[str], course_context: Optional[str] = None):
+    """Generate a multiple-choice quiz based on the conversation."""
+    # Summarise the conversation topic for the quiz prompt
+    conversation = "\n".join(
+        f"{m.role.upper()}: {m.content}" for m in messages[-10:]  # last 10 msgs
+    )
+
+    quiz_prompt = f"""Based on this tutoring conversation, generate a quiz with 5 multiple-choice questions.
+
+CONVERSATION:
+{conversation}
+
+{"The topic is: " + subject if subject else ""}
+{course_context if course_context else ""}
+
+{_QUIZ_JSON_FORMAT}"""
+
+    return await _request_quiz_json(quiz_prompt)
+
+
+async def generate_quiz_from_topic(topic: str, subject: Optional[str] = None):
+    """Generate a multiple-choice quiz for a bare topic, with no conversation."""
+    quiz_prompt = f"""Generate a quiz with 5 multiple-choice questions about this topic.
+
+TOPIC: {topic}
+{"The subject is: " + subject if subject else ""}
+
+{_QUIZ_JSON_FORMAT}"""
+
+    return await _request_quiz_json(quiz_prompt)
 
 async def generate_summary(messages: List[Message], subject: Optional[str], course_context: Optional[str] = None):
     """Summarize the entire conversation into a concise study recap."""

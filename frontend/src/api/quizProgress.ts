@@ -1,14 +1,26 @@
 import { apiFetch } from './client';
-import type { QuizAttemptOut, QuizRecommendationOut } from '../types/quizProgress';
+import type { QuizAttemptOut, QuizQuestionOut, QuizRecommendationOut } from '../types/quizProgress';
 
 export function createQuizAttempt(
   topic: string,
   subject: string | null,
   totalQuestions: number,
+  questions?: QuizQuestionOut[] | null,
 ): Promise<QuizAttemptOut> {
   return apiFetch<QuizAttemptOut>('/api/quiz-progress', {
     method: 'POST',
-    body: JSON.stringify({ topic, subject, total_questions: totalQuestions }),
+    body: JSON.stringify({
+      topic,
+      subject,
+      total_questions: totalQuestions,
+      questions: questions ?? null,
+    }),
+  });
+}
+
+export function redoQuizAttempt(attemptId: number): Promise<QuizAttemptOut> {
+  return apiFetch<QuizAttemptOut>(`/api/quiz-progress/${attemptId}/redo`, {
+    method: 'POST',
   });
 }
 

@@ -8,9 +8,10 @@ interface Props {
   data: QuizResponse;
   subject: string | null;
   onClose: () => void;
+  existingAttemptId?: number;
 }
 
-export function QuizModal({ data, subject, onClose }: Props) {
+export function QuizModal({ data, subject, onClose, existingAttemptId }: Props) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const attemptId = useRef<number | null>(null);
   const attemptStarted = useRef(false);
@@ -19,7 +20,12 @@ export function QuizModal({ data, subject, onClose }: Props) {
     if (attemptStarted.current) return;
     attemptStarted.current = true;
 
-    createQuizAttempt(data.topic, subject, data.questions.length)
+    if (existingAttemptId !== undefined) {
+      attemptId.current = existingAttemptId;
+      return;
+    }
+
+    createQuizAttempt(data.topic, subject, data.questions.length, data.questions)
       .then((attempt) => {
         attemptId.current = attempt.id;
       })
@@ -46,7 +52,9 @@ export function QuizModal({ data, subject, onClose }: Props) {
   return (
     <ModalShell onClose={onClose}>
       <h2>Quiz: {data.topic}</h2>
-      <div className="modal-subtitle">{total} questions · based on your conversation</div>
+      <div className="modal-subtitle">
+        {total} questions · {existingAttemptId !== undefined ? 'a fresh set to try again' : 'based on your conversation'}
+      </div>
 
       <div className="progress-track" style={{ marginTop: 12 }}>
         <div className="progress-fill" style={{ width: `${total ? (answeredCount / total) * 100 : 0}%` }} />

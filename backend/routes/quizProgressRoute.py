@@ -3,6 +3,7 @@ from collections import defaultdict
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from backend.ai.chat import generate_quiz_from_topic
 from backend.database.models import QuizAttempt, User
 from backend.database.session import get_db
 from backend.middleware.auth import get_current_user
@@ -39,6 +40,7 @@ async def create_quiz_attempt(
         topic=request.topic,
         subject=request.subject,
         total_questions=request.total_questions,
+        questions=[q.model_dump() for q in request.questions] if request.questions else None,
     )
     db.add(attempt)
     db.commit()
@@ -64,6 +66,38 @@ async def update_quiz_attempt(
     attempt.answered_count = min(request.answered_count, attempt.total_questions)
     attempt.correct_count = min(request.correct_count, attempt.answered_count)
     attempt.completed = attempt.answered_count >= attempt.total_questions
+    db.commit()
+    db.refresh(attempt)
+    return QuizAttemptOut.model_validate(attempt)
+
+
+@router.post("/{attempt_id}/redo", response_model=QuizAttemptOut)
+async def redo_quiz_attempt(
+    attempt_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    original = (
+        db.query(QuizAttempt)
+        .filter(QuizAttempt.id == attempt_id, QuizAttempt.user_id == current_user.id)
+        .first()
+    )
+    if not original:
+        raise HTTPException(status_code=404, detail="Quiz attempt not found")
+
+    quiz = await generate_quiz_from_topic(original.topic, original.subject)
+    questions = quiz.get("questions") or []
+    if not questions:
+        raise HTTPException(status_code=500, detail="Could not generate a new quiz for this topic")
+
+    attempt = QuizAttempt(
+        user_id=current_user.id,
+        topic=original.topic,
+        subject=original.subject,
+        total_questions=len(questions),
+        questions=questions,
+    )
+    db.add(attempt)
     db.commit()
     db.refresh(attempt)
     return QuizAttemptOut.model_validate(attempt)

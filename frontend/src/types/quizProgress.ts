@@ -1,3 +1,7 @@
+import type { QuizQuestion } from './chat';
+
+export type QuizQuestionOut = QuizQuestion;
+
 export interface QuizAttemptOut {
   id: number;
   topic: string;
@@ -7,6 +11,7 @@ export interface QuizAttemptOut {
   correct_count: number;
   completed: boolean;
   updated_at: string;
+  questions: QuizQuestionOut[] | null;
 }
 
 export interface QuizRecommendationOut {

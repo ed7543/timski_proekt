@@ -100,6 +100,26 @@ async def test_generate_quiz_sends_configured_model_and_course_context(monkeypat
 
 
 @pytest.mark.asyncio
+async def test_generate_quiz_from_topic_sends_bare_topic_prompt(monkeypatch):
+    captured = {}
+
+    async def fake_post(self, url, headers=None, json=None):
+        captured["json"] = json
+        return _FakeResponse(200, _groq_completion_payload(
+            '{"topic": "Recursion", "questions": []}'
+        ))
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", fake_post)
+
+    result = await ai_chat.generate_quiz_from_topic("Recursion", subject="DSA")
+
+    assert result == {"topic": "Recursion", "questions": []}
+    prompt = captured["json"]["messages"][0]["content"]
+    assert "TOPIC: Recursion" in prompt
+    assert "DSA" in prompt
+
+
+@pytest.mark.asyncio
 async def test_generate_quiz_strips_markdown_fences(monkeypatch):
     async def fake_post(self, url, headers=None, json=None):
         return _FakeResponse(200, _groq_completion_payload(
