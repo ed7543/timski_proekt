@@ -36,7 +36,7 @@ function GoPremiumCard() {
   return (
     <div className="empty" style={{ marginTop: 24, textAlign: 'left' }}>
       <p style={{ margin: 0 }}>Submitting a course requires an active subscription.</p>
-      <Link to="/subscribe" className="login-btn" style={{ marginTop: 12, display: 'inline-block' }}>
+      <Link to="/subscribe" className="btn btn-primary" style={{ marginTop: 12, display: 'inline-block' }}>
         Choose a plan
       </Link>
     </div>
@@ -117,14 +117,14 @@ function MaterialRowInput({
         />
         <button
           type="button"
-          className="modal-close ghost"
+          className="btn btn-secondary"
           style={{ flexShrink: 0 }}
           disabled={row._uploading}
           onClick={() => fileInputRef.current?.click()}
         >
           {row._uploading ? 'Uploading…' : 'Upload file'}
         </button>
-        <button type="button" className="modal-close ghost" style={{ flexShrink: 0 }} onClick={onRemove} disabled={!removable}>
+        <button type="button" className="btn btn-secondary" style={{ flexShrink: 0 }} onClick={onRemove} disabled={!removable}>
           Remove
         </button>
       </div>
@@ -239,7 +239,7 @@ export function SubmitCoursePage() {
             <div className="empty" style={{ marginTop: 24 }}>
               Submitted — it's now pending admin review.
               <div style={{ marginTop: 12 }}>
-                <button type="button" className="login-btn" onClick={() => navigate('/marketplace')}>
+                <button type="button" className="btn btn-primary" onClick={() => navigate('/marketplace')}>
                   Back to Marketplace
                 </button>
               </div>
@@ -297,12 +297,12 @@ export function SubmitCoursePage() {
                     removable={materials.length > 1}
                   />
                 ))}
-                <button type="button" className="modal-close ghost" onClick={addMaterialRow}>
+                <button type="button" className="btn btn-secondary" onClick={addMaterialRow}>
                   + Add another material
                 </button>
               </div>
 
-              <button className="auth-submit" type="submit" disabled={submitting} style={{ marginTop: 12 }}>
+              <button className="btn btn-primary btn-block" type="submit" disabled={submitting} style={{ marginTop: 12 }}>
                 {submitting ? 'Submitting…' : 'Submit for review'}
               </button>
             </form>

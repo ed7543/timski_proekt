@@ -51,7 +51,7 @@ export function BillingSuccessPage() {
             </p>
           </div>
           {isPremium && (
-            <Link to="/marketplace/submit" className="login-btn" style={{ display: 'inline-block', marginTop: 12 }}>
+            <Link to="/marketplace/submit" className="btn btn-primary" style={{ display: 'inline-block', marginTop: 12 }}>
               Submit a course
             </Link>
           )}

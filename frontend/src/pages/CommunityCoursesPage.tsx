@@ -64,7 +64,7 @@ export function CommunityCoursesPage() {
                 onChange={(e) => onSearchChange(e.target.value)}
               />
             </div>
-            <Link to="/marketplace/submit" className="login-btn" style={{ flexShrink: 0 }}>
+            <Link to="/marketplace/submit" className="btn btn-primary" style={{ flexShrink: 0 }}>
               {canSubmit ? 'Submit a course' : 'Subscribe to submit a course'}
             </Link>
           </div>

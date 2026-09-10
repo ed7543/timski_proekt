@@ -41,7 +41,7 @@ export function ExploreModal({ data, onClose }: { data: ExploreResponse; onClose
 
       <div className="modal-footer">
         <div />
-        <button className="modal-close" onClick={onClose}>
+        <button className="btn btn-primary" onClick={onClose}>
           Close
         </button>
       </div>

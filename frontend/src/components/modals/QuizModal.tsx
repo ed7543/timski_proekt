@@ -90,7 +90,7 @@ export function QuizModal({ data, subject, onClose }: Props) {
           Score: {correctCount} / {total}
           {answeredCount === total && correctCount === total ? ' 🎉' : ''}
         </div>
-        <button className="modal-close" onClick={onClose}>
+        <button className="btn btn-primary" onClick={onClose}>
           Close
         </button>
       </div>

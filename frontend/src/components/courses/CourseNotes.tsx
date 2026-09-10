@@ -194,7 +194,7 @@ export function CourseNotes({ courseId }: { courseId: number }) {
             />
             <button
               type="button"
-              className="modal-close ghost"
+              className="btn btn-secondary"
               style={{ flexShrink: 0 }}
               disabled={uploading}
               onClick={() => fileInputRef.current?.click()}
@@ -203,7 +203,7 @@ export function CourseNotes({ courseId }: { courseId: number }) {
             </button>
             <button
               type="submit"
-              className="modal-close ghost"
+              className="btn btn-primary"
               style={{ flexShrink: 0 }}
               disabled={submitting || uploading || !title.trim() || !url.trim()}
             >

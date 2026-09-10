@@ -6,7 +6,7 @@ export function StubPage({ title, description }: { title: string; description: s
       <div className="stub-page">
         <h2>{title}</h2>
         <p>{description}</p>
-        <Link to="/chat" className="login-btn" style={{ marginTop: 8, display: 'inline-block' }}>
+        <Link to="/chat" className="btn btn-primary" style={{ marginTop: 8, display: 'inline-block' }}>
           Back to chat
         </Link>
       </div>

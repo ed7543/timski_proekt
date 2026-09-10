@@ -1,7 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { GuestIcon } from '../icons';
+import { useTheme } from '../../context/ThemeContext';
+import { GuestIcon, MoonIcon, SunIcon } from '../icons';
+
+function ThemeToggleButton() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <button
+      type="button"
+      className="icon-btn theme-toggle"
+      onClick={toggleTheme}
+      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+    >
+      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+    </button>
+  );
+}
 
 export function UserFooter() {
   const { user, logout } = useAuth();
@@ -50,15 +66,18 @@ export function UserFooter() {
             </span>
           </div>
         )}
-        <button type="button" className="user-foot user-foot-trigger" onClick={() => setMenuOpen((v) => !v)}>
-          <div className="avatar">
-            <span style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic' }}>{initial}</span>
-          </div>
-          <div className="user-info">
-            <div className="user-name">{user.full_name || user.email}</div>
-            <div className="user-plan">{user.is_premium ? 'Subscribed' : 'Not subscribed'}</div>
-          </div>
-        </button>
+        <div className="user-foot">
+          <button type="button" className="user-foot-trigger" onClick={() => setMenuOpen((v) => !v)}>
+            <div className="avatar">
+              <span style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic' }}>{initial}</span>
+            </div>
+            <div className="user-info">
+              <div className="user-name">{user.full_name || user.email}</div>
+              <div className="user-plan">{user.is_premium ? 'Subscribed' : 'Not subscribed'}</div>
+            </div>
+          </button>
+          <ThemeToggleButton />
+        </div>
       </div>
     );
   }
@@ -72,7 +91,8 @@ export function UserFooter() {
         <div className="user-name">Guest</div>
         <div className="user-plan">Not signed in</div>
       </div>
-      <button className="login-btn" onClick={() => navigate('/login')}>
+      <ThemeToggleButton />
+      <button className="btn btn-primary" onClick={() => navigate('/login')}>
         Sign in
       </button>
     </div>

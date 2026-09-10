@@ -175,7 +175,7 @@ export function AdminPage() {
                   <>
                     <button
                       type="button"
-                      className="login-btn"
+                      className="btn btn-primary"
                       disabled={busyId === c.id}
                       onClick={() => handleApprove(c.id)}
                     >
@@ -191,8 +191,7 @@ export function AdminPage() {
                     />
                     <button
                       type="button"
-                      className="login-btn"
-                      style={{ background: 'var(--destructive)' }}
+                      className="btn btn-danger"
                       disabled={busyId === c.id}
                       onClick={() => handleReject(c.id)}
                     >
@@ -202,8 +201,8 @@ export function AdminPage() {
                 )}
                 <button
                   type="button"
-                  className="modal-close ghost"
-                  style={{ marginLeft: c.status === 'pending' ? 0 : 'auto', color: 'var(--destructive)' }}
+                  className="btn btn-danger"
+                  style={{ marginLeft: c.status === 'pending' ? 0 : 'auto' }}
                   disabled={busyId === c.id}
                   onClick={() => handleDelete(c.id, c.name)}
                 >

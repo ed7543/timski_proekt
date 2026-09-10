@@ -10,7 +10,11 @@ Not used by any live API request path - standalone, invoked via:
 
 Per course, one of three things happens:
   1. No source at all (status pending_source / deferred_user_will_provide_materials)
-     -> Lesson rows created with topic_title only, nothing generated, no API calls.
+     -> Lesson rows created with topic_title only, nothing generated, no API calls
+     (unless --generate-without-source is passed - see _generate_lessons_no_source
+     below - an explicit opt-in to generate from the model's general knowledge
+     instead, clearly disclaimed and tracked separately in the report and via
+     Lesson.generation_method).
   2. Source is a local file only (source.url is None - see courses_db.py's
      LOCAL_FILE_ONLY_CODES) -> course is skipped entirely for now (not even
      topic-only rows), logged clearly. Revisit once local_path support exists.
@@ -18,7 +22,9 @@ Per course, one of three things happens:
      match each lesson to its best excerpt (lesson_matching.py), and only
      call Gemini for lessons that clear the confidence threshold. Lessons
      that don't clear it get a topic-only row (documentation/quiz stay NULL)
-     - by design, per-lesson silence rather than fabricated content.
+     - by design, per-lesson silence rather than fabricated content. This
+     path can also be overridden per-course via --force-general-knowledge
+     (see seed_course() below).
 
 Every run writes a markdown report (see Report below) listing what happened
 to every single lesson it touched - matched heading + confidence for
@@ -40,6 +46,7 @@ from typing import Any, Dict, List, Optional
 from google.genai import errors as genai_errors
 from sqlalchemy.orm import Session
 
+from backend.database.models import CourseMaterial
 from backend.services.ingestion.courses_db import (
     LOCAL_FILE_ONLY_CODES,
     get_courses_by_codes,
@@ -50,10 +57,13 @@ from backend.services.ingestion.gemini_generator import (
     MAX_DOCUMENTATION_WORDS,
     documentation_word_count,
     generate_documentation,
+    generate_no_source_documentation,
     generate_quiz,
 )
 from backend.services.ingestion.lesson_matching import DEFAULT_CONFIDENCE_THRESHOLD, find_best_excerpt
 from backend.services.ingestion.lesson_upsert import (
+    GENERATION_METHOD_GENERAL_KNOWLEDGE,
+    GENERATION_METHOD_SOURCE,
     find_course_id,
     get_existing_documentation,
     replace_course_sources,
@@ -103,6 +113,7 @@ class Report:
     def __init__(self):
         self.lines: List[str] = []
         self.generated = 0
+        self.generated_no_source = 0
         self.skipped_no_match = 0
         self.skipped_already_done = 0
         self.skipped_no_source = 0
@@ -173,6 +184,21 @@ class Report:
             f"{word_count} зборови.{warn}\n"
         )
 
+    def lesson_generated_no_source(self, topic_title: str, word_count: int) -> None:
+        """Документацијата е генерирана БЕЗ вистински извор (--generate-without-source -
+        см. gemini_generator.py's "4. ДОКУМЕНТАЦИЈА БЕЗ ИЗВОР"). Одделено од
+        lesson_generated() за да извештајот јасно покаже кои лекции треба човек
+        рачно да ги провери наспроти вистински учебник."""
+        self.generated_no_source += 1
+        warn = ""
+        if word_count > MAX_DOCUMENTATION_WORDS * 1.5:
+            self.length_warnings += 1
+            warn = f" ⚠️ ПРЕДОЛГО ({word_count} зборови) - провери рачно."
+        self.lines.append(
+            f"- ⚠️ **{topic_title}** — генерирано БЕЗ извор (општо AI знаење, "
+            f"провери точност), {word_count} зборови.{warn}\n"
+        )
+
     def lesson_error(self, topic_title: str, error: str) -> None:
         self.errors += 1
         self.lines.append(f"- ❌ **{topic_title}** — грешка при генерирање: {error}\n")
@@ -182,6 +208,7 @@ class Report:
             f"# Извештај за генерирање лекции\n\n"
             f"_{utcnow().isoformat()} UTC_\n\n"
             f"- Генерирани: {self.generated}\n"
+            f"- Генерирани БЕЗ извор (општо AI знаење - провери точност): {self.generated_no_source}\n"
             f"- Прескокнати (без поклопување со извор): {self.skipped_no_match}\n"
             f"- Прескокнати (веќе генерирани порано): {self.skipped_already_done}\n"
             f"- Прескокнати (без извор воопшто): {self.skipped_no_source}\n"
@@ -193,6 +220,54 @@ class Report:
         logger.info("Report written to %s", path)
 
 
+def _generate_lessons_no_source(
+    db: Session,
+    course_id: int,
+    course_name: str,
+    lessons: List[Dict[str, Any]],
+    force_regenerate: bool,
+    generate_quiz_flag: bool,
+    report: Report,
+) -> None:
+    """Shared by both no-source paths in seed_course(): a course with no source
+    at all (--generate-without-source) and a course whose source exists but is
+    being explicitly overridden (--force-general-knowledge, e.g. because the
+    source badly under-covers the curated topic list - see seed_course()).
+    Generates every lesson from the model's general knowledge
+    (generate_no_source_documentation, which always prepends
+    NO_SOURCE_DISCLAIMER_MK itself), tags it with
+    Lesson.generation_method = GENERATION_METHOD_GENERAL_KNOWLEDGE (so it's
+    distinguishable from a source-grounded lesson at the data/API level, not
+    just via the markdown disclaimer text), and tracks each one via
+    report.lesson_generated_no_source() so it stays distinguishable in the
+    run report too."""
+    for i, lesson in enumerate(lessons, start=1):
+        topic_title = lesson["topic_title"]
+        if not force_regenerate and get_existing_documentation(db, course_id, i):
+            report.lesson_already_done(topic_title)
+            continue
+        try:
+            documentation = _call_with_retries(
+                generate_no_source_documentation,
+                course_name_mk=course_name,
+                lesson_title=topic_title,
+            )
+            quiz = None
+            if generate_quiz_flag:
+                quiz = _call_with_retries(
+                    generate_quiz, lesson_title=topic_title, documentation_text=documentation
+                )
+        except (genai_errors.APIError, RuntimeError, json.JSONDecodeError) as e:
+            report.lesson_error(topic_title, str(e))
+            continue
+        word_count = documentation_word_count(documentation)
+        upsert_lesson(
+            db, course_id, i, topic_title, documentation=documentation, quiz=quiz,
+            generation_method=GENERATION_METHOD_GENERAL_KNOWLEDGE,
+        )
+        report.lesson_generated_no_source(topic_title, word_count)
+
+
 def seed_course(
     db: Session,
     course: Dict[str, Any],
@@ -202,6 +277,8 @@ def seed_course(
     report: Report,
     generate_quiz_flag: bool = True,
     local_materials_dir: Optional[Path] = None,
+    generate_without_source: bool = False,
+    force_general_knowledge: bool = False,
 ) -> None:
     course_code = course["course_code"]
     course_name = course["course_name_mk"]
@@ -212,6 +289,44 @@ def seed_course(
         return
 
     lessons = course["lessons"]
+
+    if not lessons:
+        # Fallback for a course with no curated topic list in courses_db.json at
+        # all (doesn't happen for any of the current 67 courses as of this
+        # writing, but keeps this from silently doing nothing for a future one) -
+        # derive topic titles from this course's scraped CourseMaterial entries.
+        materials = (
+            db.query(CourseMaterial)
+            .filter(CourseMaterial.course_id == course_id)
+            .order_by(CourseMaterial.category, CourseMaterial.title)
+            .all()
+        )
+        lessons = [{"topic_title": m.title} for m in materials]
+        if not lessons:
+            report.errors += 1
+            report.lines.append(
+                f"\n## {course_code} — {course_name}\n\n"
+                f"❌ Нема ниту наслови на лекции ниту course_materials за овој предмет - прескокнато.\n"
+            )
+            return
+
+    if force_general_knowledge:
+        # --force-general-knowledge: explicit, per-run override that IGNORES
+        # whatever source this course has (even a real, "confirmed" one) and
+        # always generates from the model's general knowledge instead. For a
+        # course where has_fetchable_source(course) is True but the actual
+        # matching/coverage was poor in practice (many lessons ended up with
+        # no documentation at all, or very thin documentation, despite a
+        # legitimate source book existing) - a human judgment call, not
+        # something has_fetchable_source() can detect on its own.
+        report.course_header(
+            course_code, course_name,
+            ["(присилно - извор игнориран, генерирано од општо AI знаење)"],
+        )
+        _generate_lessons_no_source(
+            db, course_id, course_name, lessons, force_regenerate, generate_quiz_flag, report,
+        )
+        return
 
     if course_code in LOCAL_FILE_ONLY_CODES:
         # Try the user-supplied files first (course_materials/<code>/*) -
@@ -228,9 +343,18 @@ def seed_course(
         report.course_header(course_code, course_name, display_pages)
         replace_course_sources(db, course_id, source, course.get("additional_sources"))
     elif not has_fetchable_source(course):
-        report.no_source_topics_only(course_code, course_name, len(lessons))
-        for i, lesson in enumerate(lessons, start=1):
-            upsert_lesson(db, course_id, i, lesson["topic_title"])
+        if not generate_without_source:
+            report.no_source_topics_only(course_code, course_name, len(lessons))
+            for i, lesson in enumerate(lessons, start=1):
+                upsert_lesson(db, course_id, i, lesson["topic_title"])
+            return
+        # --generate-without-source: explicit opt-in only (see gemini_generator.py's
+        # "4. ДОКУМЕНТАЦИЈА БЕЗ ИЗВОР" section) - generates real documentation from
+        # the model's general knowledge instead of leaving topic-only rows.
+        report.course_header(course_code, course_name, ["(без извор - генерирано од општо AI знаење)"])
+        _generate_lessons_no_source(
+            db, course_id, course_name, lessons, force_regenerate, generate_quiz_flag, report,
+        )
         return
     else:
         source = course["source"]
@@ -307,7 +431,10 @@ def seed_course(
             continue
 
         word_count = documentation_word_count(documentation)
-        upsert_lesson(db, course_id, i, topic_title, documentation=documentation, quiz=quiz)
+        upsert_lesson(
+            db, course_id, i, topic_title, documentation=documentation, quiz=quiz,
+            generation_method=GENERATION_METHOD_SOURCE,
+        )
         report.lesson_generated(topic_title, match.confidence, match.matched_heading or "?", word_count, title_en)
 
 
@@ -320,6 +447,8 @@ def run(
     force_regenerate: bool = False,
     generate_quiz_flag: bool = True,
     local_materials_dir: Optional[Path] = None,
+    generate_without_source: bool = False,
+    force_general_knowledge: bool = False,
 ) -> Report:
     """generate_quiz_flag=False: documentation-only run, skips the quiz
     Gemini call entirely (see seed_course()) - halves API usage per generated
@@ -342,6 +471,8 @@ def run(
         seed_course(
             db, course, cache_dir, threshold, force_regenerate, report, generate_quiz_flag,
             local_materials_dir=local_materials_dir,
+            generate_without_source=generate_without_source,
+            force_general_knowledge=force_general_knowledge,
         )
     return report
 
@@ -370,6 +501,23 @@ def main() -> None:
         "--skip-quiz", action="store_true",
         help="Documentation-only pass - skip the quiz Gemini call (halves API usage/lesson)",
     )
+    parser.add_argument(
+        "--generate-without-source", action="store_true",
+        help="Explicit opt-in: for courses with NO source in courses_db.json, generate "
+             "documentation from the model's general knowledge instead of leaving "
+             "topic-only rows. Every such lesson is clearly disclaimed (see "
+             "gemini_generator.py's NO_SOURCE_DISCLAIMER_MK) and tracked separately "
+             "in the report and via Lesson.generation_method - review these before "
+             "trusting them like sourced lessons.",
+    )
+    parser.add_argument(
+        "--force-general-knowledge", action="store_true",
+        help="Explicit override: IGNORE this course's source entirely (even a real, "
+             "confirmed one) and always generate from the model's general knowledge. "
+             "For a course where the source technically exists but coverage/matching "
+             "was poor in practice (many lessons ended up empty or very thin) - a "
+             "human judgment call to make per course, not automatic.",
+    )
     parser.add_argument("--report-path", type=Path, default=None)
     args = parser.parse_args()
 
@@ -387,6 +535,8 @@ def main() -> None:
             force_regenerate=args.force_regenerate,
             generate_quiz_flag=not args.skip_quiz,
             local_materials_dir=args.local_materials_dir,
+            generate_without_source=args.generate_without_source,
+            force_general_knowledge=args.force_general_knowledge,
         )
     finally:
         db.close()

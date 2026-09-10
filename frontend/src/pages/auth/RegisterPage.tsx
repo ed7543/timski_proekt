@@ -83,7 +83,7 @@ export function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="auth-submit" type="submit" disabled={submitting}>
+        <button className="btn btn-primary btn-block" type="submit" disabled={submitting}>
           {submitting ? 'Creating account…' : 'Create account'}
         </button>
       </form>

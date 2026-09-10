@@ -71,7 +71,7 @@ function BuyCourseCard({ courseId, priceCents, justPurchased }: { courseId: numb
       </p>
       {error && <div className="auth-error" style={{ marginTop: 12 }}>{error}</div>}
       {!justPurchased && (
-        <button type="button" className="login-btn" style={{ marginTop: 12 }} disabled={starting} onClick={handleBuy}>
+        <button type="button" className="btn btn-primary" style={{ marginTop: 12 }} disabled={starting} onClick={handleBuy}>
           {starting ? 'Redirecting…' : `Buy for ${formatPrice(priceCents)}`}
         </button>
       )}

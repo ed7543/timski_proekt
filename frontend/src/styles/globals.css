@@ -7,15 +7,64 @@
 }
 :root {
   --paper: #f5f3ee;
+  --paper-rgb: 245, 243, 238;
   --cream: #e8e4dd;
+  --cream-rgb: 232, 228, 221;
   --ink: #0d0d0d;
+  --ink-rgb: 13, 13, 13;
   --ink-soft: #2a2a2a;
   --rule: #d8d3c8;
   --border: #d8d3c8;
   --muted: #6e6a62;
   --card: #fbfaf6;
+  --card-rgb: 251, 250, 246;
   --destructive: #9b2d20;
+  --destructive-rgb: 155, 45, 32;
   --emerald: #1f6b3a;
+  --emerald-rgb: 31, 107, 58;
+
+  --overlay: rgba(13, 13, 13, 0.5);
+  --shadow: rgba(0, 0, 0, 0.08);
+  --grain-rgb: 0, 0, 0;
+  --bg-subtle: rgba(0, 0, 0, 0.02);
+  --seg-bg: #dcd8cf;
+  --seg-bg-hover: #cfcbc0;
+  --composer-border: rgba(13, 13, 13, 0.8);
+
+  color-scheme: light;
+}
+
+/* Dark palette - keeps the same warm, editorial paper/ink character
+   (warm off-black background, warm off-white ink) rather than a generic
+   pure-black theme. Every token from the light block above is redefined
+   here; nothing outside :root should ever reference a literal color. */
+:root[data-theme='dark'] {
+  --paper: #17181a;
+  --paper-rgb: 23, 24, 26;
+  --cream: #202226;
+  --cream-rgb: 32, 34, 38;
+  --ink: #f2f0ea;
+  --ink-rgb: 242, 240, 234;
+  --ink-soft: #cfcdc5;
+  --rule: #34363b;
+  --border: #34363b;
+  --muted: #9a978d;
+  --card: #1e1f22;
+  --card-rgb: 30, 31, 34;
+  --destructive: #e0705c;
+  --destructive-rgb: 224, 112, 92;
+  --emerald: #4cb37f;
+  --emerald-rgb: 76, 179, 127;
+
+  --overlay: rgba(0, 0, 0, 0.65);
+  --shadow: rgba(0, 0, 0, 0.4);
+  --grain-rgb: 255, 255, 255;
+  --bg-subtle: rgba(255, 255, 255, 0.03);
+  --seg-bg: #2a2c30;
+  --seg-bg-hover: #35373c;
+  --composer-border: rgba(242, 240, 234, 0.3);
+
+  color-scheme: dark;
 }
 html,
 body,
@@ -48,8 +97,8 @@ input {
   font-family: inherit;
 }
 .paper-grain {
-  background: radial-gradient(circle at 20% 10%, rgba(0, 0, 0, 0.018) 0 1px, transparent 1.5px) 0 0/3px 3px,
-    radial-gradient(circle at 80% 60%, rgba(0, 0, 0, 0.015) 0 1px, transparent 1.5px) 1px 1px/4px 4px, var(--paper);
+  background: radial-gradient(circle at 20% 10%, rgba(var(--grain-rgb), 0.018) 0 1px, transparent 1.5px) 0 0/3px 3px,
+    radial-gradient(circle at 80% 60%, rgba(var(--grain-rgb), 0.015) 0 1px, transparent 1.5px) 1px 1px/4px 4px, var(--paper);
 }
 .app {
   display: flex;
@@ -63,7 +112,7 @@ input {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
-  background: rgba(245, 243, 238, 0.6);
+  background: rgba(var(--paper-rgb), 0.6);
 }
 .sidebar-right {
   width: 320px;
@@ -71,7 +120,7 @@ input {
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--border);
-  background: rgba(232, 228, 221, 0.4);
+  background: rgba(var(--cream-rgb), 0.4);
 }
 main {
   flex: 1;
@@ -165,7 +214,7 @@ main {
   cursor: pointer;
 }
 .thread:hover {
-  background: rgba(232, 228, 221, 0.7);
+  background: rgba(var(--cream-rgb), 0.7);
 }
 .thread.active {
   background: var(--cream);
@@ -290,15 +339,23 @@ main {
   flex-direction: column;
 }
 .user-foot-trigger {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   border: none;
   background: none;
+  border-radius: 6px;
   cursor: pointer;
   font-family: inherit;
   text-align: left;
 }
 .user-foot-trigger:hover {
   background: var(--cream);
+}
+.theme-toggle {
+  flex-shrink: 0;
 }
 .user-foot-dropdown {
   position: absolute;
@@ -309,7 +366,7 @@ main {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px var(--shadow);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -607,7 +664,7 @@ select {
   white-space: pre-wrap;
 }
 .bubble-user code {
-  background: rgba(245, 243, 238, 0.15);
+  background: rgba(var(--paper-rgb), 0.15);
   color: var(--paper);
   padding: 1px 4px;
   border-radius: 2px;
@@ -717,14 +774,14 @@ select {
   font-size: 13px;
   color: var(--destructive);
   border: 1px solid var(--destructive);
-  background: rgba(155, 45, 32, 0.06);
+  background: rgba(var(--destructive-rgb), 0.06);
   padding: 10px 12px;
   border-radius: 6px;
 }
 .composer {
   flex-shrink: 0;
   border-top: 1px solid var(--border);
-  background: rgba(245, 243, 238, 0.8);
+  background: rgba(var(--paper-rgb), 0.8);
   padding: 20px 40px;
 }
 .composer-inner {
@@ -733,7 +790,7 @@ select {
 }
 .composer-box {
   position: relative;
-  border: 1px solid rgba(13, 13, 13, 0.8);
+  border: 1px solid var(--composer-border);
   background: var(--card);
   border-radius: 8px;
   box-shadow: 0 1px 0 var(--ink);
@@ -902,7 +959,7 @@ select {
 .empty {
   margin-top: 12px;
   border: 1px dashed var(--border);
-  background: rgba(251, 250, 246, 0.6);
+  background: rgba(var(--card-rgb), 0.6);
   padding: 16px;
   border-radius: 6px;
   font-size: 12.5px;
@@ -1049,7 +1106,7 @@ select {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13, 13, 13, 0.5);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1114,12 +1171,12 @@ select {
 }
 .quiz-option.correct {
   border-color: var(--emerald);
-  background: rgba(31, 107, 58, 0.08);
+  background: rgba(var(--emerald-rgb), 0.08);
   color: var(--emerald);
 }
 .quiz-option.wrong {
   border-color: var(--destructive);
-  background: rgba(155, 45, 32, 0.08);
+  background: rgba(var(--destructive-rgb), 0.08);
   color: var(--destructive);
 }
 .quiz-option:disabled {
@@ -1152,32 +1209,91 @@ select {
   font-style: italic;
   font-size: 18px;
 }
-.modal-close {
-  padding: 8px 18px;
+/* ---------- Button system ----------
+   Real semantic variants instead of one class reused for unrelated actions
+   with inline color overrides layered on top. `.btn` is the shared base
+   (sizing/type/transition/focus ring); pick exactly one variant on top of
+   it: primary (the main affirmative action), danger (destructive/permanent),
+   or secondary (everything else - cancel, close, upload, copy). Icon-only
+   controls use `.icon-btn`/`.icon-btn-danger` instead. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-block {
+  width: 100%;
+}
+.btn-primary {
   background: var(--ink);
   color: var(--paper);
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
+  border-color: var(--ink);
 }
-.modal-close:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--ink-soft);
+  border-color: var(--ink-soft);
 }
-.modal-close.ghost {
+.btn-danger {
+  background: var(--destructive);
+  color: var(--paper);
+  border-color: var(--destructive);
+}
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+.btn-secondary {
   background: transparent;
   color: var(--muted);
+  border-color: var(--border);
 }
-.login-btn {
-  padding: 6px 14px;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 500;
+.btn-secondary:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+  background: var(--cream);
+}
+.icon-btn {
+  height: 28px;
+  width: 28px;
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
 }
-.login-btn:hover {
-  background: var(--ink-soft);
+.icon-btn:hover {
+  background: var(--cream);
+  color: var(--ink);
+}
+.icon-btn-danger:hover {
+  background: rgba(var(--destructive-rgb), 0.1);
+  color: var(--destructive);
+}
+/* Consistent keyboard-focus ring across every interactive element - was
+   missing/inconsistent before, needed for both accessibility and a
+   "modern, finished" feel. */
+.btn:focus-visible,
+.icon-btn:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--ink-soft);
+  outline-offset: 2px;
 }
 .logout-link {
   font-size: 11px;
@@ -1191,6 +1307,7 @@ select {
 
 /* ---------- Auth pages ---------- */
 .auth-shell {
+  position: relative;
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -1198,6 +1315,11 @@ select {
   justify-content: center;
   background: var(--paper);
   padding: 24px;
+}
+.auth-theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 .auth-card {
   width: 100%;
@@ -1279,23 +1401,6 @@ select {
   font-size: 12.5px;
   color: var(--emerald);
   margin-bottom: 12px;
-}
-.auth-submit {
-  width: 100%;
-  padding: 10px;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 500;
-  margin-top: 6px;
-}
-.auth-submit:hover:not(:disabled) {
-  background: var(--ink-soft);
-}
-.auth-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 .auth-links {
   margin-top: 16px;
@@ -1613,7 +1718,7 @@ select {
 .course-caveat {
   margin-top: 12px;
   border: 1px dashed var(--border);
-  background: rgba(251, 250, 246, 0.6);
+  background: rgba(var(--card-rgb), 0.6);
   padding: 12px 14px;
   border-radius: 6px;
   font-size: 12px;
@@ -1683,14 +1788,14 @@ select {
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--bg-subtle, rgba(0, 0, 0, 0.02));
+  background: var(--bg-subtle);
 }
 .src-passed {
-  background: rgba(31, 107, 58, 0.1);
-  border-color: rgba(31, 107, 58, 0.4);
+  background: rgba(var(--emerald-rgb), 0.1);
+  border-color: rgba(var(--emerald-rgb), 0.4);
 }
 .src-passed:hover {
-  border-color: rgba(31, 107, 58, 0.6);
+  border-color: rgba(var(--emerald-rgb), 0.6);
 }
 .lesson-detail {
   margin-top: 24px;
@@ -1772,7 +1877,7 @@ select {
   border: 1px solid var(--border);
   border-radius: 999px;
   overflow: hidden;
-  background: #dcd8cf;
+  background: var(--seg-bg);
 }
 .quiz-difficulty-seg {
   padding: 0 20px;
@@ -1790,16 +1895,14 @@ select {
   border-right: 1px solid var(--border);
 }
 .quiz-difficulty-seg:hover:not(.active) {
-  background: #cfcbc0;
+  background: var(--seg-bg-hover);
 }
 .quiz-difficulty-seg.active {
   background: var(--ink);
   color: var(--paper);
 }
-.lesson-quiz-actions .modal-close {
+.lesson-quiz-actions .btn {
   height: 38px;
-  display: inline-flex;
-  align-items: center;
   border-radius: 999px;
 }
 .quiz-footer {

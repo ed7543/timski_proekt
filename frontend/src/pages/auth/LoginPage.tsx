@@ -65,7 +65,7 @@ export function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="auth-submit" type="submit" disabled={submitting}>
+        <button className="btn btn-primary btn-block" type="submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>

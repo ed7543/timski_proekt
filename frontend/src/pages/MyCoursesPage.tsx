@@ -107,8 +107,7 @@ export function MyCoursesPage() {
                 <div style={{ fontSize: 12, color: 'var(--muted)' }}>{c.materials.length} material(s) attached</div>
                 <button
                   type="button"
-                  className="modal-close ghost"
-                  style={{ color: 'var(--destructive)' }}
+                  className="btn btn-danger"
                   disabled={busyId === c.id}
                   onClick={() => handleDelete(c.id, c.name)}
                 >

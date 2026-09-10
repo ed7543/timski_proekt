@@ -125,7 +125,7 @@ export function MaterialStudyGuide({ courseId, material }: Props) {
                   </div>
                   <button
                     type="button"
-                    className="modal-close"
+                    className="btn btn-primary"
                     disabled={generating}
                     onClick={handleGenerate}
                   >
