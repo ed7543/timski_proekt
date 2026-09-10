@@ -30,8 +30,9 @@ export function NavTabs({ collapsed }: Props) {
           <StoreIcon />
           {!collapsed && ' Marketplace'}
         </NavLink>
-        <NavLink to="/blog" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>
-          <GlobeIcon /> News & Recommendations
+        <NavLink to="/blog" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`} title="News & Recommendations">
+          <GlobeIcon />
+          {!collapsed && ' News & Recommendations'}
         </NavLink>
         {(user?.is_premium || user?.has_submitted_courses) && (
           <NavLink to="/my-courses" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`} title="My courses">
