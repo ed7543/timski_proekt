@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { getLesson, generateLessonQuiz } from '../../api/courses';
 import type { LessonOut, LessonDetailOut, QuizQuestionOut, QuizDifficulty } from '../../types/course';
 import { ApiError } from '../../api/client';
-import { BackArrowIcon } from '../icons';
+import { BackArrowIcon, SparkleIcon } from '../icons';
 import { ModalShell } from '../modals/ModalShell';
-import { renderMarkdown } from '../../utils/markdown';
+import { renderMarkdown, handleMarkdownClick } from '../../utils/markdown';
 
 interface Props {
   courseId: number;
@@ -109,7 +109,7 @@ export function LessonQuizModal({
       <div className="modal-footer">
         <div className="quiz-score">
           Score: {correctCount} / {questions.length}
-          {allCorrect ? ' 🎉' : ''}
+          {allCorrect && <SparkleIcon style={{ color: 'var(--emerald)', marginLeft: 6, verticalAlign: 'middle' }} />}
         </div>
         <button type="button" className="btn btn-primary" onClick={() => onFinish(allCorrect)}>
           Done
@@ -243,7 +243,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
       {detail && !loading && !error && (
         <>
           {detail.documentation ? (
-            <div className="msg-ai-body lesson-doc" dangerouslySetInnerHTML={{ __html: html }} />
+            <div className="msg-ai-body lesson-doc" onClick={handleMarkdownClick} dangerouslySetInnerHTML={{ __html: html }} />
           ) : (
             <div className="empty">No documentation has been generated for this lesson yet.</div>
           )}

@@ -3,6 +3,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { CourseNavSidebar } from '../components/courses/CourseNavSidebar';
 import { listQuizAttempts, getQuizRecommendations } from '../api/quizProgress';
 import type { QuizAttemptOut, QuizRecommendationOut } from '../types/quizProgress';
+import { SparkleIcon } from '../components/icons';
 
 export function ProgressPage() {
   const [attempts, setAttempts] = useState<QuizAttemptOut[] | null>(null);
@@ -23,7 +24,10 @@ export function ProgressPage() {
       <div className="body">
         <div className="page-container">
           <div className="page-header">
-            <h1>Your progress</h1>
+            <div className="page-header-title">
+              <h1>Your progress</h1>
+              <SparkleIcon style={{ color: 'var(--muted)' }} />
+            </div>
             <p className="page-subtitle">
               Track your quiz scores as you go, and see which topics are worth revisiting.
             </p>

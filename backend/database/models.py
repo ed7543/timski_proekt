@@ -32,6 +32,13 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    # Running count of conversations this user has ever created - only ever
+    # increments, even when a conversation is later deleted. Conversation.issue_no
+    # is stamped from this at creation time so a conversation's displayed
+    # "No." stays permanent (deleting an earlier conversation must not
+    # renumber the ones that came after it), which a purely positional
+    # index recomputed from the live conversation list can't guarantee.
+    conversation_seq: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     verification_tokens: Mapped[list["VerificationToken"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
@@ -64,6 +71,10 @@ class Conversation(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False, default="New conversation")
     subject: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Stamped once at creation from User.conversation_seq (see there) - the
+    # owner's Nth-ever conversation, permanently, regardless of any earlier
+    # conversation being deleted later.
+    issue_no: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False

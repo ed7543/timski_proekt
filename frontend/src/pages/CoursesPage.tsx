@@ -4,7 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { CourseNavSidebar } from '../components/courses/CourseNavSidebar';
 import { listCourses } from '../api/courses';
 import type { CourseOut } from '../types/course';
-import { ArrowIcon } from '../components/icons';
+import { ArrowIcon, SparkleIcon } from '../components/icons';
 
 function formatSemester(semester: string | null): string {
   if (!semester) return 'Other';
@@ -54,7 +54,10 @@ export function CoursesPage() {
       <div className="body">
         <div className="page-container">
           <div className="page-header">
-            <h1>Course catalog</h1>
+            <div className="page-header-title">
+              <h1>Course catalog</h1>
+              <SparkleIcon style={{ color: 'var(--muted)' }} />
+            </div>
             <p className="page-subtitle">
               FINKI subjects, materials, and lecture recordings, sourced from the public{' '}
               <a href="https://finki-hub.com" target="_blank" rel="noreferrer">

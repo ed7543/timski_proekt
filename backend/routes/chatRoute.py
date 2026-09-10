@@ -83,6 +83,7 @@ async def chat(
     # open a brand new session for the final save.)
     conv_id = conversation.id
     conv_title = conversation.title
+    conv_issue_no = conversation.issue_no
 
     # Web search for context - served from the cache when a similar question was
     # already searched before, otherwise a live Tavily call (see services/search_cache.py)
@@ -99,7 +100,7 @@ async def chat(
     async def event_stream():
         # First let the UI know which conversation this belongs to (important
         # when a new one was just created, so the frontend can select it)
-        conv_payload = json.dumps({"id": conv_id, "title": conv_title})
+        conv_payload = json.dumps({"id": conv_id, "title": conv_title, "issue_no": conv_issue_no})
         yield f"event: conversation\ndata: {conv_payload}\n\n"
 
         # Then emit the search sources so the UI can show them

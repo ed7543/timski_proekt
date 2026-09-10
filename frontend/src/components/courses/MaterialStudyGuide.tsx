@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getMaterialStudyGuide, generateMaterialStudyGuide } from '../../api/courses';
 import type { CourseMaterialOut, MaterialStudyGuideOut, QuizDifficulty } from '../../types/course';
 import { ApiError } from '../../api/client';
-import { renderMarkdown } from '../../utils/markdown';
+import { renderMarkdown, handleMarkdownClick } from '../../utils/markdown';
 import { LessonQuizModal } from './LessonDetail';
 
 interface Props {
@@ -84,6 +84,7 @@ export function MaterialStudyGuide({ courseId, material }: Props) {
               {guide.documentation ? (
                 <div
                   className="msg-ai-body lesson-doc"
+                  onClick={handleMarkdownClick}
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(guide.documentation) }}
                 />
               ) : (

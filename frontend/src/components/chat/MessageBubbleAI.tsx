@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { renderMarkdown } from '../../utils/markdown';
+import { renderMarkdown, handleMarkdownClick } from '../../utils/markdown';
+import { SparkleIcon } from '../icons';
 
 interface Props {
   content: string;
@@ -17,9 +18,16 @@ export function MessageBubbleAI({ content, streaming, error }: Props) {
         <span className="msg-label">LearnWise · The answer</span>
         <span className="msg-ai-rule" />
       </header>
+      {!content && streaming && (
+        <div className="msg-ai-generating">
+          <SparkleIcon className="ic sparkle-spin" />
+          <span>Generating…</span>
+        </div>
+      )}
       {content && (
         <div
           className={`msg-ai-body${streaming ? ' streaming' : ''}`}
+          onClick={handleMarkdownClick}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       )}

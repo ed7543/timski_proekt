@@ -5,7 +5,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, update
 from sqlalchemy.orm import Session
 
 from backend.database.session import get_db
@@ -47,6 +47,7 @@ def _to_out(conv: Conversation) -> ConversationOut:
         id=conv.id,
         title=conv.title,
         subject=conv.subject,
+        issue_no=conv.issue_no,
         created_at=conv.created_at,
         updated_at=conv.updated_at,
         message_count=len(conv.messages),
@@ -105,10 +106,22 @@ async def create_conversation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    # Atomic increment-and-read (UPDATE ... RETURNING) rather than reading
+    # current_user.conversation_seq and adding 1 in Python - two concurrent
+    # creates for the same user would otherwise both read the same starting
+    # value and hand out the same issue_no. The row-level lock the UPDATE
+    # takes makes this safe under concurrency.
+    next_seq = db.execute(
+        update(User)
+        .where(User.id == current_user.id)
+        .values(conversation_seq=User.conversation_seq + 1)
+        .returning(User.conversation_seq)
+    ).scalar_one()
     conv = Conversation(
         user_id=current_user.id,
         title=request.title or "New conversation",
         subject=request.subject,
+        issue_no=next_seq,
     )
     db.add(conv)
     db.commit()
@@ -145,6 +158,7 @@ async def get_conversation(
         id=conv.id,
         title=conv.title,
         subject=conv.subject,
+        issue_no=conv.issue_no,
         created_at=conv.created_at,
         updated_at=conv.updated_at,
         messages=[MessageOut.model_validate(m) for m in conv.messages],

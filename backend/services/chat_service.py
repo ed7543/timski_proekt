@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from backend.database.models import ChatMessage, Conversation, User
@@ -29,10 +30,21 @@ def resolve_conversation(db: Session, request: ChatRequest, current_user: User, 
     if request.conversation_id:
         return _get_member_conversation(db, request.conversation_id, current_user)
 
+    # Atomic increment-and-read, same reasoning as conversationRoute.py's
+    # create_conversation - this is a second, separate conversation-creation
+    # path (sending a first message with no conversation_id yet), so it
+    # needs the same race-safe issue_no assignment.
+    next_seq = db.execute(
+        update(User)
+        .where(User.id == current_user.id)
+        .values(conversation_seq=User.conversation_seq + 1)
+        .returning(User.conversation_seq)
+    ).scalar_one()
     conversation = Conversation(
         user_id=current_user.id,
         title=(latest_user_msg[:48] or "New conversation"),
         subject=request.subject,
+        issue_no=next_seq,
     )
     db.add(conversation)
     db.commit()

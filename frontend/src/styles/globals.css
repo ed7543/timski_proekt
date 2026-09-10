@@ -31,6 +31,16 @@
   --seg-bg-hover: #cfcbc0;
   --composer-border: rgba(13, 13, 13, 0.8);
 
+  /* Deliberately NOT redefined in the dark palette below - code blocks stay
+     a fixed dark "editor" color in both themes (like GitHub's, VS Code's,
+     etc.) instead of following --ink/--paper, which would otherwise make
+     them flip to a *light* background in dark mode since ink/paper swap
+     meaning between themes. */
+  --code-bg: #1e1e1e;
+  --code-text: #d4d4d4;
+  --code-border: rgba(255, 255, 255, 0.1);
+  --code-accent: #5fd99a;
+
   color-scheme: light;
 }
 
@@ -96,6 +106,32 @@ a {
 input {
   font-family: inherit;
 }
+/* Theme-consistent scrollbars everywhere (sidebar history, dropdown menus,
+   long AI replies, the composer, etc.) instead of the browser's default
+   OS-native scrollbar, which is a fat, unstyled, always-light-gray bar that
+   clashes with the app's own palette (especially in dark mode). Thin,
+   colored via the theme's own tokens, and only visibly darker on hover so
+   it stays unobtrusive at rest. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted);
+}
 .paper-grain {
   background: radial-gradient(circle at 20% 10%, rgba(var(--grain-rgb), 0.018) 0 1px, transparent 1.5px) 0 0/3px 3px,
     radial-gradient(circle at 80% 60%, rgba(var(--grain-rgb), 0.015) 0 1px, transparent 1.5px) 1px 1px/4px 4px, var(--paper);
@@ -107,12 +143,17 @@ input {
   overflow: hidden;
 }
 .sidebar-left {
+  position: relative;
   width: 276px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
   background: rgba(var(--paper-rgb), 0.6);
+  transition: width 0.2s ease;
+}
+.sidebar-left.collapsed {
+  width: 64px;
 }
 .sidebar-right {
   width: 320px;
@@ -121,6 +162,37 @@ input {
   flex-direction: column;
   border-left: 1px solid var(--border);
   background: rgba(var(--cream-rgb), 0.4);
+  transition: width 0.2s ease;
+}
+.sidebar-right.collapsed {
+  width: 0;
+  border-left: none;
+  overflow: hidden;
+}
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 16px;
+  right: 8px;
+  height: 24px;
+  width: 24px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-collapse-btn:hover {
+  background: var(--cream);
+  color: var(--ink);
+}
+/* Expanded mode positions this near the brand row's right edge; collapsed
+   mode's icon rail is centered, so the button should be too rather than
+   staying pinned to where "the right side of 276px" used to be. */
+.sidebar-left.collapsed .sidebar-collapse-btn {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
 }
 main {
   flex: 1;
@@ -133,21 +205,6 @@ main {
   align-items: center;
   gap: 8px;
   padding: 20px 20px 12px;
-}
-.brand-mark {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 2px;
-}
-.brand-mark span {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  font-size: 15px;
-  line-height: 1;
 }
 .brand-name {
   font-family: 'Instrument Serif', serif;
@@ -177,6 +234,29 @@ main {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   opacity: 0.6;
+}
+/* Collapsed left sidebar - search and history don't have a meaningful
+   icon-only form, so they stay hidden until expanded again, but "start a
+   new conversation" is the one action worth keeping one click away instead
+   of requiring the user to expand the sidebar first. */
+.sidebar-collapsed-body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+.sidebar-collapsed-new-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.sidebar-collapsed-new-btn:hover {
+  background: var(--ink-soft);
 }
 .search-wrap {
   padding: 0 20px 8px;
@@ -277,10 +357,28 @@ main {
   color: var(--muted);
   margin-top: 1px;
 }
+/* A long title's ellipsis-truncated text doesn't know the rename/delete
+   buttons are about to float on top of it on hover, so the last few visible
+   characters used to sit directly under the icon glyphs. A gradient fade
+   (matching the row's own hover tint) masks that tail instead, so the text
+   reads as "fading out" rather than being sliced through. Needs an explicit
+   z-index stack (text < gradient < buttons) since ::after paints after
+   every real child by default - without it the gradient would cover the
+   buttons themselves, not just the text behind them. */
+.thread:hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 6px;
+  background: linear-gradient(to right, transparent 55%, rgba(var(--cream-rgb), 0.92) 82%);
+  pointer-events: none;
+}
 .thread-actions {
   position: absolute;
   right: 6px;
   top: 6px;
+  z-index: 2;
   display: none;
   gap: 2px;
 }
@@ -307,6 +405,17 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+/* Collapsed sidebar: the default 20px side padding plus a 32px avatar don't
+   fit in a 64px rail (32 + 40 > 64), which pushed the avatar off-center /
+   crowded against the border. Shrink padding and let the trigger size to
+   its content instead of stretching, so the avatar sits centered. */
+.sidebar-left.collapsed .user-foot {
+  padding: 12px 8px;
+  justify-content: center;
+}
+.sidebar-left.collapsed .user-foot-trigger {
+  flex: 0 0 auto;
 }
 .avatar {
   height: 32px;
@@ -354,8 +463,17 @@ main {
 .user-foot-trigger:hover {
   background: var(--cream);
 }
-.theme-toggle {
-  flex-shrink: 0;
+/* Shared "floating menu panel" look for every popover menu in the app
+   (account menu, course/subject Dropdown) - each keeps its own positioning
+   rules below, but the panel chrome itself (surface/border/radius/shadow/
+   padding) lives in one place instead of being redeclared per menu. */
+.user-foot-dropdown,
+.dropdown-menu {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px var(--shadow);
+  padding: 6px;
 }
 .user-foot-dropdown {
   position: absolute;
@@ -363,21 +481,35 @@ main {
   left: 12px;
   right: 12px;
   margin-bottom: 6px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px var(--shadow);
-  padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 2px;
   z-index: 20;
 }
-.user-foot-dropdown .user-foot-menu-item {
+/* Collapsed left sidebar: the footer is a narrow icon-only rail, so the
+   dropdown opens as a flyout to the right instead of an upward panel bound
+   to the (now much narrower) sidebar width. */
+.user-foot-dropdown.flyout {
+  left: 100%;
+  right: auto;
+  bottom: 0;
+  margin-bottom: 0;
+  margin-left: 8px;
+  width: 200px;
+}
+.user-foot-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.user-foot-dropdown .user-foot-menu-item,
+.dropdown-option {
   padding: 8px 10px;
   border-radius: 5px;
 }
-.user-foot-dropdown .user-foot-menu-item:hover {
+.user-foot-dropdown .user-foot-menu-item:hover,
+.dropdown-option:hover {
   background: var(--cream);
 }
 .user-foot-menu-item {
@@ -398,6 +530,7 @@ main {
   align-items: baseline;
   gap: 12px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 .vol {
   font-family: 'JetBrains Mono', monospace;
@@ -423,7 +556,7 @@ main {
 }
 .masthead-r {
   margin-left: auto;
-  min-width: 0;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -492,6 +625,54 @@ select {
   border-bottom: 1.5px solid var(--muted);
   transform: translateY(-75%) rotate(45deg);
   pointer-events: none;
+}
+/* Custom Dropdown component (src/components/Dropdown.tsx) - replaces the
+   old native <select> in the masthead. Reuses .select-wrap for the trigger
+   box (border/hover/chevron above); these rules are just the trigger text
+   and the open menu, which a native select could never be styled to match. */
+.dropdown {
+  cursor: pointer;
+}
+.dropdown-trigger {
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.select-wrap-course .dropdown-trigger {
+  max-width: 150px;
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 180px;
+  max-width: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+  z-index: 30;
+}
+.dropdown-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dropdown-option.active {
+  background: var(--cream);
+  font-weight: 500;
 }
 .toggle-btn {
   display: flex;
@@ -699,6 +880,33 @@ select {
   flex: 1;
   background: var(--border);
 }
+/* Shown between sending a message and the first streamed token arriving -
+   search + time-to-first-token can take a few seconds, and until now the
+   bubble showed nothing at all during that gap. */
+.msg-ai-generating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+/* A true rotateY() with perspective looks great on something with real
+   depth, but a small flat 2D icon has none - at 90/270deg it doesn't just
+   thin out, the perspective warps it into a stretched sliver instead of
+   cleanly vanishing. scaleX gives the same "spinning coin, seen edge-on at
+   the midpoint" read without any of that perspective distortion. */
+@keyframes sparkle-spin {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(-1);
+  }
+}
+.sparkle-spin {
+  animation: sparkle-spin 1.6s ease-in-out infinite;
+}
 .msg-ai-body {
   font-size: 15px;
   line-height: 1.75;
@@ -735,6 +943,36 @@ select {
 .msg-ai-body strong {
   font-weight: 600;
 }
+/* Markdown tables - previously entirely unstyled (bare browser-default
+   table rendering), for content like comparisons that the AI is now
+   instructed to lay out as a real table instead of faking columns with
+   plain text. */
+.msg-ai-body table {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.msg-ai-body th,
+.msg-ai-body td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.msg-ai-body th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--ink);
+}
+.msg-ai-body tbody tr:last-child th,
+.msg-ai-body tbody tr:last-child td {
+  border-bottom: none;
+}
 .msg-ai-body code {
   border: 1px solid var(--border);
   background: var(--cream);
@@ -743,13 +981,43 @@ select {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12.5px;
 }
-.msg-ai-body pre {
-  background: var(--ink);
-  color: var(--paper);
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
+/* Wraps every fenced code block (see utils/markdown.ts's custom marked
+   renderer) - holds the copy button and gives every block in the app the
+   same spacing/corners regardless of which page renders it. */
+.code-block {
   margin: 12px 0;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 8px 7px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--code-border);
+}
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+}
+.msg-ai-body pre {
+  background: none;
+  color: var(--code-text);
+  padding: 12px 14px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow-x: auto;
+  margin: 0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12.5px;
   line-height: 1.5;
@@ -759,6 +1027,48 @@ select {
   border: none;
   color: inherit;
   padding: 0;
+}
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: rgba(255, 255, 255, 0.92);
+}
+.code-copy-btn:active {
+  transform: scale(0.94);
+}
+.code-copy-btn.copied {
+  color: var(--code-accent);
+  border-color: rgba(95, 217, 154, 0.4);
+  background: rgba(95, 217, 154, 0.12);
+}
+.code-copy-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.code-copy-btn .check-icon {
+  display: none;
+}
+.code-copy-btn.copied .copy-icon {
+  display: none;
+}
+.code-copy-btn.copied .check-icon {
+  display: block;
 }
 .msg-ai-body.streaming::after {
   content: '▋';
@@ -812,6 +1122,12 @@ select {
   color: var(--ink);
   min-height: 52px;
   max-height: 160px;
+  /* A growing textarea should only ever need to scroll vertically - text
+     wraps, it doesn't run off the side. Without this, the browser's default
+     overflow:auto (both axes) can show a horizontal scrollbar track that
+     has nothing to actually scroll. */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .composer-box textarea::placeholder {
   color: var(--muted);
@@ -1204,6 +1520,77 @@ select {
   padding-top: 20px;
   border-top: 1px solid var(--border);
 }
+/* ---------- Help / onboarding tour ----------
+   Reuses .modal's shell (already theme-aware via --paper/--ink) so this
+   looks right in both themes for free - only new pieces get their own
+   rules below. */
+.tour-kicker {
+  margin-bottom: 20px;
+}
+.tour-icon {
+  height: 48px;
+  width: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--cream);
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+.tour-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.tour-title {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+.tour-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  min-height: 68px;
+}
+.tour-body kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--cream);
+  color: var(--ink);
+}
+.tour-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 22px;
+}
+.tour-dot {
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.15s, width 0.15s;
+}
+.tour-dot.active {
+  width: 18px;
+  border-radius: 3px;
+  background: var(--ink);
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.tour-actions-nav {
+  display: flex;
+  gap: 8px;
+}
 .quiz-score {
   font-family: 'Instrument Serif', serif;
   font-style: italic;
@@ -1307,23 +1694,79 @@ textarea:focus-visible {
 
 /* ---------- Auth pages ---------- */
 .auth-shell {
-  position: relative;
   min-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 72px;
   background: var(--paper);
   padding: 24px;
 }
-.auth-theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+.auth-decor {
+  display: none;
+  flex-direction: column;
+  width: 380px;
+  flex-shrink: 0;
+}
+.auth-decor .rule-row {
+  margin-bottom: 20px;
+}
+.auth-decor-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: 44px;
+  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.auth-decor-h .it {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.auth-decor-p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.auth-decor-p svg {
+  width: 15px;
+  height: 15px;
+  color: var(--emerald);
+  flex-shrink: 0;
+}
+.auth-decor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.auth-decor-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.auth-decor-list svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+@media (min-width: 860px) {
+  .auth-decor {
+    display: flex;
+  }
 }
 .auth-card {
   width: 100%;
   max-width: 400px;
+  flex-shrink: 0;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1415,6 +1858,18 @@ textarea:focus-visible {
 .auth-links a:hover {
   color: var(--ink);
 }
+.auth-theme-link {
+  margin-top: 16px;
+  text-align: center;
+}
+.auth-theme-link button {
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: underline;
+}
+.auth-theme-link button:hover {
+  color: var(--ink);
+}
 .stub-page {
   flex: 1;
   display: flex;
@@ -1435,50 +1890,92 @@ textarea:focus-visible {
   max-width: 420px;
   line-height: 1.6;
 }
+/* One consistent vertical list for every nav item (Chat/Courses/Progress
+   and Marketplace/My courses/Admin panel alike) - a single row-based style
+   sidesteps the whole class of "N items don't fit side by side at this
+   sidebar width" bugs that a horizontal pill-tab layout kept running into,
+   and reads as a single coherent nav instead of two differently-styled
+   groups. */
 .nav-tabs-wrap {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding-bottom: 10px;
+  padding: 0 12px 10px;
+}
+/* Collapsed sidebar hides the .brand row entirely, so nav-tabs-wrap would
+   otherwise start right at the top of the sidebar - directly under the
+   always-present collapse button (position: absolute, top: 16px, 24px
+   tall). Reserve just enough space for a clean, consistent gap below it -
+   the same 8px used between every other icon - instead of the much bigger,
+   uneven gap a rougher estimate left before. */
+.nav-tabs-wrap.collapsed {
+  padding-top: 48px;
+  padding-left: 8px;
+  padding-right: 8px;
+  gap: 4px;
 }
 .nav-tabs {
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-tabs-wrap.collapsed .nav-tabs {
+  align-items: center;
   gap: 4px;
-  padding: 0 20px;
 }
-.nav-tabs-secondary .nav-tab {
-  font-size: 11px;
-  color: var(--muted);
+.nav-tabs-secondary {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
 }
-.nav-tabs-secondary .nav-tab.active {
-  color: var(--ink);
+.nav-tabs-wrap.collapsed .nav-tabs-secondary {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
 }
 .nav-tab {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted);
-  border-radius: 4px;
+  border-radius: 8px;
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
+}
+.nav-tab:hover {
+  color: var(--ink);
+  background: var(--cream);
 }
 .nav-tab.active {
   color: var(--ink);
   background: var(--cream);
+  font-weight: 600;
 }
-.nav-tab:hover {
-  color: var(--ink);
+/* Fixed-size square tiles instead of auto-sizing to content - guarantees
+   every icon lands in an identically-sized, perfectly centered tile
+   regardless of the icon's own natural bounding box. */
+.nav-tabs-wrap.collapsed .nav-tab {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
 }
 
 .page-container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 24px 60px;
 }
 .page-header {
   margin-bottom: 8px;
+}
+.page-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .page-header h1 {
   font-family: 'Instrument Serif', serif;
@@ -1912,6 +2409,46 @@ textarea:focus-visible {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--border);
+}
+
+/* Large/ultra-wide screens: everything below this point (sidebars, the
+   672px reading column, page content) is sized for a normal laptop-ish
+   viewport. Left untouched on a big monitor, the reading column ends up as
+   a narrow strip swimming in empty space on both sides - scale the key
+   widths up in a couple of steps instead, keeping .conv/.welcome/
+   .composer-inner in sync with each other so the message thread and the
+   composer box stay visually aligned. */
+@media (min-width: 1600px) {
+  .sidebar-left:not(.collapsed) {
+    width: 300px;
+  }
+  .sidebar-right:not(.collapsed) {
+    width: 360px;
+  }
+  .conv,
+  .welcome,
+  .composer-inner {
+    max-width: 760px;
+  }
+  .page-container {
+    max-width: 1300px;
+  }
+}
+@media (min-width: 2200px) {
+  .sidebar-left:not(.collapsed) {
+    width: 320px;
+  }
+  .sidebar-right:not(.collapsed) {
+    width: 400px;
+  }
+  .conv,
+  .welcome,
+  .composer-inner {
+    max-width: 860px;
+  }
+  .page-container {
+    max-width: 1500px;
+  }
 }
 
 @media (max-width: 1024px) {
