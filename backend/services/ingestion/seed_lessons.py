@@ -10,7 +10,11 @@ Not used by any live API request path - standalone, invoked via:
 
 Per course, one of three things happens:
   1. No source at all (status pending_source / deferred_user_will_provide_materials)
-     -> Lesson rows created with topic_title only, nothing generated, no API calls.
+     -> Lesson rows created with topic_title only, nothing generated, no API calls
+     (unless --generate-without-source is passed - see _generate_lessons_no_source
+     below - an explicit opt-in to generate from the model's general knowledge
+     instead, clearly disclaimed and tracked separately in the report and via
+     Lesson.generation_method).
   2. Source is a local file only (source.url is None - see courses_db.py's
      LOCAL_FILE_ONLY_CODES) -> course is skipped entirely for now (not even
      topic-only rows), logged clearly. Revisit once local_path support exists.
@@ -18,7 +22,9 @@ Per course, one of three things happens:
      match each lesson to its best excerpt (lesson_matching.py), and only
      call Gemini for lessons that clear the confidence threshold. Lessons
      that don't clear it get a topic-only row (documentation/quiz stay NULL)
-     - by design, per-lesson silence rather than fabricated content.
+     - by design, per-lesson silence rather than fabricated content. This
+     path can also be overridden per-course via --force-general-knowledge
+     (see seed_course() below).
 
 Every run writes a markdown report (see Report below) listing what happened
 to every single lesson it touched - matched heading + confidence for
@@ -56,6 +62,8 @@ from backend.services.ingestion.gemini_generator import (
 )
 from backend.services.ingestion.lesson_matching import DEFAULT_CONFIDENCE_THRESHOLD, find_best_excerpt
 from backend.services.ingestion.lesson_upsert import (
+    GENERATION_METHOD_GENERAL_KNOWLEDGE,
+    GENERATION_METHOD_SOURCE,
     find_course_id,
     get_existing_documentation,
     replace_course_sources,
@@ -227,9 +235,12 @@ def _generate_lessons_no_source(
     source badly under-covers the curated topic list - see seed_course()).
     Generates every lesson from the model's general knowledge
     (generate_no_source_documentation, which always prepends
-    NO_SOURCE_DISCLAIMER_MK itself) and tracks each one via
-    report.lesson_generated_no_source() so it stays distinguishable from a
-    properly-sourced lesson in the run report."""
+    NO_SOURCE_DISCLAIMER_MK itself), tags it with
+    Lesson.generation_method = GENERATION_METHOD_GENERAL_KNOWLEDGE (so it's
+    distinguishable from a source-grounded lesson at the data/API level, not
+    just via the markdown disclaimer text), and tracks each one via
+    report.lesson_generated_no_source() so it stays distinguishable in the
+    run report too."""
     for i, lesson in enumerate(lessons, start=1):
         topic_title = lesson["topic_title"]
         if not force_regenerate and get_existing_documentation(db, course_id, i):
@@ -250,7 +261,10 @@ def _generate_lessons_no_source(
             report.lesson_error(topic_title, str(e))
             continue
         word_count = documentation_word_count(documentation)
-        upsert_lesson(db, course_id, i, topic_title, documentation=documentation, quiz=quiz)
+        upsert_lesson(
+            db, course_id, i, topic_title, documentation=documentation, quiz=quiz,
+            generation_method=GENERATION_METHOD_GENERAL_KNOWLEDGE,
+        )
         report.lesson_generated_no_source(topic_title, word_count)
 
 
@@ -417,7 +431,10 @@ def seed_course(
             continue
 
         word_count = documentation_word_count(documentation)
-        upsert_lesson(db, course_id, i, topic_title, documentation=documentation, quiz=quiz)
+        upsert_lesson(
+            db, course_id, i, topic_title, documentation=documentation, quiz=quiz,
+            generation_method=GENERATION_METHOD_SOURCE,
+        )
         report.lesson_generated(topic_title, match.confidence, match.matched_heading or "?", word_count, title_en)
 
 
@@ -490,7 +507,8 @@ def main() -> None:
              "documentation from the model's general knowledge instead of leaving "
              "topic-only rows. Every such lesson is clearly disclaimed (see "
              "gemini_generator.py's NO_SOURCE_DISCLAIMER_MK) and tracked separately "
-             "in the report - review these before trusting them like sourced lessons.",
+             "in the report and via Lesson.generation_method - review these before "
+             "trusting them like sourced lessons.",
     )
     parser.add_argument(
         "--force-general-knowledge", action="store_true",

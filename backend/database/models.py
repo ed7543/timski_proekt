@@ -348,6 +348,19 @@ class Lesson(Base):
     # above is the original/default tier (displayed as "Medium"); this one is
     # generated separately, on demand, only when a student asks for Hard.
     quiz_hard: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # Tracks how `documentation` was produced: "source" (default - grounded
+    # in a real courses_db.json textbook/material excerpt, see
+    # gemini_generator.generate_documentation) or "general_knowledge" (the
+    # model's own general knowledge, no source excerpt at all - see
+    # generate_no_source_documentation, only reachable via seed_lessons.py's
+    # explicit --generate-without-source / --force-general-knowledge flags).
+    # Added (migration d8f3a1c9b274) so this distinction is queryable/exposed
+    # over the API - not just a markdown disclaimer sentence inside
+    # `documentation` itself, which a future edit could drop unnoticed.
+    # Existing rows and any not-yet-generated topic-only row default to
+    # "source" - see lesson_upsert.upsert_lesson for when this actually gets
+    # (re)written.
+    generation_method: Mapped[str] = mapped_column(String(20), nullable=False, default="source", server_default="source")
     documentation_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     quiz_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     quiz_hard_generated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
