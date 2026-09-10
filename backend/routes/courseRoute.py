@@ -129,6 +129,7 @@ def _lesson_detail_out(lesson: Lesson) -> LessonDetailOut:
         has_documentation=bool(lesson.documentation),
         has_quiz=bool(lesson.quiz),
         has_quiz_hard=bool(lesson.quiz_hard),
+        generation_method=lesson.generation_method,
         documentation=lesson.documentation,
         quiz=lesson.quiz,
         quiz_hard=lesson.quiz_hard,
@@ -492,6 +493,7 @@ async def list_course_lessons(course_id: int, db: Session = Depends(get_db)):
             has_documentation=bool(l.documentation),
             has_quiz=bool(l.quiz),
             has_quiz_hard=bool(l.quiz_hard),
+            generation_method=l.generation_method,
         )
         for l in lessons
     ]

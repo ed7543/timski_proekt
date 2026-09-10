@@ -15,6 +15,15 @@ from sqlalchemy.orm import Session
 from backend.database.models import Course, CourseSource, Lesson
 from backend.utils.time import utcnow
 
+# Lesson.generation_method values (migration d8f3a1c9b274) - see that
+# column's docstring in database/models.py. Defined here (not in
+# gemini_generator.py) since this module is the only place that actually
+# writes the column - callers (seed_lessons.py) import these rather than
+# hardcoding the strings, so a typo can't silently create a third, unrecognized
+# value.
+GENERATION_METHOD_SOURCE = "source"
+GENERATION_METHOD_GENERAL_KNOWLEDGE = "general_knowledge"
+
 
 def find_course_id(db: Session, course_code: str, course_name_mk: str) -> Optional[int]:
     """Matches a courses_db.json entry to an existing Course row. Tries
@@ -47,11 +56,22 @@ def upsert_lesson(
     topic_title: str,
     documentation: Optional[str] = None,
     quiz: Optional[dict] = None,
+    generation_method: str = GENERATION_METHOD_SOURCE,
 ) -> None:
     """Creates the Lesson row if missing, or updates it in place. Passing
     documentation/quiz=None leaves those columns untouched if the row already
     exists (so a "topic-only" pass - see seed_lessons.py's no-source-course
-    handling - never wipes previously generated content)."""
+    handling - never wipes previously generated content).
+
+    `generation_method` (GENERATION_METHOD_SOURCE by default, or
+    GENERATION_METHOD_GENERAL_KNOWLEDGE for the --generate-without-source /
+    --force-general-knowledge paths in seed_lessons.py) is only written
+    alongside `documentation` - like documentation/quiz, a topic-only call
+    (documentation=None) leaves an existing row's generation_method
+    untouched rather than silently reclassifying already-generated content.
+    A brand-new row with no documentation yet (documentation=None) still
+    gets the Lesson model's own column default ("source") - see that
+    column's docstring - since there's nothing to classify yet."""
     now = utcnow()
     lesson = (
         db.query(Lesson)
@@ -74,6 +94,7 @@ def upsert_lesson(
     if documentation is not None:
         lesson.documentation = documentation
         lesson.documentation_generated_at = now
+        lesson.generation_method = generation_method
     if quiz is not None:
         lesson.quiz = quiz
         lesson.quiz_generated_at = now

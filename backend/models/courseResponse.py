@@ -126,6 +126,12 @@ class LessonOut(BaseModel):
     has_documentation: bool
     has_quiz: bool
     has_quiz_hard: bool = False
+    # "source" (default) or "general_knowledge" - see Lesson.generation_method
+    # (database/models.py) for what this distinguishes. Exposed even in the
+    # lightweight listing (not just LessonDetailOut) so the course page can
+    # show a warning badge on a general_knowledge lesson before a student
+    # even opens it.
+    generation_method: str = "source"
 
 
 class LessonDetailOut(LessonOut):

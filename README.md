@@ -343,7 +343,7 @@ Ingested from the public, non-login-gated subdomains of **finki-hub.com** — an
 
 ## Lesson Content (lessons / course_sources)
 
-A separate, deeper layer on top of Course Data: instead of just metadata + lecture topic titles, each lesson gets real AI-generated study documentation (and an on-demand quiz), grounded in an actual textbook/course-material excerpt — not the model's general knowledge.
+A separate, deeper layer on top of Course Data: instead of just metadata + lecture topic titles, each lesson gets real AI-generated study documentation (and an on-demand quiz). By default this is grounded in an actual textbook/course-material excerpt — not the model's general knowledge — but for courses with no usable source, an admin can explicitly opt into general-knowledge generation instead (`--generate-without-source` / `--force-general-knowledge` below); every such lesson is disclaimed in its own text *and* flagged via `Lesson.generation_method` (`"source"` vs `"general_knowledge"`), so it's distinguishable from real source-grounded content at the data/API level too, not just by a markdown sentence a future edit could drop.
 
 **This is not a self-contained scraper** — it's a content-*generation* pipeline driven by a hand-curated input file, `courses_db.json` (course → source textbook → lesson topic titles), exported from a shared "LearnWise - база извори" spreadsheet. It now lives in the repo at `backend/services/ingestion/courses_db.json`. There's no `.example.json`/schema file yet, so if you need to hand-edit it, coordinate with whoever maintains it rather than trying to reconstruct it from the code.
 
@@ -356,6 +356,12 @@ A separate, deeper layer on top of Course Data: instead of just metadata + lectu
 6. `gemini_generator.py` generates the documentation from that excerpt *only* (explicit prompt rule against adding outside knowledge — the same lesson learned the hard way with course materials, see above), then the quiz from the documentation.
 7. `lesson_upsert.py` writes it all to the `lessons`/`course_sources` tables (migration `bc6e93a07557`), resumable by default — a lesson that already has documentation is skipped unless `--force-regenerate` is passed, so a crashed batch just picks up where it left off without re-spending API calls.
 
+**No usable source for a course?** By default such a course only gets topic-title-only `Lesson` rows (no Gemini calls, nothing to review). Two explicit, opt-in flags bypass that:
+- `--generate-without-source` — for a course with genuinely no source in `courses_db.json`, generates real documentation from the model's own general knowledge instead of leaving topic-only rows.
+- `--force-general-knowledge` — ignores a course's source even when one exists (e.g. it technically has a book, but matching/coverage was poor in practice), always generating from general knowledge instead.
+
+Either path (`seed_lessons.py`'s `_generate_lessons_no_source`) always prepends `gemini_generator.NO_SOURCE_DISCLAIMER_MK` to the generated text *and* sets that lesson's `generation_method` column to `"general_knowledge"` (regular source-grounded lessons get `"source"`, also the default for existing/topic-only rows — migration `d8f3a1c9b274`) — so these lessons are never silently indistinguishable from real source-grounded ones, at the database/API level or in the run report (`Report.generated_no_source`). `full_audit.sql` also breaks out a `bez_izvor_ai_znaenje` count per course for exactly this.
+
 **Quiz difficulty (Medium/Hard)**: each lesson can hold two independent, on-demand-generated quizzes — the original `quiz` column (Medium, `POST /{lesson_id}/quiz?difficulty=medium`, the default) and a separate `quiz_hard` column (migration `f7a2c9d14e6b`), generated only when a student explicitly asks for it via the Hard tab in `LessonDetail.tsx`. Regenerating one tier never touches the other. Hard uses the same Gemini pipeline (`gemini_generator.py`'s `build_quiz_prompt(..., difficulty="hard")`) but asks for application/analysis questions instead of fact recall.
 
 **To run it**, you need a `GEMINI_API_KEY` in `.env` (get one free at https://aistudio.google.com/apikey) — `courses_db.json` ships in the repo, so `--courses-db-path` can just point at it:
@@ -364,7 +370,7 @@ python -m backend.services.ingestion.cli --source lessons \
     --courses-db-path backend/services/ingestion/courses_db.json \
     --course-codes F23L1W005,F23L1W020,F23L2W002
 ```
-Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls per lesson), `--force-regenerate`, `--threshold <float>`, `--report-path <file>` (defaults to a timestamped markdown file listing what happened to every lesson touched — matched/skipped/errored with reasons).
+Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls per lesson), `--force-regenerate`, `--threshold <float>`, `--report-path <file>` (defaults to a timestamped markdown file listing what happened to every lesson touched — matched/skipped/errored with reasons), `--generate-without-source` / `--force-general-knowledge` (see above — review lessons generated this way before trusting them like sourced ones).
 
 **Frontend**: `CourseDetailPage` shows a Lessons section per course; opening one (`LessonDetail.tsx`) shows the documentation and lets you generate/take the quiz. Fetched independently from materials/recordings, so a lessons-specific issue can't take down the rest of an otherwise-working course page.
 
