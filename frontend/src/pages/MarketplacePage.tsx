@@ -5,7 +5,7 @@ import { CourseNavSidebar } from '../components/courses/CourseNavSidebar';
 import { useAuth } from '../context/AuthContext';
 import { listCourses } from '../api/courses';
 import type { CourseOut } from '../types/course';
-import { ArrowIcon } from '../components/icons';
+import { ArrowIcon, SparkleIcon } from '../components/icons';
 
 function formatPrice(cents: number): string {
   return cents > 0 ? `€${(cents / 100).toFixed(2)}` : 'Free';
@@ -62,7 +62,10 @@ export function MarketplacePage() {
       <div className="body">
         <div className="page-container">
           <div className="page-header">
-            <h1>Marketplace</h1>
+            <div className="page-header-title">
+              <h1>Marketplace</h1>
+              <SparkleIcon style={{ color: 'var(--muted)' }} />
+            </div>
             <p className="page-subtitle">
               Courses submitted by users and approved by an admin - separate from the scraped FINKI catalog
               under Courses. Anyone with an active subscription can submit one, with materials attached.

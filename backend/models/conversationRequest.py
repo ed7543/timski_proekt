@@ -32,6 +32,9 @@ class ConversationOut(BaseModel):
     id: int
     title: str
     subject: Optional[str] = None
+    # The owner's Nth-ever conversation, stamped once at creation - stays
+    # fixed even if an earlier conversation is later deleted.
+    issue_no: int
     created_at: datetime
     updated_at: datetime
     message_count: int = 0
@@ -54,6 +57,7 @@ class ConversationDetailOut(BaseModel):
     id: int
     title: str
     subject: Optional[str] = None
+    issue_no: int
     created_at: datetime
     updated_at: datetime
     messages: List[MessageOut] = []

@@ -7,7 +7,6 @@ export function NewConversationButton({ onClick }: { onClick: () => void }) {
         <PlusIcon />
         New conversation
       </span>
-      <span className="kbd">⌘N</span>
     </button>
   );
 }

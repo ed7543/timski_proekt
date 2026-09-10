@@ -19,7 +19,7 @@ export interface DisplayMessage {
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 interface StreamCallbacks {
-  onConversationInfo?: (info: { id: number; title: string }) => void;
+  onConversationInfo?: (info: { id: number; title: string; issue_no: number }) => void;
   onSources?: (sources: ChatSource[]) => void;
   onSessionExpired?: () => void;
   onError?: (message: string) => void;

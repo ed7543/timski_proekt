@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { QuizResponse } from '../../types/chat';
 import { createQuizAttempt, updateQuizAttempt } from '../../api/quizProgress';
 import { ModalShell } from './ModalShell';
+import { SparkleIcon } from '../icons';
 
 interface Props {
   data: QuizResponse;
@@ -88,7 +89,9 @@ export function QuizModal({ data, subject, onClose }: Props) {
       <div className="modal-footer">
         <div className="quiz-score">
           Score: {correctCount} / {total}
-          {answeredCount === total && correctCount === total ? ' 🎉' : ''}
+          {answeredCount === total && correctCount === total && (
+            <SparkleIcon style={{ color: 'var(--emerald)', marginLeft: 6, verticalAlign: 'middle' }} />
+          )}
         </div>
         <button className="btn btn-primary" onClick={onClose}>
           Close

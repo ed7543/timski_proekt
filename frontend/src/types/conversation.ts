@@ -2,6 +2,8 @@ export interface ConversationOut {
   id: number;
   title: string;
   subject: string | null;
+  /** The owner's Nth-ever conversation, stamped once at creation - stays fixed even if an earlier conversation is later deleted. */
+  issue_no: number;
   created_at: string;
   updated_at: string;
   message_count: number;
@@ -28,6 +30,7 @@ export interface ConversationDetailOut {
   id: number;
   title: string;
   subject: string | null;
+  issue_no: number;
   created_at: string;
   updated_at: string;
   messages: MessageOut[];
