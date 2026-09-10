@@ -121,13 +121,13 @@ export function InviteModal({ conversationId, isOwner, maxMembers, onClose, onMe
                 <div className="material-row">
                   <div className="material-row-fields">
                     <input className="auth-input" type="text" readOnly value={invite.url} style={{ flex: 1 }} />
-                    <button type="button" className="modal-close ghost" onClick={handleCopy}>
+                    <button type="button" className="btn btn-secondary" onClick={handleCopy}>
                       {copied ? 'Copied!' : 'Copy'}
                     </button>
                   </div>
                 </div>
               ) : (
-                <button type="button" className="login-btn" disabled={creating} onClick={handleCreateInvite}>
+                <button type="button" className="btn btn-primary" disabled={creating} onClick={handleCreateInvite}>
                   {creating ? 'Creating…' : 'Create invite link'}
                 </button>
               )}
@@ -140,7 +140,7 @@ export function InviteModal({ conversationId, isOwner, maxMembers, onClose, onMe
 
       <div className="modal-footer">
         <div />
-        <button className="modal-close" onClick={onClose}>
+        <button className="btn btn-primary" onClick={onClose}>
           Close
         </button>
       </div>

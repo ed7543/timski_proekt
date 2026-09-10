@@ -79,7 +79,7 @@ export function MarketplacePage() {
                 onChange={(e) => onSearchChange(e.target.value)}
               />
             </div>
-            <Link to={canSubmit ? '/marketplace/submit' : '/subscribe'} className="login-btn" style={{ flexShrink: 0 }}>
+            <Link to={canSubmit ? '/marketplace/submit' : '/subscribe'} className="btn btn-primary" style={{ flexShrink: 0 }}>
               {canSubmit ? 'Submit a course' : 'Subscribe to submit a course'}
             </Link>
           </div>

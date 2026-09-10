@@ -111,7 +111,7 @@ export function LessonQuizModal({
           Score: {correctCount} / {questions.length}
           {allCorrect ? ' 🎉' : ''}
         </div>
-        <button type="button" className="modal-close" onClick={() => onFinish(allCorrect)}>
+        <button type="button" className="btn btn-primary" onClick={() => onFinish(allCorrect)}>
           Done
         </button>
       </div>
@@ -287,7 +287,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
               )}
               <button
                 type="button"
-                className="modal-close"
+                className="btn btn-primary"
                 disabled={!detail.documentation || generating}
                 onClick={handleGenerateQuiz}
               >
@@ -296,7 +296,7 @@ export function LessonDetail({ courseId, lesson, onBack, autoOpenQuiz, onQuizPas
               {currentQuiz && (
                 <button
                   type="button"
-                  className="modal-close ghost"
+                  className="btn btn-secondary"
                   disabled={generating}
                   onClick={handleRegenerateQuiz}
                 >

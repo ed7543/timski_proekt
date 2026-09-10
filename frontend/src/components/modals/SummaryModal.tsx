@@ -12,7 +12,7 @@ export function SummaryModal({ summary, onClose }: { summary: string; onClose: (
       <div className="msg-ai-body" dangerouslySetInnerHTML={{ __html: html }} />
       <div className="modal-footer">
         <div />
-        <button className="modal-close" onClick={onClose}>
+        <button className="btn btn-primary" onClick={onClose}>
           Close
         </button>
       </div>

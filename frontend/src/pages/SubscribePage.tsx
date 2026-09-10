@@ -37,7 +37,7 @@ function PlanCard({ plan }: { plan: BillingPlan }) {
       {plan.description && <p className="plan-desc">{plan.description}</p>}
       <p className="plan-desc">Lets you submit courses to the Marketplace, with materials attached.</p>
       {error && <div className="auth-error" style={{ marginTop: 8 }}>{error}</div>}
-      <button type="button" className="login-btn" style={{ marginTop: 12 }} disabled={starting} onClick={handleSubscribe}>
+      <button type="button" className="btn btn-primary" style={{ marginTop: 12 }} disabled={starting} onClick={handleSubscribe}>
         {starting ? 'Redirecting…' : 'Subscribe'}
       </button>
     </div>
@@ -100,8 +100,8 @@ export function SubscribePage() {
               {user?.is_premium && (
                 <button
                   type="button"
-                  className="login-btn"
-                  style={{ marginTop: 12, background: 'var(--destructive)' }}
+                  className="btn btn-danger"
+                  style={{ marginTop: 12 }}
                   disabled={cancelling}
                   onClick={handleCancel}
                 >

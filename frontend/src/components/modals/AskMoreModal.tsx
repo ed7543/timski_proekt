@@ -30,7 +30,7 @@ export function AskMoreModal({ questions, onPick, onClose }: Props) {
       </div>
       <div className="modal-footer">
         <div />
-        <button className="modal-close" onClick={onClose}>
+        <button className="btn btn-primary" onClick={onClose}>
           Close
         </button>
       </div>

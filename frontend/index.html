@@ -11,6 +11,22 @@
       rel="stylesheet"
     />
     <title>LearnWise — Editorial AI Tutor</title>
+    <script>
+      // Set the theme before first paint so there's no flash of the wrong
+      // theme while React mounts - mirrors ThemeProvider's own resolution
+      // logic in src/context/ThemeContext.tsx.
+      (function () {
+        try {
+          var stored = localStorage.getItem('lw_theme');
+          var theme = stored === 'light' || stored === 'dark'
+            ? stored
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {
+          /* localStorage/matchMedia unavailable - default light styling applies */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

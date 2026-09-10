@@ -6,7 +6,7 @@ export function NotFoundPage() {
       <div className="stub-page">
         <h2>404</h2>
         <p>This page doesn't exist.</p>
-        <Link to="/chat" className="login-btn" style={{ marginTop: 8, display: 'inline-block' }}>
+        <Link to="/chat" className="btn btn-primary" style={{ marginTop: 8, display: 'inline-block' }}>
           Back to chat
         </Link>
       </div>
