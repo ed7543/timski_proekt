@@ -11,9 +11,10 @@ https://trello.com/b/UqREXgJa/timski-proekt
 -  **Live web search** — fetches current docs via the Tavily Search API
 -  **Source sidebar** — see exactly where the AI got its info
 -  **Subject mode** — focus on Python, FastAPI, React, etc.
+-  **Replies in your language/script** — the tutor matches whatever language and script the student asked in, including Macedonian written in either Cyrillic or Latin letters (see `SYSTEM_PROMPT` rule 8 in `backend/ai/chat.py`)
 -  **Accounts & chat history** — register/login, and every conversation is saved, searchable, renameable, exportable
 -  **Group chat** — invite up to 2 others (3 total) to a conversation via a shareable link; everyone's messages are labeled and the AI's replies stay in sync for all members
--  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look, markdown rendered, code highlighted
+-  **React frontend** — a proper Vite + TypeScript SPA, editorial paper/ink look (light or dark theme, remembered per browser), collapsible sidebars, markdown rendered with IDE-style syntax-highlighted code blocks (one-click copy), and a skippable first-visit onboarding tour replayable any time from the account menu
 -  **Course-aware tutoring** — pick a real FINKI course from a dropdown right in the chat masthead, and the tutor folds in that course's metadata, lecture topics, and materials (with real links) as extra context
 -  **AI-generated lesson content** — per-course lessons with Gemini-generated study documentation and on-demand quizzes, grounded in real textbook/course-material excerpts
 -  **Marketplace** — premium users submit new courses (with materials), an admin approves or rejects them, and approved ones go live for everyone — free or priced
@@ -67,7 +68,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ```bash
 alembic upgrade head
 ```
-This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `conversation_members`, `conversation_invites`, `cached_searches`, `courses`, `course_materials`, `course_notes`, `recordings`, `course_purchases`, `quiz_attempts`, `lessons`, `course_sources`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
+This creates all tables (`users`, `verification_tokens`, `conversations`, `chat_messages`, `conversation_members`, `conversation_invites`, `cached_searches`, `courses`, `course_materials`, `course_notes`, `recordings`, `course_purchases`, `quiz_attempts`, `lessons`, `course_sources`, `blog_posts`) and enables the `pg_trgm` Postgres extension (used for fuzzy search-cache matching and course-name search). Whenever you pull new migration files from git, re-run this command to apply them to your local database.
 
 ### 3b. Create an admin account
 There's no in-app way to become an admin — registration always creates a plain `"student"`. Register a user normally through the app, then promote it with the `make_admin` script:
@@ -117,6 +118,13 @@ Pulls new posts from the official FINKI student-announcement board (oldsite.fink
 into the `blog_posts` table shown on the Ресурси/Blog page — the automated counterpart to an admin manually
 pasting a link. Safe to re-run any time: it only ever adds announcements whose URL isn't already imported.
 
+The same script also pulls from a second, national source — the Ministry of Education and Science's own
+"Конкурси" and "Стипендии" boards (`mon.gov.mk`, see `backend/services/mon_konkursi.py`). Not every posting
+there is student-relevant (a lot is K-12 textbooks, pupil dormitories, gymnasium programs), so
+`mon_konkursi.is_relevant_to_students` filters before anything is imported. Both sources land in the same
+"Конкурси" Blog category and each scraped posting is fetched via the exact same `blog_fetcher.py` path a
+manually-pasted admin link would use, so they're indistinguishable from any other Blog card once imported.
+
 To run it automatically every day on Windows, use `run_finki_announcements.bat` (in the project root) with
 Task Scheduler:
 ```
@@ -160,11 +168,15 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 ├── frontend/                    # React + TypeScript SPA (Vite) - see "Frontend" below
 │   └── src/
 │       ├── api/                 # apiFetch client, auth/conversations/chatTools/blog calls
-│       ├── context/             # AuthContext (user/token/status)
-│       ├── hooks/                # useChatStream (SSE), useConversations, useConversationPolling (group chat)
+│       ├── context/             # AuthContext (user/token/status), ThemeContext (light/dark), HelpTourContext (onboarding)
+│       ├── hooks/                # useChatStream (SSE), useConversations, useConversationPolling (group chat), useCollapsed (sidebar state)
+│       ├── routes/               # ProtectedRoute - redirects to /login unless authenticated
 │       ├── pages/                # Login/Register/Chat/Courses/CourseDetail/BlogPage/etc.
-│       ├── components/          # layout/sidebar/chat/sources/modals(AddBlogPostModal)/courses
-│       │                        #   (courses/LessonDetail.tsx - lesson documentation + quiz UI)
+│       │                        #   (CommunityCoursesPage.tsx and AdminStub.tsx exist but aren't wired into
+│       │                        #   App.tsx's route table - leftover/unused, not a bug if you can't find them linked anywhere)
+│       ├── components/          # layout/sidebar/chat/sources/modals(AddBlogPostModal)/courses/onboarding(HelpTourModal)/Dropdown.tsx
+│       │                        #   (courses/LessonDetail.tsx - lesson documentation + quiz UI,
+│       │                        #    courses/MaterialStudyGuide.tsx - Marketplace material study-guide UI)
 │       └── types/                # TS interfaces mirroring backend/models/*.py
 │
 └── backend/                     # Main application root
@@ -195,7 +207,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── askMoreRequest.py    # Follow-up questions request
     │   ├── authRequest.py       # Register/Login/ForgotPassword/ResetPassword schemas
     │   ├── conversationRequest.py # Conversation create/update/list/detail + member/invite schemas
-    │   ├── courseResponse.py    # Course/CourseMaterial/CourseNote/Recording/Lesson/AdminCourseOut response schemas
+    │   ├── courseResponse.py    # Course/CourseMaterial/CourseNote/Recording/Lesson/AdminCourseOut/MaterialStudyGuideOut response schemas
     │   ├── courseSubmitRequest.py # Course submission + admin reject-reason schemas
     │   ├── courseNoteRequest.py  # Community study-note create schema
     │   ├── quizProgressRequest.py # Quiz attempt create/update schemas
@@ -208,7 +220,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── chatRoute.py         # /api/chat, /api/quiz, /api/summary, /api/explore, /api/ask-more
     │   ├── conversationRoute.py # /api/conversations/* - CRUD + export for chat history
     │   ├── courseRoute.py       # /api/courses/* - catalog, Marketplace submission, deletion,
-    │   │                        #   + lessons and community-notes endpoints
+    │   │                        #   + lessons, community-notes, and Marketplace material study-guide endpoints
     │   ├── adminRoute.py        # /api/admin/* - course approval/rejection queue
     │   ├── billingRoute.py      # /api/billing/* - Stripe subscription + one-time course purchase
     │   ├── uploadRoute.py       # /api/courses/upload-material - Supabase Storage file uploads
@@ -224,6 +236,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
     │   ├── course_context.py    # Formats a Course into a context block for the AI prompt
     │   ├── blog_fetcher.py      # Scrapes title/excerpt/image from a pasted article URL
     │   ├── finki_announcements.py # Discovers and imports FINKI student announcements + job posts
+    │   ├── mon_konkursi.py      # Discovers Ministry of Education konkursi/stipendii postings, filtered for student relevance
+    │   ├── material_study_guide.py # Extracts text from a Marketplace material's own URL for AI study-guide generation
     │   └── ingestion/           # Standalone scrapers/loaders - never triggered by live API traffic
     │       ├── finki_hub_client.py  # Polite httpx wrapper (UA, rate limit, robots.txt check)
     │       ├── predmeti_scraper.py  # Course metadata from assets.finki-hub.com/courses.json
@@ -281,7 +295,10 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_quiz_progress_route.py # /api/quiz-progress/* CRUD + recommendations
         ├── test_seed_lessons.py       # Lesson-seeding pipeline orchestration/report generation
         ├── test_finki_announcements.py # FINKI announcement sync: category guessing, URL discovery, import, deduplication
-        └── test_blog_route.py         # Admin add/delete auth gating, SSRF guard on pasted URLs, duplicate-URL guard
+        ├── test_mon_konkursi.py       # MON konkursi/stipendii scraping + student-relevance filtering
+        ├── test_blog_route.py         # Admin add/delete auth gating, SSRF guard on pasted URLs, duplicate-URL guard
+        ├── test_material_study_guide.py # Marketplace material study-guide generation, category gating, purchase/lock gating
+        └── test_generation_method.py  # Lesson.generation_method ("source" vs "general_knowledge") tagging
 ```
 
 ## Architecture Layers Explained
@@ -351,6 +368,7 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 - **Rate limiting**: `/api/auth/register`, `/api/auth/login`, and `/api/auth/forgot-password` are limited to 5 requests/minute per IP (`slowapi`, in-memory store — fine for a single-process deployment; swap in a Redis storage backend if this ever runs with multiple workers).
 - **Email verification / password reset**: `backend/utils/email.py::send_email()` sends via the Resend API if `RESEND_API_KEY` is set; otherwise it falls back to **printing the link to the server console** (`[DEV] ... link: ...`). Fine for local dev/demo without a Resend account configured.
 - **Chat history**: every chat lives in a `Conversation` (id, owner, title, subject, timestamps) which owns an ordered list of `ChatMessage` rows (role, content, author, timestamp). Deleting a conversation cascades and deletes its messages. A conversation is visible only to its owner and any invited members (see "Group chat" below) — `conversationRoute.py`'s `_get_member_conversation` helper returns a 404 (not a 403) if you try to access a conversation you don't own or belong to, so you can't even tell whether a given conversation ID belongs to someone else.
+- **Permanent conversation numbering**: the frontend's masthead shows each conversation as "No. NN" (magazine-issue style) — `Conversation.issue_no`, stamped once at creation from `User.conversation_seq` (migration `b1e4a7c92d05`), the owner's Nth-ever conversation. Both are plain integer columns, not something recomputed from the live conversation list, specifically so deleting an earlier conversation never renumbers the ones that came after it. Assigned via an atomic `UPDATE ... RETURNING` (`conversationRoute.py::create_conversation` and `chat_service.py::resolve_conversation` — there are two conversation-creation paths, since sending a first message with no `conversation_id` yet auto-creates one) so two concurrent creates for the same user can't collide on the same number.
 - **Streaming + persistence**: `/api/chat` streams the AI's reply via SSE. Because the database session tied to the HTTP request closes as soon as the streaming response starts, the code opens a **second, fresh database session** partway through the stream just to save the assistant's final reply once it's fully generated.
 - **Graceful failure mid-stream**: if Groq errors out partway through a response (rate limit, timeout, etc.), the backend catches it, sends the client a proper `event: error` SSE frame with a readable message (e.g. "You're sending messages too fast"), and still saves whatever partial answer had already been generated instead of losing it. The frontend shows the error alongside the partial answer rather than replacing it. Covered by `backend/tests/test_chat_route.py` — verified the tests actually catch a regression here, not just pass regardless, by temporarily reverting the fix and confirming they failed.
 - **Stop generating**: the composer's send button turns into a stop button while a response is streaming (`useChatStream`'s `abort()`, backed by a real `AbortController`). Clicking it always stops the client from receiving/showing more text. **Known limitation**: unlike the server-error case above, a client-initiated disconnect doesn't reliably trigger the same save-partial-reply path — Starlette/anyio can raise `RuntimeError: aclose(): asynchronous generator is already running` when cleaning up the stream generator on a client disconnect, which is a deeper async cleanup issue than this fix addresses. So stopping generation is instant and reliable; the partial answer being saved to that conversation's history on a *user-initiated* stop is not guaranteed (it is guaranteed on a *server-side* error).
@@ -362,11 +380,17 @@ A Vite + React + TypeScript SPA that replaces `backend/static/learnwise-2.html` 
 - **Routing**: `react-router-dom` — `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, and `/blog` are public (`/blog` matches the backend's public `GET /api/blog` - its admin-only add/delete controls are hidden client-side via `user?.role === 'admin'`, same pattern as the rest of the app); everything else requires auth (a `ProtectedRoute` wrapper redirects to `/login` otherwise): `/chat`, `/chat/:conversationId`, `/courses`, `/courses/:courseId`, `/progress`, `/admin`, `/marketplace`, `/marketplace/submit`, `/marketplace/:courseId`, `/my-courses`, `/subscribe`, `/billing/success`, `/billing/cancel`. All of these are real pages now, not stubs.
 - **Courses section**: `CoursesPage` lists ingested courses grouped by semester with a search box; `CourseDetailPage` shows a course's metadata pills, description, materials list, and recordings grouped by category (Предавања/Аудиториски вежби/etc.), each linking out to its source. A left-sidebar nav (`NavTabs`, shared with the chat page) switches between Chat and Courses.
 - **Auth**: JWT kept in `localStorage` (same trade-off the old HTML app had — the backend only issues bearer tokens, not httpOnly cookies, so this wasn't "fixed" here, just carried forward knowingly). `AuthContext` calls `GET /api/auth/me` on load to restore a session; a central API client clears the token and redirects to `/login` on any `401`.
+- **Theme**: `ThemeContext` (`frontend/src/context/ThemeContext.tsx`) toggles a `data-theme` attribute on `<html>` between `"light"`/`"dark"`, driving every color via CSS custom properties in `globals.css` — no per-component dark-mode logic. Defaults to the OS's `prefers-color-scheme` on first visit, then remembers the explicit choice in `localStorage` (`lw_theme`) from then on. Toggled from the account menu in the sidebar footer (`UserFooter.tsx`), not a floating button.
+- **Collapsible sidebars**: both the left (nav/chat history) and right (sources/study tools) sidebars can be collapsed to an icon-only rail via `useCollapsed` (`frontend/src/hooks/useCollapsed.ts`), a small localStorage-backed boolean hook (`lw_sidebar_left` / passed down for the right sidebar) - state persists across reloads, independent of the existing responsive breakpoints that hard-hide the right sidebar on narrow screens. The collapsed left sidebar keeps one action reachable (start a new conversation) rather than going fully icon-free.
+- **Help / onboarding tour**: `HelpTourContext` + `HelpTourModal` (`frontend/src/context/HelpTourContext.tsx`, `frontend/src/components/onboarding/HelpTourModal.tsx`) show a short skippable slideshow the first time a user logs in (tracked via a `lw_help_seen` localStorage flag, not a backend column - it's purely a "have they seen the tour in this browser" flag), covering the sidebar, course/subject context, code blocks, the Study tools panel, and every other page the user has access to (My courses/Admin slides only appear for users who'd actually see those nav items). Replayable any time via "Help & quick tour" in the account menu.
 - **Streaming chat**: `useChatStream` replicates the backend's exact SSE framing via `fetch` + `ReadableStream` (native `EventSource` can't send the required `Authorization` header) — same approach the old vanilla-JS app used, just ported into a hook. It also exposes `abort()` (backed by a real `AbortController`) for the composer's stop-generating button, and treats a connection that ends without a `[DONE]` sentinel as its own error state instead of leaving the message stuck showing "typing" forever.
+- **New-conversation shortcut**: pressing a bare `N` anywhere outside a text field, a `<select>`, an open dropdown/menu, or a modal starts a new conversation (`ChatPage.tsx`). Deliberately not a modifier combo — `Cmd/Ctrl+N` is reserved by every browser for "new window", and `Cmd/Ctrl+Shift+O` (an earlier attempt, matching ChatGPT's own binding) turned out to be reserved too, for the browser's own bookmark manager. Matched via `e.code` (physical key position), not `e.key`, so it fires correctly regardless of keyboard layout - `e.key` alone would silently never match on a Macedonian Cyrillic layout.
 - **Markdown rendering is sanitized**: AI responses and summaries render through `frontend/src/utils/markdown.ts`, which pipes `marked`'s output through DOMPurify before it hits `dangerouslySetInnerHTML`. `marked` alone does not sanitize — since responses can embed live web-search content, unsanitized output would be a real XSS vector.
+- **Code blocks**: fenced code in AI responses is syntax-highlighted via `highlight.js` (a custom `marked.Renderer().code` in `markdown.ts`, capped with a small in-memory cache so an unchanged block isn't re-highlighted on every streamed token) and wrapped in a `.code-block` with its own header bar - a language label plus a one-click Copy button (falls back to a no-op if `navigator.clipboard` is unavailable, e.g. a non-HTTPS deployment). Colors are on dedicated fixed CSS tokens (`--code-bg`/`--code-text`/`--code-border`), not the theme-swapping ones, so a code block looks the same in light and dark mode instead of inverting.
 - **State/data**: no react-query or similar — plain `fetch` wrapped in a small typed API client (`frontend/src/api/`) plus React Context/hooks. Deliberate: there are only ~6 REST resources, and a query library would fight the raw SSE code path more than it would help.
 - **Study tools**: Quiz/Summary/Explore/Ask More render as modals over the chat page (not separate routes), matching the original app's UX.
-- **Course picker in the chat masthead**: `ChatMasthead` fetches `GET /api/courses` once on load and shows a course dropdown (a bordered "pill" with a book icon, next to the existing free-text Subject dropdown, separated by a divider since they're different things — course ties you to a specific FINKI course's real data, subject just nudges the live web search). Selecting one threads `course_id` through every chat/quiz/summary/explore/ask-more call. Hidden entirely if no courses are ingested yet, so it degrades gracefully. Both dropdowns are width-capped with ellipsis truncation — course names can run 60+ characters in Cyrillic, and without a cap the select would balloon and shove everything else in the masthead out of place.
+- **Course picker in the chat masthead**: `ChatMasthead` fetches `GET /api/courses` once on load and shows a course dropdown (a bordered "pill" with a book icon, next to the existing free-text Subject dropdown, separated by a divider since they're different things — course ties you to a specific FINKI course's real data, subject just nudges the live web search). Selecting one threads `course_id` through every chat/quiz/summary/explore/ask-more call. Hidden entirely if no courses are ingested yet, so it degrades gracefully. Both dropdowns are width-capped with ellipsis truncation — course names can run 60+ characters in Cyrillic, and without a cap it would balloon and shove everything else in the masthead out of place.
+- **Custom `Dropdown` component** (`frontend/src/components/Dropdown.tsx`): both pickers above (and other selects in the app) use this instead of a native `<select>`, since a native select's open menu can't be restyled at all in any browser - it's what made the old pickers look out of place next to the rest of the custom UI. Reimplements what a native select gives for free: Arrow Up/Down + Home/End move between options, `aria-expanded`/`aria-haspopup` on the trigger, Escape or an outside click closes it, and focus returns to the trigger after a selection instead of being dropped.
 - **Dev vs prod**: in dev, Vite proxies `/api` to `:8000` (see `frontend/vite.config.ts`) — no CORS needed. In prod, `npm run build` produces `frontend/dist`, which `backend/main.py` mounts directly at `/` if present, so the whole app can ship as a single FastAPI process.
 
 ## Course Data (courses / course_materials / recordings)
@@ -417,6 +441,15 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 
 **Note**: the Lessons section only ever has content for courses the pipeline has actually been run on (needs a `GEMINI_API_KEY` - see Setup above). Until then (or for courses never covered by `courses_db.json`), it correctly shows "No lessons generated for this course yet".
 
+## Marketplace Study Guides (course_materials)
+
+The Marketplace equivalent of Lesson Content above, but generated on demand from a single course material's own URL instead of a curated textbook source — no `courses_db.json` entry needed, works for any course (official catalog or Marketplace) that has materials.
+
+- **On demand, not pre-seeded**: a student opens a material and clicks "Study Guide" (`frontend/src/components/courses/MaterialStudyGuide.tsx`) — nothing is generated until then. `GET /api/courses/{course_id}/materials/{material_id}/study-guide` returns whatever's already cached; `POST` (same path) generates documentation + a quiz the first time, or just the missing tier if documentation already exists. Rate-limited 5/minute per IP, same as the Lessons quiz endpoint.
+- **Text extraction from the material itself**: `services/material_study_guide.py` fetches (disk-cached under `backend/services/material_study_guide_cache/`) and extracts readable text from the material's own URL — PDF via the same `pypdf` path `ingestion/source_text.py` uses, anything else via a plain BeautifulSoup text extraction (no heading-based section splitting like the curated-textbook pipeline needs, since this is one ad-hoc material, not a whole book to navigate). Video materials are rejected outright (`is_generatable_category`) — there's no text to work from, and the frontend hides the toggle for these too.
+- **Same Medium/Hard quiz split as Lessons**: `CourseMaterial.quiz`/`quiz_hard` (migration `9d4c1a2f7e6b`) reuse the exact same `gemini_generator.generate_quiz(difficulty=...)` Lessons already use — documentation is generated once and shared by both tiers.
+- **Gating**: same rule as Materials/Recordings generally — free courses open to anyone, priced courses need the submitter, an admin, or a `CoursePurchase` row. Any logged-in user can trigger generation (not restricted to the submitter/admin), since it's read access to something they can already view, just computed lazily.
+
 ## Current Status
 
 | Component | Status   |
@@ -443,8 +476,10 @@ Useful flags: `--skip-quiz` (documentation-only pass, halves the Gemini calls pe
 | Billing (Stripe) | Complete, test-mode only — submission subscription + per-course one-time purchase |
 | Progress frontend page | Complete — real UI, quiz attempts tracked and low-scoring subjects recommended for revisiting |
 | Lesson content (AI-generated docs + quizzes) | Complete — pipeline + UI built; needs a `GEMINI_API_KEY` to actually generate anything (see "Lesson Content" above) |
+| Marketplace material study guides | Complete — on-demand per-material AI docs + Medium/Hard quiz, same `GEMINI_API_KEY` requirement (see "Marketplace Study Guides" above) |
 | Community study notes | Complete — any logged-in user can attach a note to any course, no subscription needed, never locked even on a priced course |
-| News & Recommendations (Blog) | Complete — FINKI announcement auto-sync, admin article submission by URL, category filtering, job postings feed |
+| News & Recommendations (Blog) | Complete — FINKI + MON (Ministry of Education) announcement auto-sync, admin article submission by URL, category filtering, job postings feed |
+| Onboarding tour & theme | Complete — skippable first-visit help tour (replayable from the account menu), light/dark theme remembered per browser |
 
 ### Notes for the team
 
@@ -487,7 +522,7 @@ Real-time sync is deliberately polling-based, not push/WebSocket - see `frontend
 
 ### Chat & study tools (`/api/chat`, `/api/quiz`, `/api/summary`, `/api/explore`, `/api/ask-more`) - all require auth
 All five accept an optional `course_id?: number` — if given and it matches a row in `courses`, that course's metadata + lecture topics are folded into the prompt context (see "Course Data" above for what this context actually contains).
-- `POST /api/chat` - `{messages, subject?, search?, conversation_id?, course_id?}` — omit `conversation_id` to start a new conversation, or pass an existing one to keep appending to it. Returns a `text/event-stream`: an `event: conversation` message with `{id, title}` first (so the frontend knows which conversation was created/used), then an `event: sources` message with the search results if any, then a stream of `data: <chunk>` events, ending with `data: [DONE]`. Search results are served from `cached_searches` when a similar question was already searched, otherwise fetched live from Tavily and cached for next time.
+- `POST /api/chat` - `{messages, subject?, search?, conversation_id?, course_id?}` — omit `conversation_id` to start a new conversation, or pass an existing one to keep appending to it. Returns a `text/event-stream`: an `event: conversation` message with `{id, title, issue_no}` first (so the frontend knows which conversation was created/used, and its permanent "No." — see "Permanent conversation numbering" above), then an `event: sources` message with the search results if any, then a stream of `data: <chunk>` events, ending with `data: [DONE]`. Search results are served from `cached_searches` when a similar question was already searched, otherwise fetched live from Tavily and cached for next time.
 - `POST /api/quiz` - `{messages, subject?, course_id?}` → a generated quiz
 - `POST /api/summary` - `{messages, subject?, course_id?}` → a study summary
 - `POST /api/explore` - `{messages, subject?, course_id?}` → related links (cache-backed, same as `/api/chat`)
@@ -502,6 +537,8 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `POST /submit` - **requires a premium subscription** - `{name, materials, price, ...}`, creates a course with status `"pending"`
 - `POST /upload-material` - **requires auth, rate-limited to 10/minute per IP** (no subscription needed - uploading a file is free) - `multipart/form-data` with `file` + optional `context` (`material` default or `note`), returns `{url, resource_type, original_filename}` (Supabase Storage-backed). Type is verified from the file's actual bytes (magic numbers), not the client-supplied Content-Type header, which is otherwise trivially spoofable - `415` if unrecognized. Allowed: PDF, images (jpeg/png/webp/gif), video (mp4/webm/mov), Word (.doc/.docx), PowerPoint (.pptx). Size cap depends on `context` - 50 MB for `material` (Supabase free-tier limit), 10 MB for `note` (the fully open, unmoderated community-notes path gets a much smaller budget) - `413` over the cap, `400` for an unrecognized `context` value.
 - `DELETE /{id}` - **requires auth** - the course's own submitter or an admin only; refuses to touch the scraped catalog
+- `GET /{course_id}/materials/{material_id}/study-guide` - `402` if the course is priced and locked (same rule as Materials/Recordings) - returns whatever's already generated (see "Marketplace Study Guides" above)
+- `POST /{course_id}/materials/{material_id}/study-guide?difficulty=medium|hard` - **requires auth, rate-limited to 5/minute per IP** - generates (or regenerates just the missing tier of) a material's AI study guide + quiz on demand. `400` for a video material (nothing to extract text from) or an invalid `difficulty`, `502` if fetching/extracting the material's own content or the Gemini call fails.
 
 ### Admin (`/api/admin`) - all require an admin account
 - `GET /courses/pending` - pending submissions (Admin panel's default view)
