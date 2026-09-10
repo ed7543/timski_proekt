@@ -40,6 +40,11 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/chat/join/:token" element={<JoinConversationPage />} />
+          {/* Public, matching the backend (GET /api/blog requires no auth,
+              see routes/blogRoute.py) - BlogPage itself already hides the
+              admin-only add/delete controls behind user?.role === 'admin',
+              so there's nothing here that needs a logged-in visitor. */}
+          <Route path="/blog" element={<BlogPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/chat" element={<ChatPage />} />
@@ -52,7 +57,6 @@ function App() {
             <Route path="/billing/success" element={<BillingSuccessPage />} />
             <Route path="/billing/cancel" element={<BillingCancelPage />} />
             <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/blog" element={<BlogPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/my-courses" element={<MyCoursesPage />} />
             <Route path="/subscribe" element={<SubscribePage />} />

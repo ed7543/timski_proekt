@@ -14,8 +14,9 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('mk-MK', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-/** Public resource page (nav label "Ресурси", page itself still titled
- * "Блог" - Marina's call): a grid of curated links pulled in from external
+/** Public resource page - heading matches the nav tab's label ("News &
+ * Recommendations" - Marina's call, replacing the earlier "Блог" heading
+ * that didn't match it): a grid of curated links pulled in from external
  * sites, split into tabs (Препораки / Конкурси / Пракси и работа / Уписи /
  * Настани - see types/blog.ts::BLOG_CATEGORIES). Nothing here is written by
  * us or by AI - every card's title/excerpt was scraped from the source
@@ -58,7 +59,7 @@ export function BlogPage() {
       <div className="body">
         <div className="page-container">
           <div className="page-header">
-            <h1>Блог</h1>
+            <h1>News & Recommendations</h1>
             <p className="page-subtitle">
               Избрани линкови од интернет — статии, конкурси, пракси, уписи и настани. Секоја картичка
               линкува до оригиналниот извор на изворниот сајт.

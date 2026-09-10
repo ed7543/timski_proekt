@@ -280,7 +280,8 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
         ├── test_lesson_upsert.py      # Lesson/CourseSource find-then-update-or-insert logic
         ├── test_quiz_progress_route.py # /api/quiz-progress/* CRUD + recommendations
         ├── test_seed_lessons.py       # Lesson-seeding pipeline orchestration/report generation
-        └── test_finki_announcements.py # FINKI announcement sync: category guessing, URL discovery, import, deduplication
+        ├── test_finki_announcements.py # FINKI announcement sync: category guessing, URL discovery, import, deduplication
+        └── test_blog_route.py         # Admin add/delete auth gating, SSRF guard on pasted URLs, duplicate-URL guard
 ```
 
 ## Architecture Layers Explained
@@ -330,6 +331,7 @@ If you hit `ModuleNotFoundError: No module named 'backend'`: that means `backend
 - `conversationRoute.py`: chat history CRUD + export, **all require auth**
 - `courseRoute.py`: `/api/courses/*` - catalog (public), Marketplace submission/deletion/uploads and lessons endpoints (mixed auth requirements, see "API Endpoints" below)
 - `adminRoute.py`: `/api/admin/*` - course approval/rejection queue, **requires an admin account**
+- `blogRoute.py`: `/api/blog/*` - News & Recommendations feed; `GET` is public, `POST`/`DELETE` **require an admin account** and `POST` is rate-limited (10/minute per IP) - see "API Endpoints" below
 - `billingRoute.py`: `/api/billing/*` - Stripe subscription + one-time course purchase
 - `uploadRoute.py`: `/api/courses/upload-material` - Supabase Storage file uploads
 - `quizProgressRoute.py`: `/api/quiz-progress/*` - quiz attempt tracking + recommendations, **all require auth**
@@ -357,7 +359,7 @@ This was added by a teammate on the `maja` branch and merged via PR #1. Summary 
 
 A Vite + React + TypeScript SPA that replaces `backend/static/learnwise-2.html` entirely — `backend/main.py` no longer serves that file. It talks to the exact REST API documented in this README (nothing frontend-specific exists on the backend beyond CORS/`ALLOWED_ORIGINS`).
 
-- **Routing**: `react-router-dom` — `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email` are public; everything else requires auth (a `ProtectedRoute` wrapper redirects to `/login` otherwise): `/chat`, `/chat/:conversationId`, `/courses`, `/courses/:courseId`, `/progress`, `/admin`, `/marketplace`, `/marketplace/submit`, `/marketplace/:courseId`, `/my-courses`, `/subscribe`, `/billing/success`, `/billing/cancel`. All of these are real pages now, not stubs.
+- **Routing**: `react-router-dom` — `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, and `/blog` are public (`/blog` matches the backend's public `GET /api/blog` - its admin-only add/delete controls are hidden client-side via `user?.role === 'admin'`, same pattern as the rest of the app); everything else requires auth (a `ProtectedRoute` wrapper redirects to `/login` otherwise): `/chat`, `/chat/:conversationId`, `/courses`, `/courses/:courseId`, `/progress`, `/admin`, `/marketplace`, `/marketplace/submit`, `/marketplace/:courseId`, `/my-courses`, `/subscribe`, `/billing/success`, `/billing/cancel`. All of these are real pages now, not stubs.
 - **Courses section**: `CoursesPage` lists ingested courses grouped by semester with a search box; `CourseDetailPage` shows a course's metadata pills, description, materials list, and recordings grouped by category (Предавања/Аудиториски вежби/etc.), each linking out to its source. A left-sidebar nav (`NavTabs`, shared with the chat page) switches between Chat and Courses.
 - **Auth**: JWT kept in `localStorage` (same trade-off the old HTML app had — the backend only issues bearer tokens, not httpOnly cookies, so this wasn't "fixed" here, just carried forward knowingly). `AuthContext` calls `GET /api/auth/me` on load to restore a session; a central API client clears the token and redirects to `/login` on any `401`.
 - **Streaming chat**: `useChatStream` replicates the backend's exact SSE framing via `fetch` + `ReadableStream` (native `EventSource` can't send the required `Authorization` header) — same approach the old vanilla-JS app used, just ported into a hook. It also exposes `abort()` (backed by a real `AbortController`) for the composer's stop-generating button, and treats a connection that ends without a `[DONE]` sentinel as its own error state instead of leaving the message stuck showing "typing" forever.
@@ -501,6 +503,11 @@ All five accept an optional `course_id?: number` — if given and it matches a r
 - `POST /courses/{id}/approve`
 - `POST /courses/{id}/reject` - `{reason}` (required, shown back to the submitter)
 - `GET /notes?limit=` - every community-contributed note across every course, newest first (default 200, max 1000) - notes have no pending/approval workflow like course submissions, so this read-only, cross-course view is the only way to discover abuse without querying the database directly; deletion still goes through the existing `DELETE /api/courses/{course_id}/notes/{note_id}`
+
+### Blog / News & Recommendations (`/api/blog`)
+- `GET /` - public, no auth - every curated article, newest first
+- `POST /` - **requires an admin account, rate-limited to 10/minute per IP** - `{url, category?}`; scrapes title/excerpt/image straight from the pasted page's own `<title>`/meta tags (`services/blog_fetcher.py`), nothing from the article body is stored. The fetch itself is SSRF-guarded: the URL (and every redirect hop it follows) is resolved and rejected if it points at a loopback/private/link-local/reserved address (this blocks cloud metadata endpoints like `169.254.169.254` too), and only `http`/`https` are allowed. `409` if that `url` was already added, `422` if the page can't be reached/parsed or is blocked by the SSRF guard.
+- `DELETE /{post_id}` - **requires an admin account** - removes a bad or mis-scraped card
 
 ### Billing (`/api/billing`)
 - `GET /plans` - public - live Stripe price/name/interval for the submission subscription

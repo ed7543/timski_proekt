@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
+from starlette.concurrency import run_in_threadpool
 
 from backend.database.models import BlogPost, User
 from backend.database.session import get_db
 from backend.middleware.auth import get_current_admin
+from backend.middleware.rate_limit import limiter
 from backend.models.blogRequest import BlogPostCreateRequest
 from backend.models.blogResponse import BlogPostOut
 from backend.services.blog_fetcher import BlogFetchError, fetch_article_metadata
@@ -25,7 +27,9 @@ async def list_blog_posts(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=BlogPostOut, status_code=201)
+@limiter.limit("10/minute")
 async def create_blog_post(
+    request: Request,
     payload: BlogPostCreateRequest,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
@@ -34,9 +38,25 @@ async def create_blog_post(
     scrape the title/excerpt/image straight from the page's own metadata and
     save it as a new card. Nothing from the article's body is stored beyond
     that short excerpt - the full piece stays on its original site, and the
-    card always links back to it."""
+    card always links back to it.
+
+    Rate-limited (10/minute per IP, same as upload-material) since it makes
+    a real outbound HTTP call per request - not just an abuse-prevention
+    measure, this route can otherwise be used to probe/hammer arbitrary
+    hosts (see blog_fetcher.py's SSRF guard) or hosts on the public internet.
+
+    fetch_article_metadata() is a blocking (sync) call - it's shared as-is
+    with the scheduled sync script (scripts/fetch_finki_announcements.py),
+    which is plain sync CLI code - so it's offloaded to a worker thread via
+    run_in_threadpool rather than run directly on this async def route,
+    which would otherwise stall the whole event loop for up to
+    FETCH_TIMEOUT_SECONDS on every call."""
+    source_url = str(payload.url)
+    if db.query(BlogPost.id).filter(BlogPost.source_url == source_url).first():
+        raise HTTPException(status_code=409, detail="Оваа статија веќе е додадена.")
+
     try:
-        meta = fetch_article_metadata(str(payload.url))
+        meta = await run_in_threadpool(fetch_article_metadata, source_url)
     except BlogFetchError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -44,7 +64,7 @@ async def create_blog_post(
         title=meta["title"],
         excerpt=meta["excerpt"],
         image_url=meta["image_url"],
-        source_url=str(payload.url),
+        source_url=source_url,
         source_name=meta["source_name"],
         category=(payload.category or "").strip() or None,
         added_by_id=admin.id,
