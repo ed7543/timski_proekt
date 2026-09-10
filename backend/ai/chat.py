@@ -110,7 +110,13 @@ async def _request_quiz_json(quiz_prompt: str) -> dict:
         raw = data["choices"][0]["message"]["content"]
         # Strip any accidental markdown fences
         raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-        return json.loads(raw)
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=502, detail="Quiz generation returned an unexpected response - please try again.")
+        if not isinstance(parsed, dict):
+            raise HTTPException(status_code=502, detail="Quiz generation returned an unexpected response - please try again.")
+        return parsed
 
 
 _QUIZ_JSON_FORMAT = """Respond ONLY with a valid JSON object in exactly this format, no markdown, no extra text:
