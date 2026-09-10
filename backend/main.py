@@ -9,7 +9,18 @@ from slowapi.middleware import SlowAPIMiddleware
 
 
 from backend.middleware.rate_limit import limiter
-from backend.routes import health, chatRoute, auth, conversationRoute, courseRoute, quizProgressRoute
+from backend.routes import (
+    health,
+    chatRoute,
+    auth,
+    conversationRoute,
+    courseRoute,
+    quizProgressRoute,
+    adminRoute,
+    billingRoute,
+    uploadRoute,
+    blogRoute,
+)
 from config import ALLOWED_ORIGINS
 
 app = FastAPI(title="LearnWise AI Tutor")
@@ -35,6 +46,10 @@ app.include_router(auth.router)
 app.include_router(conversationRoute.router)
 app.include_router(courseRoute.router)
 app.include_router(quizProgressRoute.router)
+app.include_router(adminRoute.router)
+app.include_router(billingRoute.router)
+app.include_router(uploadRoute.router)
+app.include_router(blogRoute.router)
 
 # Production build: serve the compiled React app for anything that isn't
 # /api/*. Registered after the routers above so it never shadows them.

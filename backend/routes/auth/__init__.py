@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from backend.database.session import get_db
-from backend.database.models import User, VerificationToken
+from backend.database.models import Course, User, VerificationToken
 from backend.middleware.auth import get_current_user
 from backend.middleware.rate_limit import limiter
 from backend.utils.time import utcnow
@@ -82,13 +82,24 @@ async def logout():
 
 
 @router.get("/me")
-async def me(current_user: User = Depends(get_current_user)):
-    """Return info about the currently logged-in user. Requires a valid Bearer token."""
+async def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Return info about the currently logged-in user. Requires a valid Bearer token.
+
+    has_submitted_courses is separate from is_premium so a user who has
+    submitted a Marketplace course but later cancelled their subscription
+    still sees "My courses" in the nav - is_premium alone would hide their
+    own submission history the moment they cancel."""
+    has_submitted_courses = (
+        db.query(Course.id).filter(Course.submitted_by_id == current_user.id).first() is not None
+    )
     return {
         "id": current_user.id,
         "email": current_user.email,
         "full_name": current_user.full_name,
         "is_verified": current_user.is_verified,
+        "role": current_user.role,
+        "is_premium": current_user.is_premium,
+        "has_submitted_courses": has_submitted_courses,
     }
 
 

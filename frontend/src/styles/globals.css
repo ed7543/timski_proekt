@@ -7,15 +7,74 @@
 }
 :root {
   --paper: #f5f3ee;
+  --paper-rgb: 245, 243, 238;
   --cream: #e8e4dd;
+  --cream-rgb: 232, 228, 221;
   --ink: #0d0d0d;
+  --ink-rgb: 13, 13, 13;
   --ink-soft: #2a2a2a;
   --rule: #d8d3c8;
   --border: #d8d3c8;
   --muted: #6e6a62;
   --card: #fbfaf6;
+  --card-rgb: 251, 250, 246;
   --destructive: #9b2d20;
+  --destructive-rgb: 155, 45, 32;
   --emerald: #1f6b3a;
+  --emerald-rgb: 31, 107, 58;
+
+  --overlay: rgba(13, 13, 13, 0.5);
+  --shadow: rgba(0, 0, 0, 0.08);
+  --grain-rgb: 0, 0, 0;
+  --bg-subtle: rgba(0, 0, 0, 0.02);
+  --seg-bg: #dcd8cf;
+  --seg-bg-hover: #cfcbc0;
+  --composer-border: rgba(13, 13, 13, 0.8);
+
+  /* Deliberately NOT redefined in the dark palette below - code blocks stay
+     a fixed dark "editor" color in both themes (like GitHub's, VS Code's,
+     etc.) instead of following --ink/--paper, which would otherwise make
+     them flip to a *light* background in dark mode since ink/paper swap
+     meaning between themes. */
+  --code-bg: #1e1e1e;
+  --code-text: #d4d4d4;
+  --code-border: rgba(255, 255, 255, 0.1);
+  --code-accent: #5fd99a;
+
+  color-scheme: light;
+}
+
+/* Dark palette - keeps the same warm, editorial paper/ink character
+   (warm off-black background, warm off-white ink) rather than a generic
+   pure-black theme. Every token from the light block above is redefined
+   here; nothing outside :root should ever reference a literal color. */
+:root[data-theme='dark'] {
+  --paper: #17181a;
+  --paper-rgb: 23, 24, 26;
+  --cream: #202226;
+  --cream-rgb: 32, 34, 38;
+  --ink: #f2f0ea;
+  --ink-rgb: 242, 240, 234;
+  --ink-soft: #cfcdc5;
+  --rule: #34363b;
+  --border: #34363b;
+  --muted: #9a978d;
+  --card: #1e1f22;
+  --card-rgb: 30, 31, 34;
+  --destructive: #e0705c;
+  --destructive-rgb: 224, 112, 92;
+  --emerald: #4cb37f;
+  --emerald-rgb: 76, 179, 127;
+
+  --overlay: rgba(0, 0, 0, 0.65);
+  --shadow: rgba(0, 0, 0, 0.4);
+  --grain-rgb: 255, 255, 255;
+  --bg-subtle: rgba(255, 255, 255, 0.03);
+  --seg-bg: #2a2c30;
+  --seg-bg-hover: #35373c;
+  --composer-border: rgba(242, 240, 234, 0.3);
+
+  color-scheme: dark;
 }
 html,
 body,
@@ -47,9 +106,35 @@ a {
 input {
   font-family: inherit;
 }
+/* Theme-consistent scrollbars everywhere (sidebar history, dropdown menus,
+   long AI replies, the composer, etc.) instead of the browser's default
+   OS-native scrollbar, which is a fat, unstyled, always-light-gray bar that
+   clashes with the app's own palette (especially in dark mode). Thin,
+   colored via the theme's own tokens, and only visibly darker on hover so
+   it stays unobtrusive at rest. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted);
+}
 .paper-grain {
-  background: radial-gradient(circle at 20% 10%, rgba(0, 0, 0, 0.018) 0 1px, transparent 1.5px) 0 0/3px 3px,
-    radial-gradient(circle at 80% 60%, rgba(0, 0, 0, 0.015) 0 1px, transparent 1.5px) 1px 1px/4px 4px, var(--paper);
+  background: radial-gradient(circle at 20% 10%, rgba(var(--grain-rgb), 0.018) 0 1px, transparent 1.5px) 0 0/3px 3px,
+    radial-gradient(circle at 80% 60%, rgba(var(--grain-rgb), 0.015) 0 1px, transparent 1.5px) 1px 1px/4px 4px, var(--paper);
 }
 .app {
   display: flex;
@@ -58,12 +143,17 @@ input {
   overflow: hidden;
 }
 .sidebar-left {
+  position: relative;
   width: 276px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
-  background: rgba(245, 243, 238, 0.6);
+  background: rgba(var(--paper-rgb), 0.6);
+  transition: width 0.2s ease;
+}
+.sidebar-left.collapsed {
+  width: 64px;
 }
 .sidebar-right {
   width: 320px;
@@ -71,7 +161,38 @@ input {
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--border);
-  background: rgba(232, 228, 221, 0.4);
+  background: rgba(var(--cream-rgb), 0.4);
+  transition: width 0.2s ease;
+}
+.sidebar-right.collapsed {
+  width: 0;
+  border-left: none;
+  overflow: hidden;
+}
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 16px;
+  right: 8px;
+  height: 24px;
+  width: 24px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-collapse-btn:hover {
+  background: var(--cream);
+  color: var(--ink);
+}
+/* Expanded mode positions this near the brand row's right edge; collapsed
+   mode's icon rail is centered, so the button should be too rather than
+   staying pinned to where "the right side of 276px" used to be. */
+.sidebar-left.collapsed .sidebar-collapse-btn {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
 }
 main {
   flex: 1;
@@ -84,21 +205,6 @@ main {
   align-items: center;
   gap: 8px;
   padding: 20px 20px 12px;
-}
-.brand-mark {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 2px;
-}
-.brand-mark span {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  font-size: 15px;
-  line-height: 1;
 }
 .brand-name {
   font-family: 'Instrument Serif', serif;
@@ -128,6 +234,29 @@ main {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   opacity: 0.6;
+}
+/* Collapsed left sidebar - search and history don't have a meaningful
+   icon-only form, so they stay hidden until expanded again, but "start a
+   new conversation" is the one action worth keeping one click away instead
+   of requiring the user to expand the sidebar first. */
+.sidebar-collapsed-body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+.sidebar-collapsed-new-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.sidebar-collapsed-new-btn:hover {
+  background: var(--ink-soft);
 }
 .search-wrap {
   padding: 0 20px 8px;
@@ -165,7 +294,7 @@ main {
   cursor: pointer;
 }
 .thread:hover {
-  background: rgba(232, 228, 221, 0.7);
+  background: rgba(var(--cream-rgb), 0.7);
 }
 .thread.active {
   background: var(--cream);
@@ -228,10 +357,28 @@ main {
   color: var(--muted);
   margin-top: 1px;
 }
+/* A long title's ellipsis-truncated text doesn't know the rename/delete
+   buttons are about to float on top of it on hover, so the last few visible
+   characters used to sit directly under the icon glyphs. A gradient fade
+   (matching the row's own hover tint) masks that tail instead, so the text
+   reads as "fading out" rather than being sliced through. Needs an explicit
+   z-index stack (text < gradient < buttons) since ::after paints after
+   every real child by default - without it the gradient would cover the
+   buttons themselves, not just the text behind them. */
+.thread:hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 6px;
+  background: linear-gradient(to right, transparent 55%, rgba(var(--cream-rgb), 0.92) 82%);
+  pointer-events: none;
+}
 .thread-actions {
   position: absolute;
   right: 6px;
   top: 6px;
+  z-index: 2;
   display: none;
   gap: 2px;
 }
@@ -259,6 +406,17 @@ main {
   align-items: center;
   gap: 10px;
 }
+/* Collapsed sidebar: the default 20px side padding plus a 32px avatar don't
+   fit in a 64px rail (32 + 40 > 64), which pushed the avatar off-center /
+   crowded against the border. Shrink padding and let the trigger size to
+   its content instead of stretching, so the avatar sits centered. */
+.sidebar-left.collapsed .user-foot {
+  padding: 12px 8px;
+  justify-content: center;
+}
+.sidebar-left.collapsed .user-foot-trigger {
+  flex: 0 0 auto;
+}
 .avatar {
   height: 32px;
   width: 32px;
@@ -284,6 +442,81 @@ main {
   font-size: 11px;
   color: var(--muted);
 }
+.user-foot-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.user-foot-trigger {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.user-foot-trigger:hover {
+  background: var(--cream);
+}
+/* Shared "floating menu panel" look for every popover menu in the app
+   (account menu, course/subject Dropdown) - each keeps its own positioning
+   rules below, but the panel chrome itself (surface/border/radius/shadow/
+   padding) lives in one place instead of being redeclared per menu. */
+.user-foot-dropdown,
+.dropdown-menu {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px var(--shadow);
+  padding: 6px;
+}
+.user-foot-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 12px;
+  right: 12px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+}
+/* Collapsed left sidebar: the footer is a narrow icon-only rail, so the
+   dropdown opens as a flyout to the right instead of an upward panel bound
+   to the (now much narrower) sidebar width. */
+.user-foot-dropdown.flyout {
+  left: 100%;
+  right: auto;
+  bottom: 0;
+  margin-bottom: 0;
+  margin-left: 8px;
+  width: 200px;
+}
+.user-foot-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.user-foot-dropdown .user-foot-menu-item,
+.dropdown-option {
+  padding: 8px 10px;
+  border-radius: 5px;
+}
+.user-foot-dropdown .user-foot-menu-item:hover,
+.dropdown-option:hover {
+  background: var(--cream);
+}
+.user-foot-menu-item {
+  font-size: 12.5px;
+  color: var(--ink);
+  cursor: pointer;
+}
 .masthead {
   flex-shrink: 0;
   display: flex;
@@ -297,6 +530,7 @@ main {
   align-items: baseline;
   gap: 12px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 .vol {
   font-family: 'JetBrains Mono', monospace;
@@ -322,7 +556,7 @@ main {
 }
 .masthead-r {
   margin-left: auto;
-  min-width: 0;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -391,6 +625,54 @@ select {
   border-bottom: 1.5px solid var(--muted);
   transform: translateY(-75%) rotate(45deg);
   pointer-events: none;
+}
+/* Custom Dropdown component (src/components/Dropdown.tsx) - replaces the
+   old native <select> in the masthead. Reuses .select-wrap for the trigger
+   box (border/hover/chevron above); these rules are just the trigger text
+   and the open menu, which a native select could never be styled to match. */
+.dropdown {
+  cursor: pointer;
+}
+.dropdown-trigger {
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.select-wrap-course .dropdown-trigger {
+  max-width: 150px;
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 180px;
+  max-width: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+  z-index: 30;
+}
+.dropdown-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dropdown-option.active {
+  background: var(--cream);
+  font-weight: 500;
 }
 .toggle-btn {
   display: flex;
@@ -563,7 +845,7 @@ select {
   white-space: pre-wrap;
 }
 .bubble-user code {
-  background: rgba(245, 243, 238, 0.15);
+  background: rgba(var(--paper-rgb), 0.15);
   color: var(--paper);
   padding: 1px 4px;
   border-radius: 2px;
@@ -597,6 +879,33 @@ select {
   height: 1px;
   flex: 1;
   background: var(--border);
+}
+/* Shown between sending a message and the first streamed token arriving -
+   search + time-to-first-token can take a few seconds, and until now the
+   bubble showed nothing at all during that gap. */
+.msg-ai-generating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+/* A true rotateY() with perspective looks great on something with real
+   depth, but a small flat 2D icon has none - at 90/270deg it doesn't just
+   thin out, the perspective warps it into a stretched sliver instead of
+   cleanly vanishing. scaleX gives the same "spinning coin, seen edge-on at
+   the midpoint" read without any of that perspective distortion. */
+@keyframes sparkle-spin {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(-1);
+  }
+}
+.sparkle-spin {
+  animation: sparkle-spin 1.6s ease-in-out infinite;
 }
 .msg-ai-body {
   font-size: 15px;
@@ -634,6 +943,36 @@ select {
 .msg-ai-body strong {
   font-weight: 600;
 }
+/* Markdown tables - previously entirely unstyled (bare browser-default
+   table rendering), for content like comparisons that the AI is now
+   instructed to lay out as a real table instead of faking columns with
+   plain text. */
+.msg-ai-body table {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.msg-ai-body th,
+.msg-ai-body td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.msg-ai-body th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--ink);
+}
+.msg-ai-body tbody tr:last-child th,
+.msg-ai-body tbody tr:last-child td {
+  border-bottom: none;
+}
 .msg-ai-body code {
   border: 1px solid var(--border);
   background: var(--cream);
@@ -642,13 +981,43 @@ select {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12.5px;
 }
-.msg-ai-body pre {
-  background: var(--ink);
-  color: var(--paper);
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
+/* Wraps every fenced code block (see utils/markdown.ts's custom marked
+   renderer) - holds the copy button and gives every block in the app the
+   same spacing/corners regardless of which page renders it. */
+.code-block {
   margin: 12px 0;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 8px 7px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--code-border);
+}
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+}
+.msg-ai-body pre {
+  background: none;
+  color: var(--code-text);
+  padding: 12px 14px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow-x: auto;
+  margin: 0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12.5px;
   line-height: 1.5;
@@ -658,6 +1027,48 @@ select {
   border: none;
   color: inherit;
   padding: 0;
+}
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: rgba(255, 255, 255, 0.92);
+}
+.code-copy-btn:active {
+  transform: scale(0.94);
+}
+.code-copy-btn.copied {
+  color: var(--code-accent);
+  border-color: rgba(95, 217, 154, 0.4);
+  background: rgba(95, 217, 154, 0.12);
+}
+.code-copy-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.code-copy-btn .check-icon {
+  display: none;
+}
+.code-copy-btn.copied .copy-icon {
+  display: none;
+}
+.code-copy-btn.copied .check-icon {
+  display: block;
 }
 .msg-ai-body.streaming::after {
   content: '▋';
@@ -673,14 +1084,14 @@ select {
   font-size: 13px;
   color: var(--destructive);
   border: 1px solid var(--destructive);
-  background: rgba(155, 45, 32, 0.06);
+  background: rgba(var(--destructive-rgb), 0.06);
   padding: 10px 12px;
   border-radius: 6px;
 }
 .composer {
   flex-shrink: 0;
   border-top: 1px solid var(--border);
-  background: rgba(245, 243, 238, 0.8);
+  background: rgba(var(--paper-rgb), 0.8);
   padding: 20px 40px;
 }
 .composer-inner {
@@ -689,7 +1100,7 @@ select {
 }
 .composer-box {
   position: relative;
-  border: 1px solid rgba(13, 13, 13, 0.8);
+  border: 1px solid var(--composer-border);
   background: var(--card);
   border-radius: 8px;
   box-shadow: 0 1px 0 var(--ink);
@@ -711,6 +1122,12 @@ select {
   color: var(--ink);
   min-height: 52px;
   max-height: 160px;
+  /* A growing textarea should only ever need to scroll vertically - text
+     wraps, it doesn't run off the side. Without this, the browser's default
+     overflow:auto (both axes) can show a horizontal scrollbar track that
+     has nothing to actually scroll. */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .composer-box textarea::placeholder {
   color: var(--muted);
@@ -858,7 +1275,7 @@ select {
 .empty {
   margin-top: 12px;
   border: 1px dashed var(--border);
-  background: rgba(251, 250, 246, 0.6);
+  background: rgba(var(--card-rgb), 0.6);
   padding: 16px;
   border-radius: 6px;
   font-size: 12.5px;
@@ -887,6 +1304,7 @@ select {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .src-num {
   height: 20px;
@@ -919,6 +1337,12 @@ select {
   align-items: center;
   gap: 4px;
   font-size: 11px;
+  color: var(--muted);
+}
+.src-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--muted);
 }
 .divider {
@@ -998,7 +1422,7 @@ select {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13, 13, 13, 0.5);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1063,12 +1487,12 @@ select {
 }
 .quiz-option.correct {
   border-color: var(--emerald);
-  background: rgba(31, 107, 58, 0.08);
+  background: rgba(var(--emerald-rgb), 0.08);
   color: var(--emerald);
 }
 .quiz-option.wrong {
   border-color: var(--destructive);
-  background: rgba(155, 45, 32, 0.08);
+  background: rgba(var(--destructive-rgb), 0.08);
   color: var(--destructive);
 }
 .quiz-option:disabled {
@@ -1096,37 +1520,167 @@ select {
   padding-top: 20px;
   border-top: 1px solid var(--border);
 }
+/* ---------- Help / onboarding tour ----------
+   Reuses .modal's shell (already theme-aware via --paper/--ink) so this
+   looks right in both themes for free - only new pieces get their own
+   rules below. */
+.tour-kicker {
+  margin-bottom: 20px;
+}
+.tour-icon {
+  height: 48px;
+  width: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--cream);
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+.tour-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.tour-title {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+.tour-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  min-height: 68px;
+}
+.tour-body kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--cream);
+  color: var(--ink);
+}
+.tour-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 22px;
+}
+.tour-dot {
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.15s, width 0.15s;
+}
+.tour-dot.active {
+  width: 18px;
+  border-radius: 3px;
+  background: var(--ink);
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.tour-actions-nav {
+  display: flex;
+  gap: 8px;
+}
 .quiz-score {
   font-family: 'Instrument Serif', serif;
   font-style: italic;
   font-size: 18px;
 }
-.modal-close {
-  padding: 8px 18px;
+/* ---------- Button system ----------
+   Real semantic variants instead of one class reused for unrelated actions
+   with inline color overrides layered on top. `.btn` is the shared base
+   (sizing/type/transition/focus ring); pick exactly one variant on top of
+   it: primary (the main affirmative action), danger (destructive/permanent),
+   or secondary (everything else - cancel, close, upload, copy). Icon-only
+   controls use `.icon-btn`/`.icon-btn-danger` instead. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-block {
+  width: 100%;
+}
+.btn-primary {
   background: var(--ink);
   color: var(--paper);
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
+  border-color: var(--ink);
 }
-.modal-close:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--ink-soft);
+  border-color: var(--ink-soft);
 }
-.modal-close.ghost {
+.btn-danger {
+  background: var(--destructive);
+  color: var(--paper);
+  border-color: var(--destructive);
+}
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+.btn-secondary {
   background: transparent;
   color: var(--muted);
+  border-color: var(--border);
 }
-.login-btn {
-  padding: 6px 14px;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 500;
+.btn-secondary:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+  background: var(--cream);
+}
+.icon-btn {
+  height: 28px;
+  width: 28px;
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
 }
-.login-btn:hover {
-  background: var(--ink-soft);
+.icon-btn:hover {
+  background: var(--cream);
+  color: var(--ink);
+}
+.icon-btn-danger:hover {
+  background: rgba(var(--destructive-rgb), 0.1);
+  color: var(--destructive);
+}
+/* Consistent keyboard-focus ring across every interactive element - was
+   missing/inconsistent before, needed for both accessibility and a
+   "modern, finished" feel. */
+.btn:focus-visible,
+.icon-btn:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--ink-soft);
+  outline-offset: 2px;
 }
 .logout-link {
   font-size: 11px;
@@ -1145,12 +1699,74 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 72px;
   background: var(--paper);
   padding: 24px;
+}
+.auth-decor {
+  display: none;
+  flex-direction: column;
+  width: 380px;
+  flex-shrink: 0;
+}
+.auth-decor .rule-row {
+  margin-bottom: 20px;
+}
+.auth-decor-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: 44px;
+  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.auth-decor-h .it {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.auth-decor-p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.auth-decor-p svg {
+  width: 15px;
+  height: 15px;
+  color: var(--emerald);
+  flex-shrink: 0;
+}
+.auth-decor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.auth-decor-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.auth-decor-list svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+@media (min-width: 860px) {
+  .auth-decor {
+    display: flex;
+  }
 }
 .auth-card {
   width: 100%;
   max-width: 400px;
+  flex-shrink: 0;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1229,23 +1845,6 @@ select {
   color: var(--emerald);
   margin-bottom: 12px;
 }
-.auth-submit {
-  width: 100%;
-  padding: 10px;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 500;
-  margin-top: 6px;
-}
-.auth-submit:hover:not(:disabled) {
-  background: var(--ink-soft);
-}
-.auth-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 .auth-links {
   margin-top: 16px;
   display: flex;
@@ -1257,6 +1856,18 @@ select {
   text-decoration: underline;
 }
 .auth-links a:hover {
+  color: var(--ink);
+}
+.auth-theme-link {
+  margin-top: 16px;
+  text-align: center;
+}
+.auth-theme-link button {
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: underline;
+}
+.auth-theme-link button:hover {
   color: var(--ink);
 }
 .stub-page {
@@ -1279,37 +1890,92 @@ select {
   max-width: 420px;
   line-height: 1.6;
 }
+/* One consistent vertical list for every nav item (Chat/Courses/Progress
+   and Marketplace/My courses/Admin panel alike) - a single row-based style
+   sidesteps the whole class of "N items don't fit side by side at this
+   sidebar width" bugs that a horizontal pill-tab layout kept running into,
+   and reads as a single coherent nav instead of two differently-styled
+   groups. */
+.nav-tabs-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px 10px;
+}
+/* Collapsed sidebar hides the .brand row entirely, so nav-tabs-wrap would
+   otherwise start right at the top of the sidebar - directly under the
+   always-present collapse button (position: absolute, top: 16px, 24px
+   tall). Reserve just enough space for a clean, consistent gap below it -
+   the same 8px used between every other icon - instead of the much bigger,
+   uneven gap a rougher estimate left before. */
+.nav-tabs-wrap.collapsed {
+  padding-top: 48px;
+  padding-left: 8px;
+  padding-right: 8px;
+  gap: 4px;
+}
 .nav-tabs {
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-tabs-wrap.collapsed .nav-tabs {
+  align-items: center;
   gap: 4px;
-  padding: 0 20px 12px;
+}
+.nav-tabs-secondary {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.nav-tabs-wrap.collapsed .nav-tabs-secondary {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
 }
 .nav-tab {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted);
-  border-radius: 4px;
+  border-radius: 8px;
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
+}
+.nav-tab:hover {
+  color: var(--ink);
+  background: var(--cream);
 }
 .nav-tab.active {
   color: var(--ink);
   background: var(--cream);
+  font-weight: 600;
 }
-.nav-tab:hover {
-  color: var(--ink);
+/* Fixed-size square tiles instead of auto-sizing to content - guarantees
+   every icon lands in an identically-sized, perfectly centered tile
+   regardless of the icon's own natural bounding box. */
+.nav-tabs-wrap.collapsed .nav-tab {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
 }
 
 .page-container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 24px 60px;
 }
 .page-header {
   margin-bottom: 8px;
+}
+.page-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .page-header h1 {
   font-family: 'Instrument Serif', serif;
@@ -1338,6 +2004,119 @@ select {
 }
 .page-toolbar .search-input {
   width: 100%;
+}
+.filter-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.filter-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+.filter-btn.active {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.status-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.status-badge.status-approved {
+  color: var(--emerald);
+  border-color: var(--emerald);
+}
+.status-badge.status-rejected {
+  color: var(--destructive);
+  border-color: var(--destructive);
+}
+.status-badge.status-pending {
+  color: var(--ink-soft);
+}
+.plan-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.plan-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.plan-name {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 20px;
+}
+.plan-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.plan-desc {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* ---------- Submit-course form ---------- */
+.submit-course-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.submit-course-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.submit-course-row .auth-field {
+  min-width: 160px;
+}
+.material-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+}
+.material-row-fields {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.material-row-fields .auth-input {
+  flex: 1;
+  min-width: 120px;
 }
 .semester-group {
   margin-top: 32px;
@@ -1456,10 +2235,15 @@ select {
   line-height: 1.7;
   white-space: pre-line;
 }
+.course-price-pill {
+  font-weight: 600;
+  color: var(--ink);
+  border-color: var(--ink);
+}
 .course-caveat {
   margin-top: 12px;
   border: 1px dashed var(--border);
-  background: rgba(251, 250, 246, 0.6);
+  background: rgba(var(--card-rgb), 0.6);
   padding: 12px 14px;
   border-radius: 6px;
   font-size: 12px;
@@ -1515,12 +2299,28 @@ select {
   cursor: not-allowed;
   border-color: var(--border);
 }
+.src-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+.study-guide-body {
+  flex-basis: 100%;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-subtle);
+}
 .src-passed {
-  background: rgba(31, 107, 58, 0.1);
-  border-color: rgba(31, 107, 58, 0.4);
+  background: rgba(var(--emerald-rgb), 0.1);
+  border-color: rgba(var(--emerald-rgb), 0.4);
 }
 .src-passed:hover {
-  border-color: rgba(31, 107, 58, 0.6);
+  border-color: rgba(var(--emerald-rgb), 0.6);
 }
 .lesson-detail {
   margin-top: 24px;
@@ -1589,8 +2389,46 @@ select {
   margin-top: 28px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   justify-content: flex-start;
+  flex-wrap: wrap;
+}
+/* Segmented pill for the quiz difficulty toggle - deliberately grouped right
+   next to the Generate/Show Quiz button (same row, same height) so the two
+   controls read as one connected action instead of two floating pieces. */
+.quiz-difficulty-pill {
+  display: inline-flex;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--seg-bg);
+}
+.quiz-difficulty-seg {
+  padding: 0 20px;
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.quiz-difficulty-seg:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+.quiz-difficulty-seg:hover:not(.active) {
+  background: var(--seg-bg-hover);
+}
+.quiz-difficulty-seg.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+.lesson-quiz-actions .btn {
+  height: 38px;
+  border-radius: 999px;
 }
 .quiz-footer {
   display: flex;
@@ -1599,6 +2437,46 @@ select {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--border);
+}
+
+/* Large/ultra-wide screens: everything below this point (sidebars, the
+   672px reading column, page content) is sized for a normal laptop-ish
+   viewport. Left untouched on a big monitor, the reading column ends up as
+   a narrow strip swimming in empty space on both sides - scale the key
+   widths up in a couple of steps instead, keeping .conv/.welcome/
+   .composer-inner in sync with each other so the message thread and the
+   composer box stay visually aligned. */
+@media (min-width: 1600px) {
+  .sidebar-left:not(.collapsed) {
+    width: 300px;
+  }
+  .sidebar-right:not(.collapsed) {
+    width: 360px;
+  }
+  .conv,
+  .welcome,
+  .composer-inner {
+    max-width: 760px;
+  }
+  .page-container {
+    max-width: 1300px;
+  }
+}
+@media (min-width: 2200px) {
+  .sidebar-left:not(.collapsed) {
+    width: 320px;
+  }
+  .sidebar-right:not(.collapsed) {
+    width: 400px;
+  }
+  .conv,
+  .welcome,
+  .composer-inner {
+    max-width: 860px;
+  }
+  .page-container {
+    max-width: 1500px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1625,6 +2503,113 @@ select {
     font-size: 48px;
   }
   .suggestions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Blog page                                                              */
+/* ---------------------------------------------------------------------- */
+.blog-disclaimer {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--cream);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.blog-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.blog-card-image-wrap {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--cream);
+}
+.blog-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.blog-card-image-placeholder {
+  background: linear-gradient(135deg, var(--cream), var(--rule));
+}
+.blog-card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.blog-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.blog-source-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  line-height: 1.6;
+}
+.blog-source-badge--finki {
+  background: #e5f0ff;
+  color: #2258a5;
+  border-color: #c7defd;
+}
+.blog-source-badge--mon {
+  background: #fdf0d8;
+  color: #96650f;
+  border-color: #f6dfa8;
+}
+.blog-card-title {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.blog-card-title:hover {
+  text-decoration: underline;
+}
+.blog-card-excerpt {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.blog-card-footer {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+@media (max-width: 640px) {
+  .blog-grid {
     grid-template-columns: 1fr;
   }
 }

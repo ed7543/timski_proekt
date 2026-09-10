@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { useAuth } from '../../context/AuthContext';
 import { ApiError } from '../../api/client';
@@ -14,6 +14,12 @@ export function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const { loginWithToken } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Mirrors LoginPage's `from` - so someone brand-new who followed a
+  // conversation invite link and had to register first still ends up back
+  // at /chat/join/:token (which will now succeed) instead of the default /chat.
+  const from = (location.state as { from?: string } | null)?.from || '/chat';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -26,7 +32,7 @@ export function RegisterPage() {
         full_name: fullName.trim() || null,
       });
       await loginWithToken(access_token);
-      navigate('/chat', { replace: true });
+      navigate(from, { replace: true });
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) {
         setError('Too many attempts, try again shortly.');
@@ -77,7 +83,7 @@ export function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="auth-submit" type="submit" disabled={submitting}>
+        <button className="btn btn-primary btn-block" type="submit" disabled={submitting}>
           {submitting ? 'Creating account…' : 'Create account'}
         </button>
       </form>

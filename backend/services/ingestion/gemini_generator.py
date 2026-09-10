@@ -178,22 +178,49 @@ QUIZ_JSON_SCHEMA = {
 }
 
 
-def build_quiz_prompt(lesson_title: str, documentation_text: str) -> str:
+# Per-difficulty instructions, appended to the shared quiz prompt below.
+# "medium" preserves the original wording verbatim (existing quizzes were
+# all generated with this tier - keep it unchanged so regenerating a Medium
+# quiz later produces the same style of output as what is already stored).
+_QUIZ_DIFFICULTY_INSTRUCTIONS = {
+    "medium": (
+        "- Прашањата смеат да проверуваат само содржина што буквално се\n"
+        "  наоѓа во документацијата подолу - НЕ надворешно знаење.\n"
+        "- Понудените погрешни одговори треба да бидат веродостојни\n"
+        "  (плаузибилни), не очигледно апсурдни."
+    ),
+    "hard": (
+        "- Прашањата треба да бараат примена/анализа на концептите (не само\n"
+        "  препознавање факт), на пр. споредба на два поима од документацијата,\n"
+        "  препознавање на концепт во нов пример/сценарио, или поврзување на\n"
+        "  повеќе делови од текстот - но одговорот сепак мора да може да се\n"
+        "  изведе строго од документацијата подолу, не од надворешно знаење.\n"
+        "- Погрешните опции треба да бидат суптилно погрешни (на пр. близок,\n"
+        "  но не идентичен поим од истата документација), не очигледно апсурдни."
+    ),
+}
+
+
+def build_quiz_prompt(lesson_title: str, documentation_text: str, difficulty: str = "medium") -> str:
     """
     Го гради промптот за генерирање квиз, базиран на ВЕЌЕ генерираната
     документација (не директно на изворниот текст) - за да остане
     квизот усогласен со она што студентот го читал.
+
+    `difficulty` е "medium" (стандардно, исто како и досега) или "hard"
+    (потешки, аналитички прашања - see _QUIZ_DIFFICULTY_INSTRUCTIONS).
     """
+    if difficulty not in _QUIZ_DIFFICULTY_INSTRUCTIONS:
+        raise ValueError(f"Unknown quiz difficulty: {difficulty!r}")
+    difficulty_rules = _QUIZ_DIFFICULTY_INSTRUCTIONS[difficulty]
+
     return dedent(f"""
         Врз основа на следната учебна документација за темата
         "{lesson_title}", генерирај краток квиз за проверка на разбирање.
 
         ПРАВИЛА:
         - Помеѓу 4 и 6 прашања со по 4 понудени одговори (само еден точен).
-        - Прашањата смеат да проверуваат само содржина што буквално се
-          наоѓа во документацијата подолу - НЕ надворешно знаење.
-        - Понудените погрешни одговори треба да бидат веродостојни
-          (плаузибилни), не очигледно апсурдни.
+        {difficulty_rules}
         - За секое прашање додај кратко објаснување (1-2 реченици) зошто
           точниот одговор е точен, повикувајќи се на документацијата.
         - Прашањата и одговорите се на македонски јазик.
@@ -242,14 +269,17 @@ def generate_documentation(
     return (response.text or "").strip()
 
 
-def generate_quiz(lesson_title: str, documentation_text: str) -> dict:
+def generate_quiz(lesson_title: str, documentation_text: str, difficulty: str = "medium") -> dict:
     """Generates the quiz (step 2 of the pipeline), based on the already-generated
     documentation, constrained to QUIZ_JSON_SCHEMA. Returns the parsed dict
     ({"questions": [...]}.  Raises RuntimeError if GEMINI_API_KEY is unset,
     google.genai.errors.APIError on an API failure, or json.JSONDecodeError if
-    the model somehow returns invalid JSON despite the schema constraint."""
+    the model somehow returns invalid JSON despite the schema constraint.
+
+    `difficulty`: "medium" (default, original behaviour) or "hard" - see
+    build_quiz_prompt/_QUIZ_DIFFICULTY_INSTRUCTIONS."""
     client = _get_client()
-    prompt = build_quiz_prompt(lesson_title=lesson_title, documentation_text=documentation_text)
+    prompt = build_quiz_prompt(lesson_title=lesson_title, documentation_text=documentation_text, difficulty=difficulty)
     try:
         response = client.models.generate_content(
             model=GEMINI_MODEL,
@@ -263,3 +293,89 @@ def generate_quiz(lesson_title: str, documentation_text: str) -> dict:
         logger.exception("Gemini quiz generation failed for lesson '%s'", lesson_title)
         raise
     return json.loads(response.text)
+
+
+# ---------------------------------------------------------------------------
+# 4. ДОКУМЕНТАЦИЈА БЕЗ ИЗВОР (fallback за предмети без учебник/материјал)
+# ---------------------------------------------------------------------------
+# Секции 1-3 погоре намерно ЗАБРАНУВААТ на Gemini да пишува од сопственото
+# знаење - документацијата мора да биде строго заснована на даден изворен
+# текст (види "СТРОГО ПРАВИЛО ЗА ИЗВОРИ" во build_documentation_prompt). Тоа
+# евесна одлука за точност: без вистински извор, нема начин да се провери
+# дали моделот измислува факти.
+#
+# Оваа секција е ЕКСПЛИЦИТЕН, одделен fallback за предмети што воопшто
+# немаата назначен извор во courses_db.json (status pending_source /
+# deferred_user_will_provide_materials) - користи се само кога некој свесно
+# го побара тоа (--generate-without-source флаг во cli.py), никогаш по
+# default. Секоја вака генерирана документација автоматски добива видлива
+# забелешка на почетокот (програмски додадена овде, не бараме од моделот да
+# ја напише сам - иста логика како изворет што секогаш се додава програмски,
+# никогаш не се бара од моделот).
+
+NO_SOURCE_DISCLAIMER_MK = (
+    "> ⚠️ **Забелешка:** оваа лекција е генерирана од општот знаење на AI "
+    "моделот, без конкретен потврден извор (учебник/материјал) за овој "
+    "предмет. Провери ја точноста пред целосно да се потпреш на неа.\n\n"
+)
+
+
+def build_no_source_documentation_prompt(course_name_mk: str, lesson_title: str) -> str:
+    """Прес истиот стил/структура/должина/терминолошки правила како
+    build_documentation_prompt, но БЕЗ изворен текст - моделот пишува од
+    сопственото општо знаење. Наменето само за --generate-without-source."""
+    return dedent(f"""
+        Ти си асистент кој подготвува учебен материјал за студенти по
+        компјутерски науки на македонски јазик.
+
+        ЗАДАЧА:
+        Напиши учебна документација (студиски водич) на македонски јазик за
+        темата "{lesson_title}", која е дел од предметот "{course_name_mk}".
+        Немаш даден изворен текст за оваа тема - пишувај од твоето сопствено,
+        општо, добро-утврдено знаење за оваа област.
+
+        ПРАВИЛО ЗА ТОЧНОСТ:
+        Бидејќи нема изворен текст против кој да се провери содржината, биди
+        конзервативен: вклучувај само добро-утврдени, стандардни концепти и
+        дефиниции за темата (она што би стоело во кој било стандарден учебник
+        за оваа област), НЕ обидувај се да звучиш поспецифично отколку што си
+        сигурен - НЕ измислувај конкретни бројки, датуми, имиња на луѓе/алатки/
+        верзии, статистики или тврдења што не си сигурен дека се точни.
+
+        ПРАВИЛО ЗА ПРОГРАМСКА ТЕРМИНОЛОГИЈА:
+        Кога спомнуваш име на тип податок, клучен збор (keyword), функција,
+        вредност или друг термин специфичен за програмски јазик (на пр. float,
+        int, double, string, boolean, null, void, array), НЕ преведувај го
+        самиот термин на македонски со опишана фраза. Остави го терминот во
+        оригиналната латинична форма, точно како што стои во кодот, а по
+        потреба само кратко објасни го значењето на македонски веднаш до него.
+        Ова важи само за вистински програмски термини - општите концепти од
+        материјалот и понатаму објаснувај ги природно на македонски.
+
+        СТИЛ И СТРУКТУРА:
+        - Јасен, едноставен, педагошки тон, прилагоден за студенти.
+        - Користи наслови/поднаслови за организирање на содржината.
+        - Должина: НАЈМНОГУ {MAX_DOCUMENTATION_WORDS} зборови (тврд лимит).
+          Не додавај содржина само за да се приближиш до тој број.
+        - Пиши исклучиво на македонски јазик.
+
+        Генерирај ја документацијата сега.
+    """).strip()
+
+
+def generate_no_source_documentation(course_name_mk: str, lesson_title: str) -> str:
+    """Исто како generate_documentation(), но без изворен текст (види ја
+    напомената погоре во оваа секција защо ова е одделна, експлицитна
+    патека). Секогаш го враќа резултатот со NO_SOURCE_DISCLAIMER_MK
+    прикачен на почетокот - повикувачот не треба (и не смее) сам да го
+    додава, за да не постои начин случајно да се зачува документација без
+    забелешка."""
+    client = _get_client()
+    prompt = build_no_source_documentation_prompt(course_name_mk=course_name_mk, lesson_title=lesson_title)
+    try:
+        response = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
+    except genai_errors.APIError:
+        logger.exception("Gemini no-source documentation generation failed for lesson '%s'", lesson_title)
+        raise
+    body = (response.text or "").strip()
+    return NO_SOURCE_DISCLAIMER_MK + body

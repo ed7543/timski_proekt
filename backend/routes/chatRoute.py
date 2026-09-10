@@ -15,7 +15,13 @@ from backend.models.askMoreRequest import AskMoreRequest
 from backend.models.chatRequest import ChatRequest
 from backend.models.exploreRequest import ExploreRequest
 from backend.models.summaryRequest import SummaryRequest
-from backend.services.chat_service import resolve_conversation, save_assistant_reply, save_user_message
+from backend.services.chat_service import (
+    get_message_history_for_model,
+    resolve_conversation,
+    save_assistant_reply,
+    save_user_message,
+)
+from backend.services.chat_state import start_generating, stop_generating
 from backend.services.course_context import format_course_context
 from backend.services.search_cache import get_or_search, get_or_search_many
 from backend.web_search.search import format_search_context
@@ -62,7 +68,12 @@ async def chat(
     conversation = resolve_conversation(db, request, current_user, latest_user_msg)
 
     if latest_user_msg:
-        save_user_message(db, conversation, latest_user_msg)
+        save_user_message(db, conversation, latest_user_msg, current_user.id)
+
+    # Rebuilt from the DB, not request.messages - see get_message_history_for_model's
+    # docstring for why (a stale client-side transcript is a real risk once
+    # more than one member can post into the same conversation).
+    model_messages = get_message_history_for_model(db, conversation)
 
     # Capture plain values before the request-scoped DB session closes.
     # (The `db` session from Depends(get_db) is closed as soon as this function
@@ -72,6 +83,7 @@ async def chat(
     # open a brand new session for the final save.)
     conv_id = conversation.id
     conv_title = conversation.title
+    conv_issue_no = conversation.issue_no
 
     # Web search for context - served from the cache when a similar question was
     # already searched before, otherwise a live Tavily call (see services/search_cache.py)
@@ -88,7 +100,7 @@ async def chat(
     async def event_stream():
         # First let the UI know which conversation this belongs to (important
         # when a new one was just created, so the frontend can select it)
-        conv_payload = json.dumps({"id": conv_id, "title": conv_title})
+        conv_payload = json.dumps({"id": conv_id, "title": conv_title, "issue_no": conv_issue_no})
         yield f"event: conversation\ndata: {conv_payload}\n\n"
 
         # Then emit the search sources so the UI can show them
@@ -107,8 +119,9 @@ async def chat(
         # without a reply. Instead we emit an `event: error` frame the frontend
         # can render, and still persist whatever partial text was generated.
         full_response = ""
+        start_generating(conv_id)  # advisory only - lets other members' polling show "generating"
         try:
-            async for chunk in stream_groq_response(request.messages, context, request.subject):
+            async for chunk in stream_groq_response(model_messages, context, request.subject):
                 full_response += chunk
                 yield f"data: {json.dumps(chunk)}\n\n"
         except Exception as exc:
@@ -119,6 +132,7 @@ async def chat(
                 message = "The AI tutor had trouble responding. Please try again."
             yield f"event: error\ndata: {json.dumps({'message': message})}\n\n"
         finally:
+            stop_generating(conv_id)
             if full_response:
                 save_assistant_reply(conv_id, full_response)
 

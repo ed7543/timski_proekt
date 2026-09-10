@@ -55,7 +55,7 @@ def patched_pipeline(monkeypatch):
     upserted = []
     monkeypatch.setattr(
         seed_lessons, "upsert_lesson",
-        lambda db, course_id, i, topic_title, documentation=None, quiz=None: upserted.append(topic_title),
+        lambda db, course_id, i, topic_title, documentation=None, quiz=None, generation_method=None: upserted.append(topic_title),
     )
     return upserted
 

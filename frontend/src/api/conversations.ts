@@ -4,6 +4,9 @@ import type {
   ConversationDetailOut,
   ConversationCreate,
   ConversationUpdate,
+  ConversationInviteOut,
+  ConversationMemberOut,
+  ConversationStatusOut,
 } from '../types/conversation';
 
 export function listConversations(search?: string): Promise<ConversationOut[]> {
@@ -13,6 +16,12 @@ export function listConversations(search?: string): Promise<ConversationOut[]> {
 
 export function getConversation(id: number): Promise<ConversationDetailOut> {
   return apiFetch<ConversationDetailOut>(`/api/conversations/${id}`);
+}
+
+/** Cheap poll target - a message count + the generating flag, not the full
+ * transcript. See useConversationPolling.ts. */
+export function getConversationStatus(id: number): Promise<ConversationStatusOut> {
+  return apiFetch<ConversationStatusOut>(`/api/conversations/${id}/status`);
 }
 
 export function createConversation(payload: ConversationCreate = {}): Promise<ConversationOut> {
@@ -31,6 +40,29 @@ export function renameConversation(id: number, payload: ConversationUpdate): Pro
 
 export function deleteConversation(id: number): Promise<void> {
   return apiFetch<void>(`/api/conversations/${id}`, { method: 'DELETE' });
+}
+
+/** Owner-only. Multi-use until the conversation hits 3 members or the invite expires/is revoked. */
+export function createInvite(conversationId: number): Promise<ConversationInviteOut> {
+  return apiFetch<ConversationInviteOut>(`/api/conversations/${conversationId}/invites`, { method: 'POST' });
+}
+
+export function revokeInvite(conversationId: number, inviteId: number): Promise<void> {
+  return apiFetch<void>(`/api/conversations/${conversationId}/invites/${inviteId}`, { method: 'DELETE' });
+}
+
+/** Any logged-in user - joins the conversation this invite points to. */
+export function acceptInvite(token: string): Promise<ConversationOut> {
+  return apiFetch<ConversationOut>(`/api/conversations/invites/${token}/accept`, { method: 'POST' });
+}
+
+export function listMembers(conversationId: number): Promise<ConversationMemberOut[]> {
+  return apiFetch<ConversationMemberOut[]>(`/api/conversations/${conversationId}/members`);
+}
+
+/** Pass your own user_id to leave; the owner can pass any other member's user_id to remove them. */
+export function removeMember(conversationId: number, userId: number): Promise<void> {
+  return apiFetch<void>(`/api/conversations/${conversationId}/members/${userId}`, { method: 'DELETE' });
 }
 
 export async function exportConversation(id: number, format: 'markdown' | 'json'): Promise<{ blob: Blob; filename: string }> {

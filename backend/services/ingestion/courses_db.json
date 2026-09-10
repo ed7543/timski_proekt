@@ -5245,21 +5245,16 @@
       "course_name_en": "Entrepreneurship",
       "semester_group": "semester_8",
       "ects": 6,
-      "status": "confirmed_partial",
+      "status": "confirmed",
       "source": {
-        "title": "Entrepreneurship",
-        "author": "OpenStax (William Petty, Michael Laverty, Colin Litter et al.)",
-        "publisher": "OpenStax / Rice University",
-        "license": "CC BY-NC-SA 4.0 (потврдено)",
-        "url": "https://openstax.org/books/entrepreneurship/pages/preface",
-        "note": "Отворен универзитетски учебник кој покрива: создавање вредност, генерирање идеи, feasibility анализа, Business Model Canvas, финансирање, финансиско управување, стратегии за раст/скалирање."
+        "title": "Консолидирани белешки од предавања по Претприемништво",
+        "author": "Материјал доставен од корисникот (сопствени консолидирани белешки од сите 15 предавања)",
+        "publisher": "Интерен курсен материјал доставен од корисникот",
+        "license": "Кориснички материјал за лична едукативна употреба",
+        "url": null,
+        "note": "Консолидирани белешки кои ги покриваат сите теми: вредности и вредносна понуда, иновации (4P, Blue Ocean), од идеја до евалуација и Future Thinking, Lean thinking/MVP/пивотирање/Mom Test, Business Model Canvas и Lean Canvas, презентирање пред инвеститори, старт-ап финансии, канали, старт-ап метрики, старт-ап еко-системи, скалирање и организациски раст, циркуларна економија и социјално претприемништво - вклучувајќи ја и Lean-специфичната методологија и организациските/регулаторни прашања што претходниот извор (OpenStax) не ги покриваше целосно."
       },
       "lessons": [
-        {
-          "topic_title": "Општи информации за структурата на предметот",
-          "documentation": null,
-          "quiz": null
-        },
         {
           "topic_title": "создавање вредност, проблем-решение рамки, типови иновации",
           "documentation": null,
@@ -5306,8 +5301,16 @@
           "quiz": null
         }
       ],
-      "note": "Bараните книги (Zero to One, Lean Startup, Startup Owner's Manual, NESTA toolkit) НЕ се легално бесплатни - не се најдени легитимни бесплатни копии. Составениот бесплатен пакет (OpenStax + Strategyzer canvas) добро ги покрива темелните концепти, но Lean-специфичната методологија (customer development, MVP pitch структура) и регулаторните рамки за МСП во Македонија остануваат непокриени - потребен е дополнителен извор или материјал од предметот.",
+      "note": null,
       "additional_sources": [
+        {
+          "title": "Entrepreneurship",
+          "author": "OpenStax (William Petty, Michael Laverty, Colin Litter et al.)",
+          "publisher": "OpenStax / Rice University",
+          "license": "CC BY-NC-SA 4.0 (потврдено)",
+          "url": "https://openstax.org/books/entrepreneurship/pages/preface",
+          "note": "Отворен универзитетски учебник кој покрива: создавање вредност, генерирање идеи, feasibility анализа, Business Model Canvas, финансирање, финансиско управување, стратегии за раст/скалирање."
+        },
         {
           "title": "The Business Model Canvas (официјален темплејт)",
           "author": "Alexander Osterwalder / Strategyzer",

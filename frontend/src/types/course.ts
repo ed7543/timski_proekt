@@ -4,6 +4,9 @@ export interface CourseOut {
   name: string;
   code: string | null;
   semester: string | null;
+  price_cents: number;
+  /** null for the scraped FINKI catalog; the submitter's display name for a Marketplace course. */
+  submitted_by_name: string | null;
 }
 
 export interface CourseDetailOut extends CourseOut {
@@ -11,6 +14,7 @@ export interface CourseDetailOut extends CourseOut {
   source_url: string | null;
   material_count: number;
   recording_count: number;
+  locked: boolean;
 }
 
 export interface CourseMaterialOut {
@@ -19,6 +23,24 @@ export interface CourseMaterialOut {
   category: string | null;
   url: string;
   description: string | null;
+}
+
+export interface CourseNoteOut {
+  id: number;
+  course_id: number;
+  title: string;
+  url: string;
+  description: string | null;
+  created_at: string;
+  uploaded_by_id: number;
+  /** null if the uploading account no longer exists. */
+  uploaded_by_name: string | null;
+}
+
+export interface CourseNoteCreate {
+  title: string;
+  url: string;
+  description?: string | null;
 }
 
 export interface RecordingOut {
@@ -37,7 +59,10 @@ export interface LessonOut {
   topic_title: string;
   has_documentation: boolean;
   has_quiz: boolean;
+  has_quiz_hard: boolean;
 }
+
+export type QuizDifficulty = 'medium' | 'hard';
 
 export interface QuizQuestionOut {
   question: string;
@@ -53,4 +78,57 @@ export interface LessonQuizOut {
 export interface LessonDetailOut extends LessonOut {
   documentation: string | null;
   quiz: LessonQuizOut | null;
+  quiz_hard: LessonQuizOut | null;
+}
+
+/** Marketplace equivalent of LessonDetailOut, for one material's AI study
+ * guide - same Medium/Hard quiz split. */
+export interface MaterialStudyGuideOut {
+  material_id: number;
+  has_documentation: boolean;
+  has_quiz: boolean;
+  has_quiz_hard: boolean;
+  documentation: string | null;
+  quiz: LessonQuizOut | null;
+  quiz_hard: LessonQuizOut | null;
+}
+
+export interface MaterialLinkIn {
+  title: string;
+  url: string;
+  category?: string | null;
+  description?: string | null;
+}
+
+export interface CourseSubmitRequest {
+  /** Optional - auto-generated from `name` by the backend if omitted. */
+  slug?: string;
+  name: string;
+  code?: string | null;
+  semester?: string | null;
+  description?: string | null;
+  source_url?: string | null;
+  materials?: MaterialLinkIn[];
+  /** In euros, e.g. 4.99. 0 (default) = free. */
+  price?: number;
+}
+
+export type CourseModerationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface AdminCourseOut {
+  id: number;
+  slug: string;
+  name: string;
+  code: string | null;
+  semester: string | null;
+  description: string | null;
+  price_cents: number;
+  status: CourseModerationStatus;
+  submitted_by_id: number | null;
+  reviewed_by_id: number | null;
+  reviewed_at: string | null;
+  rejection_reason: string | null;
+  created_at: string;
+  materials: CourseMaterialOut[];
+  submitted_by_name: string | null;
 }

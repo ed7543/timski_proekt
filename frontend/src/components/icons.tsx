@@ -169,11 +169,77 @@ export function BackArrowIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function SunIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+    </svg>
+  );
+}
+
+export function MoonIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z" />
+    </svg>
+  );
+}
+
+export function ChevronIcon({ flip, style, ...props }: SVGProps<SVGSVGElement> & { flip?: boolean }) {
+  return (
+    <svg
+      className="ic-sm"
+      viewBox="0 0 24 24"
+      style={{ transform: flip ? 'rotate(180deg)' : undefined, ...style }}
+      {...props}
+    >
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+  );
+}
+
+export function ShieldIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
+
+export function StoreIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <path d="M3 9l1.5-5h15L21 9M3 9v11a1 1 0 001 1h16a1 1 0 001-1V9M3 9h18M8 9v3a2 2 0 01-4 0V9m8 3a2 2 0 01-4 0V9m8 3a2 2 0 01-4 0V9" />
+    </svg>
+  );
+}
+
 export function FileIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
       <path d="M14 2v6h6" />
+    </svg>
+  );
+}
+
+export function HelpIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.1 9a3 3 0 015.8 1c0 2-3 2-3 4" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}
+
+export function CopyIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg className="ic-sm" viewBox="0 0 24 24" {...props}>
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
     </svg>
   );
 }

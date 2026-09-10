@@ -4,6 +4,7 @@ import { CourseNavSidebar } from '../components/courses/CourseNavSidebar';
 import { QuizModal } from '../components/modals/QuizModal';
 import { listQuizAttempts, getQuizRecommendations, redoQuizAttempt } from '../api/quizProgress';
 import type { QuizAttemptOut, QuizRecommendationOut } from '../types/quizProgress';
+import { SparkleIcon } from '../components/icons';
 
 interface AttemptGroup {
   key: string;
@@ -76,7 +77,10 @@ export function ProgressPage() {
       <div className="body">
         <div className="page-container">
           <div className="page-header">
-            <h1>Your progress</h1>
+            <div className="page-header-title">
+              <h1>Your progress</h1>
+              <SparkleIcon style={{ color: 'var(--muted)' }} />
+            </div>
             <p className="page-subtitle">
               Track your quiz scores as you go, and see which topics are worth revisiting.
             </p>

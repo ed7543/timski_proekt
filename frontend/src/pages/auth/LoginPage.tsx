@@ -65,13 +65,13 @@ export function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="auth-submit" type="submit" disabled={submitting}>
+        <button className="btn btn-primary btn-block" type="submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
       <div className="auth-links">
         <Link to="/forgot-password">Forgot password?</Link>
-        <Link to="/register">Create account</Link>
+        <Link to="/register" state={{ from }}>Create account</Link>
       </div>
     </AuthLayout>
   );

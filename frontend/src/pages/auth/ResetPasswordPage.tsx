@@ -58,7 +58,7 @@ export function ResetPasswordPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="auth-submit" type="submit" disabled={submitting || !token}>
+        <button className="btn btn-primary btn-block" type="submit" disabled={submitting || !token}>
           {submitting ? 'Saving…' : 'Reset password'}
         </button>
       </form>
